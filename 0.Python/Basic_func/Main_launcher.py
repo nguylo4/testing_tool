@@ -64,7 +64,7 @@ class CustomApp(tk.Tk):
         # Group 5: Khác
         frame_refresh = tk.LabelFrame(self.sidebar, text="", bg="#077786", fg="white")
         frame_refresh.pack(side= "bottom", fill="x", padx=8, pady=4)
-        ttk.Button(frame_refresh, text="Refresh all", command=self.refresh_all).pack(fill="x", pady=2)
+        ttk.Button(frame_refresh, text="Save all & refresh", command=self.refresh_all).pack(fill="x", pady=2)
 
         self.paned.add(self.sidebar, minsize=120)
 
@@ -452,7 +452,9 @@ class CustomApp(tk.Tk):
         try:
             req_id_idx = self.headers.index("Requirement ID")
             content_idx = self.headers.index("Content Requirement")
+            design_idx = self.headers.index("TS_TestDesciption")
             check_idx = self.headers.index("Check Consistency")
+            check_TCidx = self.headers.index("Test cases ID")
         except ValueError:
             messagebox.showerror("Lỗi", "Không tìm thấy cột cần thiết!")
             return
@@ -466,6 +468,7 @@ class CustomApp(tk.Tk):
 
         req_id = str(row[req_id_idx]).strip()
         content_requirement = str(row[content_idx]).strip()
+        test_design = str(row[design_idx]).strip()
 
         # Đọc nội dung file và trích xuất đoạn cần so sánh
         try:
@@ -481,6 +484,18 @@ class CustomApp(tk.Tk):
             if end_idx == -1:
                 end_idx = len(file_content)
             file_requirement_content = file_content[start_idx:end_idx].strip()
+
+            # Lấy đoạn giữa @design và */
+            testcase_id = str(row[check_TCidx]).strip()
+            testcase_marker = "*/"
+            design_start = file_content.find("@Test design")
+            if design_start != -1:
+                design_end = file_content.find(testcase_marker, design_start)
+                if design_end == -1:
+                    design_end = len(file_content)
+                file_design_content = file_content[design_start + len("@Test design"):(design_end-len("*/"))].strip()
+            else:
+                file_design_content = ""
         except Exception:
             row[check_idx] = "CHECK"
             self.refresh_table()
@@ -488,15 +503,24 @@ class CustomApp(tk.Tk):
 
         # Lưu 2 đoạn ra file tạm để so sánh bằng Beyond Compare
         with tempfile.NamedTemporaryFile("w", delete=False, suffix=".txt", encoding="utf-8") as f1, \
-             tempfile.NamedTemporaryFile("w", delete=False, suffix=".txt", encoding="utf-8") as f2:
-            f1.write(content_requirement)
+            tempfile.NamedTemporaryFile("w", delete=False, suffix=".txt", encoding="utf-8") as f2:
+            f1.write(content_requirement+"\n Test design:"+test_design)
             f1_path = f1.name
-            f2.write(file_requirement_content)
+            f2.write(file_requirement_content+"\n Test design:"+file_design_content)
             f2_path = f2.name
 
-        # Gọi Beyond Compare và chờ bạn chọn kết quả
+        # So sánh test design
+        # with tempfile.NamedTemporaryFile("w", delete=False, suffix=".txt", encoding="utf-8") as f3, \
+        #     tempfile.NamedTemporaryFile("w", delete=False, suffix=".txt", encoding="utf-8") as f4:
+        #     f3.write(test_design)
+        #     f3_path = f3.name
+        #     f4.write(file_design_content)
+        #     f4_path = f4.name
+
+        # Mở 2 cửa sổ Beyond Compare: 1 cho content requirement, 1 cho test design
         try:
             subprocess.Popen([r'C:\Program Files\Beyond Compare 4\BCompare.exe', f1_path, f2_path])
+            # subprocess.Popen([r'C:\Program Files\Beyond Compare 4\BCompare.exe', f3_path, f4_path])
         except Exception as e:
             messagebox.showerror("Lỗi", f"Không thể mở Beyond Compare: {e}")
             row[check_idx] = "CHECK"
