@@ -1,0 +1,255 @@
+/*@!Encoding:1252*/
+includes
+{
+  
+}
+
+variables
+{
+
+  long flag5=0;
+}
+/*
+
+@requirement/s
+[PO_01_RS_102639]
+The purpose of the function "Hella Developer Message Customizing Function" is to «generate the requested Hella developer message output on the vehicle CAN interface according to the Hella internal communication specification».
+
+[PO_01_RS_102640]
+The function "Hella Developer Message Customizing Function" shall «generate the requested Hella developer message output on the vehicle CAN interface via "Cust_VCANHellaDevelopmentDataOutInfo[]" according to
+
+e:/Projects/DAS_RADAR/30_PRJ/10_CUST/10_VAG/DAS_VW_02/40_SW/10_Appl/25_Impl/35_COM/EcuExtract/Variant_DAS_VW_02/DAS_VW_02_CAN_DEV_Debug_Message.dbc
+
+».
+
+/ Remark
+The above mentioned files can be updated, if the customer/HELLA want to get more debug informations
+.
+/
+
+[PO_01_RS_102654]
+IF «
+	"WriteDataByIdentifierRequest[Group 3 Xcp].bit 5" == 'Enabled' //[Group 3].bit 5: Activation of PDA message group 5
+
+THEN:
+	the function "Hella Developer Message Customizing Function" shall «
+process its inputs to calculate its outputs and send the Sensor(Hella)Development Messages on VCAN-Bus aftwards»
+ELSE: «
+	-Sending Sensor(Hella)Development Messages shall be stopped on VCAN.
+».
+
+--------------------------------------------------------------------------------------------------------
+// @SW release : RC_CUST_DAS_VW_02_SW_U175.01.01
+@date : 02 April 2025
+@author : Nguyen XuanDung
+@observations :
+--------------------------------------------------------------------------------------------------------
+// @SW release : RC_CUST_DAS_VW_02_SW_U190.01.01
+@date : 06 May 2025
+@author : Nguyen Loc
+@observations :
+--------------------------------------------------------------------------------------------------------
+@Test design
+**Precondition: 
+	1. Flashing of “XCPACTDEV” file*
+	(ex.
+	a.	5G3: FL_3WA907541F_<Release>_XCPACTDEV_XXXX_E.pdx
+	b.	5G5: FL_3WA907670F_<Release>_XCPACTDEV_XXXX_E.pdx)
+	2. SFD: available
+	3. Deactive all PDA group before check for each case
+	
+CASE 1:
+Set: "WriteDataByIdentifierRequest[Group 3 Xcp].bit 5" == 'Enabled'
+Check: the Sensor(Hella)Development Messages is sent on VCAN-Bus
+
+CASE 2:
+Set: "WriteDataByIdentifierRequest[Group 3 Xcp].bit 5" <> 'Enabled'
+Check: Sending Sensor(Hella)Development Messages shall be stopped on VCAN.
+
+*/
+
+testcase SwT_VW_02_13729()
+{
+	int ECU_Id = 0;
+	int i = 0;
+	const int NUMBER_OF_TESTCASE = 2;
+	diagRequest DiagnServi_DiagnSessiContrExtenSessi extended_session;
+	diagRequest DiagnServi_WriteDataByIdentCalibData Data;
+	diagRequest DiagnServi_ECUResetKeyOffOnReset Hard_reset;
+	diagResponse DiagnServi_WriteDataByIdentCalibData Data_res;
+	int bit_g3[NUMBER_OF_TESTCASE]={0x20,0x00};
+	
+	//Note: see req PO_01_RS_101581 and PO_01_RS_101583
+	// PDA Message Group 5:
+	// EVHND_EVENT_CAN_CYCLE_SYNCHRONIZATION
+	// EVHND_EVENT_CSYNC_CYCLE_SYNCHRONIZATION
+	// EVHND_EVENT_RDA_SAFETYINTEGRITY
+	// EVHND_EVENT_RDA_RADARPERFORMANCE
+	// EVHND_EVENT_RDA_MMIC_INNER_MONITOR
+	// EVHND_EVENT_RDA_MMIC_OUTER_MONITOR
+	// EVHND_EVENT_SM_RADARPERMANENT
+	// EVHND_EVENT_DEVDATAIF_AGBT_CONTROL
+	// EVHND_EVENT_RDA_MODULATION
+	// EVHND_EVENT_RDA_WATCHDOG
+	// EVHND_EVENT_RDA_RIF_HW
+	// EVHND_EVENT_RDA_SPU_HW 
+
+	//********************************************* Preconditions *********************************************
+	funcIDE_DeleteAllBP();
+	funcIDE_Reset();
+	func_Wait(1000);
+	funcIDE_Run();
+	func_Wait(3000);
+	//********************************************* Preconditions *********************************************
+	
+	ECU_Id = funcIDE_ReadVariable("Rte_SensorId_SensorId_SensorId");
+	testReportFileName("X:\\30_Reports\\Customization\\SwT_VW_02_13729");
+	TestCaseTitle("SwT_VW_02_13729","Check if the function 'Hella Developer Message Customizing Function' send the Sensor(Hella)Development Messages on VCAN-Bus as required");
+	
+	//********************************************* TEST CASE BODY *********************************************
+	set_target();
+	for (i = 0; i < NUMBER_OF_TESTCASE; i++) {
+        testStep("+++", "+++ SECTION: ------------------------------------CASE %d------------------------------------", i + 1);
+		
+		//----------------------------------------------- Disable all group before check-------------------------------------------//
+		
+		// send diag to deactive all PDA group
+		diagSendRequest(extended_session);
+		func_Wait(500);
+		diagResize(Data, 7);
+		DiagSetPrimitiveByte(Data, 0, 0x2E);
+		DiagSetPrimitiveByte(Data, 1, 0x09);
+		DiagSetPrimitiveByte(Data, 2, 0x02);
+		DiagSetPrimitiveByte(Data, 3, 0x00);
+		DiagSetPrimitiveByte(Data, 4, 0x00);
+		DiagSetPrimitiveByte(Data, 5, 0x00);
+		DiagSetPrimitiveByte(Data, 6, 0x00);
+		func_Wait(200);
+		
+		diagSendRequest(Data);
+    testReportWriteDiagObject(Data);
+		testWaitForDiagResponse(Data, 5000);
+		diagGetLastResponse(Data_res);
+		if(DiagGetPrimitiveByte(Data_res,0)==0x7F)
+			testStepFail("NRC_0x7F is received");
+		else
+			testStepPass("NRC_0x6E is correctly received");
+		testReportWriteDiagObject(Data_res);
+		diagSendRequest(Hard_reset);
+		testWaitForDiagResponse(Hard_reset, 5000);
+		func_Wait(100);
+		funcIDE_Reset();
+		func_Wait(1000);
+		funcIDE_Run();
+		func_Wait(1500);
+		// resset all variable check
+
+		diagSendRequest(extended_session);
+		func_Wait(500);
+		diagResize(Data, 7);
+		DiagSetPrimitiveByte(Data, 0, 0x2E);
+		DiagSetPrimitiveByte(Data, 1, 0x09);
+		DiagSetPrimitiveByte(Data, 2, 0x02);
+		DiagSetPrimitiveByte(Data, 3, 0x01);
+		DiagSetPrimitiveByte(Data, 4, 0x01);
+		DiagSetPrimitiveByte(Data, 5, 0x01);
+		DiagSetPrimitiveByte(Data, 6, bit_g3[i]);
+		func_Wait(200);
+		diagSendRequest(Data);
+		testReportWriteDiagObject(Data);
+//		testWaitForDiagResponse(Data, 5000);
+		func_Wait(3000);
+		diagGetLastResponse(Data_res);
+		if(DiagGetPrimitiveByte(Data_res,0)==0x7F)
+			testStepFail("NRC_0x7F is received");
+		else
+			testStepPass("NRC_0x6E is correctly received");
+		testReportWriteDiagObject(Data_res);
+		func_Wait(2000);
+		diagSendRequest(Hard_reset);
+		testWaitForDiagResponse(Hard_reset, 5000);
+		func_Wait(200);
+    
+		flag5=0;
+		funcIDE_Reset();
+		func_Wait(1000);
+		funcIDE_Run();
+		func_Wait(3000);
+
+	if (i==0)
+    {
+		if (flag5==0xFFF)
+		{
+        	testStepPass("Sensor(Hella)Development Messages is sent on VCAN-Bus");
+		}
+		else
+		{
+			testStepFail("Sensor(Hella)Development Messages is NOT sent on VCAN-Bus");
+		}
+    }
+    else
+    {
+		if (flag5==0)
+		{
+        	testStepPass("Sending Sensor(Hella)Development Messages is stopped on VCAN");
+		}
+		else
+		{
+			testStepFail("Sending Sensor(Hella)Development Messages is NOT stopped on VCAN");
+		}
+    }
+	
+    
+		funcIDE_DeleteAllBP();
+		funcIDE_Reset();
+		func_Wait(1000);
+		funcIDE_Run();
+		func_Wait(3000);
+	}
+	
+
+	funcIDE_DeleteAllBP();
+	funcIDE_Reset();
+	func_Wait(1000);
+	funcIDE_Run();
+	func_Wait(3000);
+}
+
+
+// Group 5
+on signal_update  E151_CAN_CYCLE_SYNCHRONIZATION_Status_S1_Mx01_oDEV_Resp_XIX_DebugData_S1_FASCANFD2 {
+	flag5 |= 0x01;	// B?t bit 0
+}
+on signal_update  E053_CSYNC_CYCLE_SYNCHRONIZATION_Status_S1_Mx00_oDEV_Resp_XIX_DebugData_S1_FASCANFD2 {
+	flag5 |= 0x02; // B?t bit 1
+}
+on signal_update  E119_RDA_SAFETYINTEGRITY_Status_S1_Mx01_oDEV_Resp_XIX_DebugData_S1_FASCANFD2 {
+	flag5 |= 0x04; // B?t bit 2
+}
+on signal_update  E120_RDA_RADARPERFORMANCE_Status_S1_Mx01_oDEV_Resp_XIX_DebugData_S1_FASCANFD2 {
+	flag5 |= 0x08; // B?t bit 3
+}
+on signal_update  E042_RDA_MMIC_INNER_MONITOR_Status_S1_Mx01_oDEV_Resp_XIX_DebugData_S1_FASCANFD2 {
+	flag5 |= 0x10; // B?t bit 4
+}
+on signal_update  E043_RDA_MMIC_OUTER_MONITOR_Status_S1_Mx00_oDEV_Resp_XIX_DebugData_S1_FASCANFD2 {
+	flag5 |= 0x20; // B?t bit 5
+}
+on signal_update  E118_SM_RADARPERMANENT_Status_S1_Mx01_oDEV_Resp_XIX_DebugData_S1_FASCANFD2 {
+	flag5 |= 0x40; // B?t bit 6
+}
+on signal_update  E111_DEVDATAIF_AGBT_CONTROL_Status_S1_Mx01_oDEV_Resp_XIX_DebugData_S1_FASCANFD2 {
+	flag5 |= 0x80; // B?t bit 7
+}
+on signal_update  E046_RDA_MODULATION_Status_S1_Mx00_oDEV_Resp_XIX_DebugData_S1_FASCANFD2 {
+	flag5 |= 0x100; // B?t bit 8
+}
+on signal_update  E060_RDA_WATCHDOG_Status_S1_Mx01_oDEV_Resp_XIX_DebugData_S1_FASCANFD2 {
+	flag5 |= 0x200; // B?t bit 9
+}
+on signal_update  E062_RDA_RIF_HW_Status_S1_Mx01_oDEV_Resp_XIX_DebugData_S1_FASCANFD2 {
+	flag5 |= 0x400;	// B?t bit 10
+}
+on signal_update  E040_RDA_SPU_HW_Status_S1_Mx00_oDEV_Resp_XIX_DebugData_S1_FASCANFD2 {
+	flag5 |= 0x800; // B?t bit 11
+}
