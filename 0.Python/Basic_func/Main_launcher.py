@@ -8,7 +8,6 @@ import datetime
 import webbrowser
 
 class CustomApp(tk.Tk):
-
     def __init__(self):
         super().__init__()
         self.title("Customizable Application")
@@ -56,7 +55,7 @@ class CustomApp(tk.Tk):
         frame_other.pack(fill="x", padx=8, pady=4)
         self.btn_open_script = ttk.Button(frame_other, text="Mở Script", command=self.open_script)
         self.btn_open_script.pack(fill="x", pady=2)
-        ttk.Button(frame_other, text="Copy file .can về thư mục", command=self.copy_downloaded_file).pack(fill="x", pady=2)
+        # ttk.Button(frame_other, text="Copy file .can về thư mục", command=self.copy_downloaded_file).pack(fill="x", pady=2)
 
         self.paned.add(self.sidebar, minsize=120)
 
@@ -73,10 +72,10 @@ class CustomApp(tk.Tk):
         self.status_label.pack(side="right", padx=10)
 
         # Đăng ký style màu xanh cho Success.TButton
-        style = ttk.Style()
-        style.configure("Success.TButton", foreground="Green", background="#11e61b")
-        style.map("Success.TButton",
-          background=[('active', '#388e3c'), ('!active', '#2e7d32')])
+        # style = ttk.Style()
+        # style.configure("Success.TButton", foreground="Green", background="#11e61b")
+        # style.map("Success.TButton",
+        #   background=[('active', '#388e3c'), ('!active', '#2e7d32')])
 
     def add_button_to_main(self):
         ttk.Button(self.main_area, text="Nút mới").pack(pady=5)
@@ -280,7 +279,6 @@ class CustomApp(tk.Tk):
         # Chọn thư mục working
         if not hasattr(self, "working_dir") or not self.working_dir:
             self.working_dir = filedialog.askdirectory(title="Chọn thư mục working để lưu script")
-            self.update_open_script_button()
             if not self.working_dir:
                 messagebox.showwarning("Chưa chọn thư mục", "Hãy chọn thư mục để lưu script!")
                 return
@@ -338,6 +336,7 @@ class CustomApp(tk.Tk):
 
         # Lưu lại thông tin cho bước copy tiếp theo
         self._pending_copy_info = (id_val, feature_folder)
+        self.copy_downloaded_file()
 
     def copy_downloaded_file(self):
         if not hasattr(self, "_pending_copy_info"):
@@ -365,11 +364,11 @@ class CustomApp(tk.Tk):
         )
         self.status_label.after(4000, lambda: self.status_label.config(text=""))
 
-    def update_open_script_button(self):
-        if hasattr(self, "working_dir") and self.working_dir:
-            self.btn_open_script.config(style="Success.TButton")
-        else:
-            self.btn_open_script.config(style="TButton")
+    # def update_open_script_button(self):
+    #     if hasattr(self, "working_dir") and self.working_dir:
+    #         self.btn_open_script.config(style="Success.TButton")
+    #     else:
+    #         self.btn_open_script.config(style="TButton")
 
     # def compare_content_requirement(self):
     #     selected = self.tree.focus()
@@ -418,4 +417,8 @@ class CustomApp(tk.Tk):
     #         self.set_status("Đã mở Beyond Compare để so sánh!", success=True)
     #     except Exception as e:
     #         messagebox.showerror("Lỗi", f"Không thể mở Beyond Compare: {e}")
+
+if __name__ == "__main__":
+    app = CustomApp()
+    app.mainloop()
 
