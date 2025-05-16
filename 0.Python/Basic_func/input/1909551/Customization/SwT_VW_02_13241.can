@@ -1,0 +1,217 @@
+/*@!Encoding:1252*/
+includes{
+}
+
+///@cond DoxyComp
+variables{
+//@cond DoxyComp
+}
+///@endcond
+
+/*
+
+************************************************************************************************************************************************
+*INFORMATION
+************************************************************************************************************************************************
+@brief:			Check that function Warning Algorithms Input Interface Conversion Function shall set Cust_WAIIC_HBFS_TIG_betaetigt correctly.
+------------------------------------------------------------------------------------------------------------------------------------------------
+@SW release:    D410.01.01
+@author:     	HungLong Nguyen
+@date:      	20-Feb-2024
+------------------------------------------------------------------------------------------------------------------------------------------------
+@SW release : RC_CUST_DAS_VW_02_SW_U155.01.01
+@date : 7/10/2024
+@author : Hoang Viet
+@observations :
+-------------------------------------------------------------------------------------------------------------------------------------------------
+@requirement(s):
+[PO_01_RS_99064]
+The function "Warning Algorithms Input Interface Conversion Function" shall «set "Cust_WAIIC_BT_TIG_betaetigt" as follow logics:
+	IF 
+			"Ident_SensorID" == 'ECU1' | 'ECU9' 
+		AND 
+			"DiagCodingPlattformVW02" == ['3: MEB']
+	THEN:
+		"Cust_WAIIC_BT_TIG_betaetigt" := "BT_TIG_betaetigt" contained in message 'TSG_BT_01'
+	ELSE IF 
+	"Ident_SensorID" == 'ECU1' | 'ECU9' 
+AND 
+	"DiagCodingPlattformVW02" == '1: MQB37W'
+THEN:
+"Cust_WAIIC_BT_TIG_betaetigt" := "BT_TIG_betaetigt" contained in message "DoorFunctions_BFS_01"
+ELSE IF
+	"Ident_SensorID" == 'ECU1' | 'ECU9' 
+AND 
+	"DiagCodingPlattformVW02" == '0: not coded'
+THEN:
+	"Cust_WAIIC_BT_TIG_betaetigt" := "BT_TIG_betaetigt" contained in message "TSG_BT_01"
+
+».
+------------------------------------------------------------------------------------------------------------------------------------------------
+@test design:
+CASE 1:
+IF 		"Ident_SensorID" == 'ECU1'
+	and "DiagCodingPlattformVW02" == ['3: MEB']
+	
+THEN 	"Cust_WAIIC_BT_TIG_betaetigt" := "BT_TIG_betaetigt" contained in message 'TSG_BT_01'
+
+CASE 2:
+IF 		"Ident_SensorID" == 'ECU1'
+	and "DiagCodingPlattformVW02" == '1: MQB37W'
+	
+THEN 	"Cust_WAIIC_BT_TIG_betaetigt" := "BT_TIG_betaetigt" contained in message 'DoorFunctions_BFS_01' as default.'
+
+CASE 3:
+IF 		"Ident_SensorID" == 'ECU1'
+	and "DiagCodingPlattformVW02" == '0: not coded'
+	
+THEN 	"Cust_WAIIC_BT_TIG_betaetigt" := "BT_TIG_betaetigt" contained in message 'TSG_BT_01'
+
+CASE 4:
+IF 		"Ident_SensorID" == 'ECU9'
+	and "DiagCodingPlattformVW02" == ['3: MEB']
+	
+THEN 	"Cust_WAIIC_BT_TIG_betaetigt" := "BT_TIG_betaetigt" contained in message 'TSG_BT_01'
+
+CASE 5:
+IF 		"Ident_SensorID" == 'ECU9'
+	and "DiagCodingPlattformVW02" == '1: MQB37W'
+	
+THEN 	"Cust_WAIIC_BT_TIG_betaetigt" := "BT_TIG_betaetigt" contained in message 'DoorFunctions_BFS_01' as default.'
+
+CASE 6:
+IF 		"Ident_SensorID" == 'ECU9'
+	and "DiagCodingPlattformVW02" == '0: not coded'
+	
+THEN 	"Cust_WAIIC_BT_TIG_betaetigt" := "BT_TIG_betaetigt" contained in message 'TSG_BT_01'
+
+CASE 7:(negative case)
+IF 		"Ident_SensorID" != 'ECU1', 'ECU9'
+	
+THEN 	do nothing (check BP not hit)
+
+CASE 8:(negative case)
+IF 		"Ident_SensorID" = 'ECU1', 'ECU9'
+	and	"DiagCodingPlattformVW02" != ['3: MEB']
+	and "DiagCodingPlattformVW02" != '1: MQB37W'
+	and "DiagCodingPlattformVW02" != '0: not coded'
+	
+THEN 	do nothing (check BP not hit)
+------------------------------------------------------------------------------------------------------------------------------------------------
+@comment:
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+*/
+
+testcase SwT_VW_02_13241()
+{
+	int i, sensorID;
+	char reportfile[255];
+	const NUMBER_OF_TESTCASE = 5;
+	const MEB = 3;
+	const MQB37W = 1;
+	const Notcode = 0;
+	
+
+	int ipt1Val[NUMBER_OF_TESTCASE] = {MQB37W, MEB, Notcode, MQB37W, 2}; //DiagCodingPlattformVW02
+	int ipt2Val[NUMBER_OF_TESTCASE] = {1, 1, 1, 16, 1}; //Rte_SensorId_SensorId_SensorId
+	int opt1Val[NUMBER_OF_TESTCASE] = {1, 1, 1, 1, 1}; //Cust_WAIIC_BT_TIG_betaetigt
+	
+	
+/***********************************************************************************************************************************************
+ * PRECONDS
+ ***********************************************************************************************************************************************/
+
+	func_testStepSubSection("Reset the environment");
+	funcIDE_DeleteAllBP();
+	funcIDE_Run();
+	func_Wait(2000);
+
+/***********************************************************************************************************************************************
+ * TEST CASE
+ ***********************************************************************************************************************************************/
+	sensorID=funcIDE_ReadVariable("Rte_SensorId_SensorId_SensorId");
+	snprintf(reportfile,255,"X:\\30_Reports\\Customization\\SwT_VW_02_13241_ECU%d",sensorID);
+	TestCaseTitle("SwT_VW_02_13241", "Check that function Warning Algorithms Input Interface Conversion Function shall set Cust_WAIIC_HBFS_TIG_betaetigt correctly.");
+	testReportFileName(reportfile);
+	//Note: use 2 different RBS to test this script
+
+	// Run on RBS_Rear for MQB to get message DoorFunctions_BFS_01
+	for (i = 0; i < 1; i++) {
+	testStep("+++" , "+++ SECTION: ------------------------------------CASE %d------------------------------------", i + 1);
+
+		funcIDE_WriteVariable("CodingData_st.platform_en", ipt1Val[i]);
+		func_Wait(500);
+		// Set input Cust_WAIIC_BT_TIG_betaetigt
+		setSignal(BT_TIG_betaetigt_XIX_DoorFunctions_BFS_01_XIX_FASCANFD2, 1); // RBS_Rear
+		func_Wait(500);
+		
+		// Check output value has been set correctly
+		funcWinIdea_SetBPSource("Frame_Rx_DoorFunctions_BFS_01_FD_02_Process","rxStatus =  Rte_Read_VCOM_SG_DoorFunctions_BFS_01_VCOM_BT_Tuer_geoeffnet(&tempBT_Tuer_geoeffnet_u8)");
+		funcIDE_Run();
+		funcIDE_WaitForHalt(2000);
+		// funcIDE_ReadVariableAndCheck("Frame_Wrapper_Rx_DoorFunctions_BFS_01.BT_TIG_betaetigt_st.raw_u8", opt1Val[i], equal);
+		TestStepFail ("code has been blocked => can not check Frame_Wrapper_Rx_DoorFunctions_BFS_01.BT_TIG_betaetigt_st.raw_u8 ");
+		// Clean Testcase
+		funcIDE_DeleteAllBP();
+		funcIDE_Reset();
+		funcIDE_Run();
+		func_Wait(3000);
+	}
+	// Run on RBS_360 for MEB to get message TSG_BT_01
+	// for (i = 1; i < 3; i++) {
+	// testStep("+++" , "+++ SECTION: ------------------------------------CASE %d------------------------------------", i + 1);
+
+		// funcIDE_WriteVariable("CodingData_st.platform_en", ipt1Val[i]);
+		// func_Wait(500);
+		// // Set input Cust_WAIIC_BT_TIG_betaetigt
+		// setSignal(BT_TIG_betaetigt_XIX_TSG_BT_01_XIX_FASCANFD2, 1); // need to use RBS_360
+		// func_Wait(500);
+		
+		// // Check output value has been set correctly
+		// // // funcWinIdea_SetBPSource("Frame_Rx_DoorFunctions_HBFS_01_FD_02_Process_MEB","Rte_IsUpdated_VCOM_BT_Tuer_geoeffnet_MEB_VCOM_BT_Tuer_geoeffnet_MEB()");
+		// funcIDE_SetBPLine(2443,"Y:/Source/WarnAlgoAstechCust/Variant_DAS_VW_02/WaAstechCust_Config.c");
+		// funcIDE_WaitForHalt(2000);
+		// funcIDE_ReadVariableAndCheck("Frame_Rx_DoorFunctions_BFS_01.BT_TIG_betaetigt_st.raw_u8", opt1Val[i], equal);
+		// //Clean Testcase
+		// funcIDE_DeleteAllBP();
+		// funcIDE_Reset();
+		// funcIDE_Run();
+		// func_Wait(3000);
+	// }
+
+	for (i = 3; i < NUMBER_OF_TESTCASE; i++) {
+		testStep("+++" , "+++ SECTION: ------------------------------------CASE %d------------------------------------", i + 1);
+
+		funcIDE_WriteVariable("CodingData_st.platform_en", ipt1Val[i]);
+		funcIDE_WriteVariable("Rte_SensorId_SensorId_SensorId", ipt2Val[i]);
+		func_Wait(500);
+		if ( MQB37W == funcIDE_ReadVariable("CodingData_st.platform_en")){
+		// Check BP can not hit
+		// funcWinIdea_SetBPSource("Frame_Rx_DoorFunctions_BFS_01_FD_02_Process","VCOM_BT_Tuer_geoeffnet(&tempBT_Tuer_geoeffnet_u8)");
+		funcIDE_SetBPLine(1152,"Y:/Source/WarnAlgoAstechCust/Variant_DAS_VW_02/WaAstechCust_Config.c");
+		funcIDE_WaitForHaltNeg(5000);
+		}
+		else { 
+		// Check BP can not hit
+		// funcWinIdea_SetBPSource("Frame_Rx_DoorFunctions_HBFS_01_FD_02_Process_MEB","Rte_IsUpdated_VCOM_BT_Tuer_geoeffnet_MEB_VCOM_BT_Tuer_geoeffnet_MEB()");
+		funcIDE_SetBPLine(2443,"Y:/Source/WarnAlgoAstechCust/Variant_DAS_VW_02/WaAstechCust_Config.c");
+		funcIDE_WaitForHaltNeg(5000);
+		}
+		// Clean Testcase
+		funcIDE_DeleteAllBP();
+		funcIDE_Reset();
+		funcIDE_Run();
+		func_Wait(3000);
+		
+	}
+ 
+/***********************************************************************************************************************************************
+ * END
+ ***********************************************************************************************************************************************/
+
+	func_testStepSubSection("Clean Testcase");
+	funcIDE_DeleteAllBP();
+	funcIDE_Reset();
+	funcIDE_Run();
+}
