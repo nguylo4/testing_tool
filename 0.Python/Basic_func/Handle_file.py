@@ -4,8 +4,12 @@ import stat
 from tkinter import messagebox
 import subprocess
 from openpyxl import load_workbook
+import openpyxl
+from tkinter import filedialog, messagebox, simpledialog
 
-def copy_file_by_name(input_folder, output_folder, filename):
+
+def copy_file_by_name(app, input_folder, output_folder, filename):
+    from file_ops import refresh_table
     """
     Copy a file with the given filename from input_folder to output_folder.
     After copying, make sure the file is writable.
@@ -21,6 +25,7 @@ def copy_file_by_name(input_folder, output_folder, filename):
         shutil.copy2(input_path, output_path)
         os.chmod(output_path, stat.S_IWRITE | stat.S_IREAD)
         print(f"Copied '{input_path}' to '{output_path}' and made it writable")
+        refresh_table(app)
         return True, input_path
     except Exception as e:
         print(f"Error: {e}")
@@ -110,3 +115,73 @@ def read_excel_cell_by_label(filepath, row_label, col_label, sheet_name=None):
     wb.close()
     return value
     
+def load_excel_table(app):
+    from file_ops import refresh_table
+    file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx")])
+    if not file_path:
+        return
+    app.excel_path = file_path
+    wb = openpyxl.load_workbook(file_path)
+    ws = wb.active
+    # Đảm bảo header là chuỗi, không None, không rỗng, không trùng lặp
+    app.headers = []
+    for i, cell in enumerate(ws[1]):
+        val = cell.value if cell.value not in [None, ""] else f"Cột {i+1}"
+        while val in app.headers:
+            val += "_1"
+        app.headers.append(str(val))
+    app.data = []
+    for row in ws.iter_rows(min_row=2, values_only=True):
+        app.data.append(list(row))
+    wb.close()
+    refresh_table(app)
+
+def save_excel_table(app):
+    from file_ops import set_status
+    if not app.excel_path or not app.data:
+        messagebox.showwarning("Chưa có dữ liệu", "Hãy mở file Excel trước!")
+        return
+    wb = openpyxl.load_workbook(app.excel_path)
+    ws = wb.active
+    # Ghi header vào dòng 1
+    for j, header in enumerate(app.headers, start=1):
+        ws.cell(row=1, column=j, value=header)
+    # Ghi dữ liệu vào các dòng tiếp theo
+    for i, row in enumerate(app.data, start=2):
+        for j, value in enumerate(row, start=1):
+            ws.cell(row=i, column=j, value=value)
+    wb.save(app.excel_path)
+    wb.close()
+    set_status(app,"Đã lưu", "Dữ liệu đã được lưu vào file Excel!")
+
+def open_excel_file(app):
+    if not app.excel_path:
+        messagebox.showwarning("Chưa có file", "Hãy mở file Excel trước!")
+        return
+    open_excel_file("", app.excel_path)
+
+def add_column_to_table(app):
+    from file_ops import refresh_table
+    if not app.excel_path:
+        messagebox.showwarning("Chưa có file", "Hãy mở file Excel trước!")
+        return
+    # Hỏi tên cột mới
+    new_col_name = simpledialog.askstring("Đổi tên cột", "Nhập tên cột mới:", initialvalue=f"Cột mới {len(app.headers) + 1}")
+    if not new_col_name:
+        new_col_name = f"Cột mới {len(app.headers) + 1}"
+    # Đảm bảo không trùng tên
+    while new_col_name in app.headers:
+        new_col_name += "_1"
+    app.headers.append(new_col_name)
+    for row in app.data:
+        row.append("")
+    refresh_table(app)
+
+def add_row_to_table(app):
+    from file_ops import refresh_table
+    if not app.excel_path:
+        messagebox.showwarning("Chưa có file", "Hãy mở file Excel trước!")
+        return
+    new_row = [""] * len(app.headers)
+    app.data.append(new_row)
+    refresh_table(app)

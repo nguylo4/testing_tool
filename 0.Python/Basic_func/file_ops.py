@@ -7,6 +7,7 @@ from tkinter import filedialog, messagebox, simpledialog
 import Handle_file as hf
 from tkinter import ttk
 import tkinter as tk
+from Handle_file import save_excel_table
 
 def init_app_state(app):
     app.checklist_count = 0
@@ -19,72 +20,7 @@ def init_app_state(app):
     app.Test_level = "30_SW_Test"
     app.workspace_path = None
 
-def load_excel_table(app):
-    file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx")])
-    if not file_path:
-        return
-    app.excel_path = file_path
-    wb = openpyxl.load_workbook(file_path)
-    ws = wb.active
-    # Đảm bảo header là chuỗi, không None, không rỗng, không trùng lặp
-    app.headers = []
-    for i, cell in enumerate(ws[1]):
-        val = cell.value if cell.value not in [None, ""] else f"Cột {i+1}"
-        while val in app.headers:
-            val += "_1"
-        app.headers.append(str(val))
-    app.data = []
-    for row in ws.iter_rows(min_row=2, values_only=True):
-        app.data.append(list(row))
-    wb.close()
-    refresh_table(app)
 
-def save_excel_table(app):
-    if not app.excel_path or not app.data:
-        messagebox.showwarning("Chưa có dữ liệu", "Hãy mở file Excel trước!")
-        return
-    wb = openpyxl.load_workbook(app.excel_path)
-    ws = wb.active
-    # Ghi header vào dòng 1
-    for j, header in enumerate(app.headers, start=1):
-        ws.cell(row=1, column=j, value=header)
-    # Ghi dữ liệu vào các dòng tiếp theo
-    for i, row in enumerate(app.data, start=2):
-        for j, value in enumerate(row, start=1):
-            ws.cell(row=i, column=j, value=value)
-    wb.save(app.excel_path)
-    wb.close()
-    set_status(app,"Đã lưu", "Dữ liệu đã được lưu vào file Excel!")
-
-def open_excel_file(app):
-    if not app.excel_path:
-        messagebox.showwarning("Chưa có file", "Hãy mở file Excel trước!")
-        return
-    hf.open_excel_file("", app.excel_path)
-
-def add_column_to_table(app):
-    if not app.excel_path:
-        messagebox.showwarning("Chưa có file", "Hãy mở file Excel trước!")
-        return
-    # Hỏi tên cột mới
-    new_col_name = simpledialog.askstring("Đổi tên cột", "Nhập tên cột mới:", initialvalue=f"Cột mới {len(app.headers) + 1}")
-    if not new_col_name:
-        new_col_name = f"Cột mới {len(app.headers) + 1}"
-    # Đảm bảo không trùng tên
-    while new_col_name in app.headers:
-        new_col_name += "_1"
-    app.headers.append(new_col_name)
-    for row in app.data:
-        row.append("")
-    refresh_table(app)
-
-def add_row_to_table(app):
-    if not app.excel_path:
-        messagebox.showwarning("Chưa có file", "Hãy mở file Excel trước!")
-        return
-    new_row = [""] * len(app.headers)
-    app.data.append(new_row)
-    refresh_table(app)
 
 def save_workspace(app, save_as=False):
     def convert_value(val):
@@ -98,13 +34,24 @@ def save_workspace(app, save_as=False):
         [convert_value(cell) for cell in row]
         for row in app.data
     ]
+    # ...existing code...
+    # Lưu width các cột nếu tree đã được tạo
+    column_widths = {}
+    if hasattr(app, "tree") and app.tree is not None:
+        for col in app.headers:
+            try:
+                column_widths[col] = app.tree.column(col)["width"]
+            except Exception:
+                column_widths[col] = 120  # mặc định
+
     workspace = {
         "headers": app.headers,
         "data": serializable_data,
         "sidebar_width": app.sidebar.winfo_width(),
         "main_area_width": app.main_area.winfo_width(),
         "excel_path": app.excel_path,
-        "working_path": app.working_dir
+        "working_path": app.working_dir,
+        "column_widths": column_widths,
     }
 
     # Nếu đã có workspace_path và không yêu cầu lưu mới, thì lưu đè
@@ -138,6 +85,7 @@ def load_workspace(app):
     app.sidebar_width = workspace_data.get("sidebar_width", 200)
     app.main_area_width = workspace_data.get("main_area_width", 300)
     app.working_dir = workspace_data.get("working_path", None)
+    app.column_widths = workspace_data.get("column_widths", {})
     refresh_table(app)
     set_status(app,"Workspace đã được mở!", success=True)
     # messagebox.showinfo("Đã mở", "Workspace đã được mở!")
@@ -149,6 +97,7 @@ def open_script(app):
         return
     values = app.tree.item(selected, "values")
     ensure_script_file(app,values, auto_open=True)
+    refresh_table(app)
     
 def on_double_click(app, event):
     item = app.tree.identify_row(event.y)
@@ -223,7 +172,7 @@ def ensure_script_file(app, values, auto_open=False):
     # Nếu chưa có file thì tải về và copy
     url = (
         f"http://mks1.dc.hella.com:7001/si/viewrevision?"
-        f"projectName=e:/Projects/DAS_RADAR/30_PRJ/10_CUST/10_VAG/{project}/60_ST/{Test_level}/20_SWT_CC/10_Debugger_Test/20_Scripts/Test_Cases/"
+        f"projectName=e:/Projects/DAS_RADAR/30_PRJ/10_CUST/10_VAG/{app.project}/60_ST/{app.Test_level}/20_SWT_CC/10_Debugger_Test/20_Scripts/Test_Cases/"
         f"{feature_val}/project.pj&selection={id_val}.can&revision=:member"
     )
     webbrowser.open(url)
@@ -250,9 +199,16 @@ def ensure_script_file(app, values, auto_open=False):
     return save_path
 
 def refresh_table(app):
+    # Xóa tree cũ nếu có
     for widget in app.main_area.winfo_children():
-        if isinstance(widget, ttk.Treeview):
-            widget.destroy()
+        widget.destroy()
+
+    tk.Label(app.main_area, text="Bảng kiểm tra", font=("Segoe UI", 14, "bold"), bg="white").pack(pady=10)
+
+    # Tạo frame chứa tree và scrollbars
+    frame = tk.Frame(app.main_area)
+    frame.pack(fill="both", expand=True, padx=10, pady=10)
+
     # Chỉ lọc các cột có tên (không rỗng/None)
     valid_indices = []
     valid_headers = []
@@ -267,7 +223,8 @@ def refresh_table(app):
         filtered_data.append(filtered_row)
     app.data = filtered_data
 
-    app.tree = ttk.Treeview(app.main_area, columns=app.headers, show="headings")
+    # Tạo Treeview
+    app.tree = ttk.Treeview(frame, columns=app.headers, show="headings")
     # Định nghĩa tag màu
     app.tree.tag_configure('passed', background='#b6fcb6')      # Xanh lá nhạt
     app.tree.tag_configure('failed', background='#ffb3b3')      # Đỏ nhạt
@@ -277,6 +234,7 @@ def refresh_table(app):
     for col in app.headers:
         app.tree.heading(col, text=col)
         app.tree.column(col, width=120)
+
     # --- Thêm dấu tick khi hiển thị ---
     try:
         crid_idx = app.headers.index("CR Related")
@@ -285,8 +243,15 @@ def refresh_table(app):
     except Exception:
         crid_idx = feature_idx = id_idx = None
 
+    # Thêm cột "File existed" nếu cần
+    if "File existed" not in app.headers:
+        app.headers.append("File existed")
+
     for row in app.data:
         display_row = [cell if cell is not None else "" for cell in row]
+        # Đảm bảo display_row có đủ số cột
+        while len(display_row) < len(app.headers):
+            display_row.append("")
         # Thêm dấu tick nếu file đã tồn tại
         if crid_idx is not None and feature_idx is not None and id_idx is not None and app.working_dir:
             crid_val = str(display_row[crid_idx]).strip()
@@ -303,8 +268,16 @@ def refresh_table(app):
             crid_folder = os.path.join(app.working_dir, crid_val)
             feature_folder = os.path.join(crid_folder, feature_val)
             save_path = os.path.join(feature_folder, f"{id_val}.can")
-            if os.path.exists(save_path) and id_idx < len(display_row):
-                display_row[id_idx] = f"{display_row[id_idx]} ✅"
+            # Đánh dấu tick vào cột mới "File existed" nếu file đã tồn tại
+            if "File existed" not in app.headers:
+                app.headers.append("File existed")
+            # Đảm bảo display_row có đủ số cột
+            while len(display_row) < len(app.headers):
+                display_row.append("")
+            if os.path.exists(save_path):
+                display_row[app.headers.index("File existed")] = "✅"
+            else:
+                display_row[app.headers.index("File existed")] = ""
         # Xác định tag theo giá trị cột "Test Verdict"
         tag = ""
         try:
@@ -319,8 +292,37 @@ def refresh_table(app):
         except Exception:
             pass
         app.tree.insert("", "end", values=display_row, tags=(tag,))
-    app.tree.pack(fill="both", expand=True, padx=10, pady=10)
+
+    # Set lại width các cột nếu có thông tin
+    column_widths = getattr(app, "column_widths", None)
+    if not column_widths and hasattr(app, "workspace_path"):
+        # Thử lấy từ workspace file nếu vừa load
+        try:
+            with open(app.workspace_path, "r", encoding="utf-8") as f:
+                ws_data = json.load(f)
+                column_widths = ws_data.get("column_widths", None)
+        except Exception:
+            column_widths = None
+    if column_widths:
+        for col in app.headers:
+            w = column_widths.get(col, 120)
+            app.tree.column(col, width=w)
+
+    # Scroll dọc
+    vsb = tk.Scrollbar(frame, orient="vertical", command=app.tree.yview)
+    app.tree.configure(yscrollcommand=vsb.set)
+    vsb.pack(side="right", fill="y")
+
+    # Scroll ngang
+    hsb = tk.Scrollbar(frame, orient="horizontal", command=app.tree.xview)
+    app.tree.configure(xscrollcommand=hsb.set)
+    hsb.pack(side="bottom", fill="x")
+
+    app.tree.pack(fill="both", expand=True)
+
+    # Bind double click
     app.tree.bind("<Double-1>", lambda event: on_double_click(app, event))
+    
 
 def set_status(app, message, success=True):
         app.status_label.config(

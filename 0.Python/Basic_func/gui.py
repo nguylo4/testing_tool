@@ -1,11 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
-from file_ops import (
-    load_excel_table, save_excel_table, open_excel_file,
-    add_column_to_table, add_row_to_table,
-    save_workspace, load_workspace, open_script, refresh_all, init_app_state
-)
-from compare import compare_content_requirement
+from file_ops import*
+from Handle_file import*
+from compare import *
 
 class CustomApp(tk.Tk):
     def __init__(self):
@@ -23,7 +20,7 @@ class CustomApp(tk.Tk):
         # Sidebar
         self.sidebar = tk.Frame(self.paned, bg="#077786", width=200)
         self.sidebar.pack_propagate(False)
-        tk.Label(self.sidebar, text="Công cụ", bg="#077786", fg="white", font=("Segoe UI", 12, "bold")).pack(pady=5)
+        tk.Label(self.sidebar, text="Configuration", bg="#077786", fg="white", font=("Segoe UI", 12, "bold")).pack(pady=5)
 
         # Group 1: Quản lý Excel
         frame_excel = tk.LabelFrame(self.sidebar, text="Excel mannagment", bg="#077786", fg="white")
@@ -76,8 +73,11 @@ class CustomApp(tk.Tk):
         style.configure("Success.TButton", foreground="Green", background="#11e61b")
         style.map("Success.TButton",
           background=[('active', '#388e3c'), ('!active', '#2e7d32')])
+        
+
 
         # Bind double click
         self.tree = None
-
     
+
+
