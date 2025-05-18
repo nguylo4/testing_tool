@@ -189,7 +189,7 @@ def ensure_script_file(app, values, auto_open=False):
         
         return None
     try:
-        hf.copy_file_by_name(download_dir, feature_folder, id_val + ".can")
+        hf.copy_file_by_name(app, download_dir, feature_folder, id_val + ".can")
         set_status(app,f"Đã copy file về: {save_path}", success=True)
         if auto_open:
             os.startfile(save_path)
