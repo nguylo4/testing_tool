@@ -1,0 +1,209 @@
+/*@!Encoding:1252*/
+includes
+{
+  
+}
+
+variables
+{
+  
+}
+
+/*
+[PO_01_RS_52746]
+The function "Diag UDS Processing" shall «perform the following steps on reception of the UDS Service "ReadDataByIdentifierRequest[]" with 'Short_track_calibration' (DID 0x0BA5) regarding allowed Value Range, Diagnostic Session ID and Security Level  ('PH_DataByIdentifier')  as follows:
+IF 	
+	-send Request "Diag_AACRequest" := 'Get ComponentStatus' to 'ACC',
+	AND
+	-read "AAC_ShortTrackMode_CFG" ends without errors,
+THEN:
+	-set ReadDataByIdentifierResponse[Short_track_calibration] := "AAC_ShortTrackMode_CFG",
+	-return positive response.
+ELSE
+	-return the NegativeResponseCode: NRC_0x22_ConditionNotCorrect.
+».
+//Hint: "AAC_DiagResponse" Handling see PO_01_RS_56054,PO_01_RS_56055,PO_01_RS_56056.
+//Hint: In code 'shortTrackMode_u8' correspond to "AAC_ShortTrackMode_CFG".
+																																				
+------------------------------------------------------------------------------------------------------------------------------------------------
+@author: Ly Nhi                                                                                                                                 
+@date: 2023 29 November                                                                                                                         
+@SW release : RC_CUST_DAS_VW_02_SW_W155.02.01                                                                                                   
+------------------------------------------------------------------------------------------------------------------------------------------------
+// @SW release : RC_CUST_DAS_VW_02_SW_U190.01.01                                                                                                
+@date : 06 May 2025                                                                                                                             
+@author : Nguyen Loc                                                                                                                            
+@observations :                                                                                                                                 
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+@design:
+CASE 1:
+Set:
+- send read DID 0x0BA5
+	-send Request "Diag_AACRequest" := 'Get ComponentStatus' to 'ACC',
+	-read "AAC_ShortTrackMode_CFG" ends without errors,
+Check:
+- set ReadDataByIdentifierResponse[Short_track_calibration] := "AAC_ShortTrackMode_CFG"
+- return positive response
+
+CASE 2:
+Set:
+- send read DID 0x0BA5
+	-send Request "Diag_AACRequest" <> 'Get ComponentStatus' to 'ACC',
+	-read "AAC_ShortTrackMode_CFG" ends without errors, 
+Check:
+- return the NegativeResponseCode: NRC_0x22_ConditionNotCorrect.
+
+CASE 3:
+Set:
+- send read DID 0x0BA5
+	-send Request "Diag_AACRequest" := 'Get ComponentStatus' to 'ACC',
+	-read "AAC_ShortTrackMode_CFG" ends WITH errors,
+Check:
+- return the NegativeResponseCode: NRC_0x22_ConditionNotCorrect.
+
+//note: 
+case 2: 
+see alignment in 1910882
+
+*/
+
+
+testcase SwT_VW_02_9097()
+{ 
+	const int DIAGMDW_READ_RESPONSE_FROM_AAC = 1;
+	int i = 0;
+	const int RTE_E_OK = 0;
+	const int RTE_E_NOT_OK = 1;
+    diagRequest DiagnServi_DiagnSessiContrExtenSessi extended_session;
+    diagRequest DiagnServi_ReadDataByIdentCalibData data;
+    diagResponse DiagnServi_ReadDataByIdentCalibData data_res; 
+	
+    testReportFileName("X:\\ENG8\\10_Debugger_Test\\30_Reports\\UDSDiagnostics\\SwT_VW_02_9097");
+    
+    TestCaseTitle("SwT_VW_02_9097","Check that read service 0x0BA5 is working as test design");
+  
+    //********************************************* Preconditions *********************************************
+    funcIDE_DeleteAllBP();
+    funcIDE_Reset();
+	func_wait(1000);
+   	funcIDE_Run();
+   	func_wait(3000);
+	set_Target();
+	func_wait(1000);
+	diagResize(data, 3); 
+	DiagSetPrimitiveByte(data, 0, 0x22);
+	func_wait(100);
+	DiagSetPrimitiveByte(data, 1, 0x0B);
+	func_wait(100);
+	DiagSetPrimitiveByte(data, 2, 0xA5);
+	func_wait(100);	
+    /////////////////////**************** End Preconditions ******************	
+	func_testStepSubSection("---------------------CASE 1---------------------");  
+	
+    funcWinIdea_SetBPSource("DataServices_Data_DiagnServi_Short_track_calibration_Read_ReadData","retVal_u8 = Rte_Read_Aac_Response_Data(&AacResponse_st)");
+	diagSendRequest(extended_session);
+    func_Wait(1000); 
+	diagSendRequest(data);
+	testReportWriteDiagObject(data);
+	funcIDE_WaitForHalt(5000); 
+	funcIDE_WriteVariable("Rte_Aac_Aac_Response_Data.shortTrackMode_u8", 0x09);
+	funcIDE_StepOverSource();
+	funcIDE_ReadVariableandCheck("retVal_u8", RTE_E_OK); //read "AAC_ShortTrackMode_CFG" ends without errors
+	funcIDE_ReadVariableandCheck("Rte_DiagMdwQm_Aac_Request_Data.request_en", AAC_DIAGREQUESTCOMMAND_GET_COMPONENT_STATUS, equal);
+	funcIDE_StepOverSource();
+	funcIDE_WriteVariable("AacResponse_st.status_en", 2); //AAC_DIAGREQUESTSTATUS_DONE
+	
+	funcIDE_DeleteAllBP(); 
+	funcIDE_Run();
+	func_Wait(1000); 
+	diagGetLastResponse(data_res);
+  testReportWriteDiagObject(data_res);
+	for(i=0;i<3;i++)
+	{
+		write("byte %d: %x",i,DiagGetPrimitiveByte(data_res,i));
+	}
+	 
+	if(DiagGetPrimitiveByte(data_res,0)==0x62 && 
+	DiagGetPrimitiveByte(data_res,1)==0x0B && DiagGetPrimitiveByte(data_res,2)==0xA5 && 
+	DiagGetPrimitiveByte(data_res,3)== 0x09)
+		testStepPass("ReadDataByIdentifierResponse[DID 0BA5] is correctly received");
+	else
+		testStepFail("ReadDataByIdentifierResponse[DID 0BA5] is not correctly received");	
+
+    funcIDE_DeleteAllBP();
+    funcIDE_Reset();
+	func_wait(1000);
+   	funcIDE_Run();
+   	func_wait(3000); 
+
+	func_testStepSubSection("---------------------CASE 2---------------------");  	
+	funcWinIdea_SetBPSource("DataServices_Data_DiagnServi_Short_track_calibration_Read_ReadData","if((DIAGMDW_RESOURCE_RESPONSE_OK == tmpRetValue_en) && (TRUE == DiagMdw_ActivateCalibration_b))");
+	diagSendRequest(extended_session);
+    func_Wait(1000); 
+	diagSendRequest(data);
+	testReportWriteDiagObject(data);
+	funcIDE_WaitForHalt(5000); 
+	funcIDE_WriteVariable("tmpRetValue_en", 1); //NOT_OK
+	func_Wait(100); 
+  funcIDE_DeleteAllBP();
+	funcWinIdea_SetBPSource("DataServices_Data_DiagnServi_Short_track_calibration_Read_ReadData","IsResponseUpdated_b = Rte_IsUpdated_Aac_Response_Data()");
+	funcIDE_Run();
+	funcIDE_WaitForHaltNeg(5000); 
+//	funcIDE_ReadVariableandCheck("Rte_DiagMdwQm_Aac_Request_Data.request_en", AAC_DIAGREQUESTCOMMAND_GET_COMPONENT_STATUS, not_equal); //-send Request "Diag_AACRequest" <> 'Get ComponentStatus' to 'ACC',
+	
+	funcIDE_DeleteAllBP();
+	funcIDE_Run();
+	func_Wait(1000); 
+	diagGetLastResponse(data_res);
+	for(i=0;i<3;i++)
+	{
+		write("byte %d: %x",i,DiagGetPrimitiveByte(data_res,i));
+	}
+
+	if(DiagGetPrimitiveByte(data_res,0)==0x7F && 
+	DiagGetPrimitiveByte(data_res,1)==0x22 && DiagGetPrimitiveByte(data_res,2)==0x22)
+		testStepPass("ReadDataByIdentifierResponse[DID 0BA5] is return NRC22");
+	else
+		testStepFail("ReadDataByIdentifierResponse[DID 0BA5] is not return NRC22");
+	
+	
+	funcIDE_DeleteAllBP();
+    funcIDE_Reset();
+	func_wait(1000);
+   	funcIDE_Run();
+   	func_wait(3000);
+	
+	func_testStepSubSection("---------------------CASE 3---------------------");  
+	
+    funcWinIdea_SetBPSource("DataServices_Data_DiagnServi_Short_track_calibration_Read_ReadData","retVal_u8 = Rte_Read_Aac_Response_Data(&AacResponse_st)");
+	diagSendRequest(extended_session);
+    func_Wait(1000); 
+	diagSendRequest(data);
+	testReportWriteDiagObject(data);
+	funcIDE_WaitForHalt(5000); 
+	funcIDE_WriteVariable("Rte_Aac_Aac_Response_Data.shortTrackMode_u8", 0x09);
+	funcIDE_StepOverSource();
+	funcIDE_WriteVariable("retVal_u8", RTE_E_NOT_OK); //read "AAC_ShortTrackMode_CFG" ends with errors
+	funcIDE_ReadVariableandCheck("Rte_DiagMdwQm_Aac_Request_Data.request_en", AAC_DIAGREQUESTCOMMAND_GET_COMPONENT_STATUS, equal);
+	funcIDE_DeleteAllBP(); 
+	funcIDE_Run();
+	func_Wait(1000); 
+	diagGetLastResponse(data_res);
+	for(i=0;i<3;i++)
+	{
+		write("byte %d: %x",i,DiagGetPrimitiveByte(data_res,i));
+	}
+	 
+	if(DiagGetPrimitiveByte(data_res,0)==0x7F && 
+	DiagGetPrimitiveByte(data_res,1)==0x22 && DiagGetPrimitiveByte(data_res,2)==0x22)
+		testStepPass("ReadDataByIdentifierResponse[DID 0BA5] is return NRC22");
+	else
+		testStepFail("ReadDataByIdentifierResponse[DID 0BA5] is not return NRC22");	
+	
+	funcIDE_DeleteAllBP();
+    funcIDE_Reset();
+	func_wait(1000);
+   	funcIDE_Run();
+   	func_wait(3000);	
+}

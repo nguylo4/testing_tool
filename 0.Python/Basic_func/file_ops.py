@@ -8,6 +8,7 @@ import Handle_file as hf
 from tkinter import ttk
 import tkinter as tk
 from Handle_file import save_excel_table
+import tksheet
 
 def init_app_state(app):
     app.checklist_count = 0
@@ -91,12 +92,14 @@ def load_workspace(app):
     # messagebox.showinfo("Đã mở", "Workspace đã được mở!")
 
 def open_script(app):
-    selected = app.tree.focus()
-    if not selected:
+    selected_cells = app.sheet.get_selected_cells()
+    if not selected_cells:
         messagebox.showwarning("Chọn dòng", "Hãy chọn một dòng trong bảng!")
         return
-    values = app.tree.item(selected, "values")
-    ensure_script_file(app,values, auto_open=True)
+    else:
+        row, col = list(selected_cells)[0]
+        values = app.sheet.get_row_data(row)
+    ensure_script_file(app, values, auto_open=True)
     refresh_table(app)
     
 def on_double_click(app, event):
@@ -123,6 +126,7 @@ def on_double_click(app, event):
 
     entry.bind("<Return>", save_edit)
     entry.bind("<FocusOut>", lambda e: entry.destroy())
+    # refresh_table(app)
 
 def ensure_script_file(app, values, auto_open=False):
     """Đảm bảo file .can đã có ở thư mục working, nếu chưa thì tải/copy về. 
@@ -199,13 +203,13 @@ def ensure_script_file(app, values, auto_open=False):
     return save_path
 
 def refresh_table(app):
-    # Xóa tree cũ nếu có
+    # Xóa bảng cũ nếu có
     for widget in app.main_area.winfo_children():
         widget.destroy()
 
     tk.Label(app.main_area, text="Bảng kiểm tra", font=("Segoe UI", 14, "bold"), bg="white").pack(pady=10)
 
-    # Tạo frame chứa tree và scrollbars
+    # Tạo frame chứa sheet
     frame = tk.Frame(app.main_area)
     frame.pack(fill="both", expand=True, padx=10, pady=10)
 
@@ -223,40 +227,26 @@ def refresh_table(app):
         filtered_data.append(filtered_row)
     app.data = filtered_data
 
-    # Tạo Treeview
-    app.tree = ttk.Treeview(frame, columns=app.headers, show="headings")
-    # Định nghĩa tag màu
-    app.tree.tag_configure('passed', background='#b6fcb6')      # Xanh lá nhạt
-    app.tree.tag_configure('failed', background='#ffb3b3')      # Đỏ nhạt
-    app.tree.tag_configure('not_tested', background='#fff7b2')  # Vàng nhạt
-    app.tree.tag_configure('discarded', background='#fff7b2')   # Vàng nhạt
+    # Thêm cột "File existed" nếu cần
+    if "File existed" not in app.headers:
+        app.headers.append("File existed")
+        for row in app.data:
+            row.append("")
 
-    for col in app.headers:
-        app.tree.heading(col, text=col)
-        app.tree.column(col, width=120)
-
-    # --- Thêm dấu tick khi hiển thị ---
+    # Đánh dấu tick file tồn tại
     try:
         crid_idx = app.headers.index("CR Related")
         feature_idx = app.headers.index("Feature")
         id_idx = app.headers.index("Test cases ID")
+        file_exist_idx = app.headers.index("File existed")
     except Exception:
-        crid_idx = feature_idx = id_idx = None
+        crid_idx = feature_idx = id_idx = file_exist_idx = None
 
-    # Thêm cột "File existed" nếu cần
-    if "File existed" not in app.headers:
-        app.headers.append("File existed")
-
-    for row in app.data:
-        display_row = [cell if cell is not None else "" for cell in row]
-        # Đảm bảo display_row có đủ số cột
-        while len(display_row) < len(app.headers):
-            display_row.append("")
-        # Thêm dấu tick nếu file đã tồn tại
-        if crid_idx is not None and feature_idx is not None and id_idx is not None and app.working_dir:
-            crid_val = str(display_row[crid_idx]).strip()
-            feature_val_raw = str(display_row[feature_idx]).strip()
-            id_val = str(display_row[id_idx]).strip()
+    if crid_idx is not None and feature_idx is not None and id_idx is not None and app.working_dir:
+        for row in app.data:
+            crid_val = str(row[crid_idx]).strip()
+            feature_val_raw = str(row[feature_idx]).strip()
+            id_val = str(row[id_idx]).strip()
             feature_map = {
                 "Cust": "Customization", "cust": "Customization", "Customization": "Customization",
                 "Norm": "Normalization", "norm": "Normalization", "Normalization": "Normalization",
@@ -268,61 +258,47 @@ def refresh_table(app):
             crid_folder = os.path.join(app.working_dir, crid_val)
             feature_folder = os.path.join(crid_folder, feature_val)
             save_path = os.path.join(feature_folder, f"{id_val}.can")
-            # Đánh dấu tick vào cột mới "File existed" nếu file đã tồn tại
-            if "File existed" not in app.headers:
-                app.headers.append("File existed")
-            # Đảm bảo display_row có đủ số cột
-            while len(display_row) < len(app.headers):
-                display_row.append("")
-            if os.path.exists(save_path):
-                display_row[app.headers.index("File existed")] = "✅"
-            else:
-                display_row[app.headers.index("File existed")] = ""
-        # Xác định tag theo giá trị cột "Test Verdict"
-        tag = ""
-        try:
-            verdict_idx = app.headers.index("Test Verdict")
-            verdict = str(display_row[verdict_idx]).strip().lower()
+            row[file_exist_idx] = "✅" if os.path.exists(save_path) else ""
+
+    # Tạo sheet
+    app.sheet = tksheet.Sheet(
+        frame,
+        data=app.data,
+        headers=app.headers,
+        show_x_scrollbar=True,
+        show_y_scrollbar=True,
+        width=900,
+        height=500
+    )
+    app.sheet.enable_bindings((
+        "single_select", "row_select", "column_select", "drag_select",
+        "column_drag_and_drop", "row_drag_and_drop", "column_resize", "row_resize",
+        "edit_cell", "arrowkeys", "right_click_popup_menu", "rc_select",
+        "copy", "cut", "paste", "delete", "undo", "redo", "cell_select",
+        "row_height_resize", "double_click_column_resize"
+    ))
+    app.sheet.pack(fill="both", expand=True)
+
+    # Tô màu theo verdict
+    try:
+        verdict_idx = app.headers.index("Test Verdict")
+        for r, row in enumerate(app.data):
+            verdict = str(row[verdict_idx]).strip().lower()
             if verdict == "passed":
-                tag = "passed"
+                app.sheet.highlight_cells(row=r, bg="#b6fcb6")
             elif verdict == "failed":
-                tag = "failed"
+                app.sheet.highlight_cells(row=r, bg="#ffb3b3")
             elif verdict in ("not_tested", "discarded"):
-                tag = verdict
-        except Exception:
-            pass
-        app.tree.insert("", "end", values=display_row, tags=(tag,))
+                app.sheet.highlight_cells(row=r, bg="#fff7b2")
+    except Exception:
+        pass
 
-    # Set lại width các cột nếu có thông tin
-    column_widths = getattr(app, "column_widths", None)
-    if not column_widths and hasattr(app, "workspace_path"):
-        # Thử lấy từ workspace file nếu vừa load
-        try:
-            with open(app.workspace_path, "r", encoding="utf-8") as f:
-                ws_data = json.load(f)
-                column_widths = ws_data.get("column_widths", None)
-        except Exception:
-            column_widths = None
-    if column_widths:
-        for col in app.headers:
-            w = column_widths.get(col, 120)
-            app.tree.column(col, width=w)
+    # Khi sửa sheet, cập nhật lại app.data
+    def update_data(event=None):
+        app.data = app.sheet.get_sheet_data(return_copy=True)
+    app.sheet.extra_bindings([("end_edit_cell", update_data)])
 
-    # Scroll dọc
-    vsb = tk.Scrollbar(frame, orient="vertical", command=app.tree.yview)
-    app.tree.configure(yscrollcommand=vsb.set)
-    vsb.pack(side="right", fill="y")
-
-    # Scroll ngang
-    hsb = tk.Scrollbar(frame, orient="horizontal", command=app.tree.xview)
-    app.tree.configure(xscrollcommand=hsb.set)
-    hsb.pack(side="bottom", fill="x")
-
-    app.tree.pack(fill="both", expand=True)
-
-    # Bind double click
-    app.tree.bind("<Double-1>", lambda event: on_double_click(app, event))
-    
+    # Nếu muốn double click mở sửa ô, tksheet đã hỗ trợ mặc định
 
 def set_status(app, message, success=True):
         app.status_label.config(

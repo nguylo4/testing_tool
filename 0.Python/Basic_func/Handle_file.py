@@ -37,17 +37,15 @@ def open_file(filepath):
     except Exception as e:
         messagebox.showerror("Error", f"Cannot open file: {e}")
 
-def open_excel_file(input_folder, file_name):
-    input_path = os.path.join(input_folder, file_name)
+def open_excel_file(file_path):
     try:
-        if not os.path.exists(input_path):
+        if not os.path.exists(file_path):
             return False
-        # Mở file Excel bằng subprocess
-        subprocess.Popen(['start', 'excel', input_path], shell=True)
+        subprocess.Popen(['start', 'excel', file_path], shell=True)
         return True
     except Exception as e:
         print(f"Error: {e}")
-        return False, input_path
+        return False, file_path
 
 def write_excel_cell_by_label(filepath, row_label, col_label, value, sheet_name=None):
     """
@@ -158,7 +156,7 @@ def open_excel_file(app):
     if not app.excel_path:
         messagebox.showwarning("Chưa có file", "Hãy mở file Excel trước!")
         return
-    open_excel_file("", app.excel_path)
+    open_excel_file(app.excel_path)
 
 def add_column_to_table(app):
     from file_ops import refresh_table

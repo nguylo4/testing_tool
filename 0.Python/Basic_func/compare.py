@@ -4,6 +4,7 @@ from tkinter import messagebox, ttk
 import tkinter as tk
 import os
 from file_ops import set_status, ensure_script_file, refresh_table
+import tksheet
 
 def compare_content_requirement(app):
     # Thêm cột "Check Consistency" nếu chưa có
@@ -12,12 +13,13 @@ def compare_content_requirement(app):
         for row in app.data:
             row.append("")
 
-    selected = app.tree.focus()
+    selected = app.sheet.get_selected_cells()
     if not selected:
         messagebox.showwarning("Chọn dòng", "Hãy chọn một dòng trong bảng!")
         return
-    row_idx = app.tree.index(selected)
-    row = app.data[row_idx]
+    else:
+        row_idx, _ = list(selected)[0]
+        row = app.sheet.get_row_data(row_idx)
 
     try:
         req_id_idx = app.headers.index("Requirement ID")
@@ -30,7 +32,7 @@ def compare_content_requirement(app):
         return
 
     values = row
-    save_path = ensure_script_file(app,values, auto_open=False)
+    save_path = ensure_script_file(app, values, auto_open=False)
     if not save_path or not os.path.exists(save_path):
         row[check_idx] = "CHECK"
         refresh_table(app)
@@ -63,7 +65,7 @@ def compare_content_requirement(app):
             design_end = file_content.find(testcase_marker, design_start)
             if design_end == -1:
                 design_end = len(file_content)
-            file_design_content = file_content[design_start + len("@Test design"):(design_end-len("*/"))].strip()
+            file_design_content = file_content[design_start + len("@Test design"):design_end].strip()
         else:
             file_design_content = ""
     except Exception:
@@ -73,10 +75,10 @@ def compare_content_requirement(app):
 
     # Lưu 2 đoạn ra file tạm để so sánh bằng Beyond Compare
     with tempfile.NamedTemporaryFile("w", delete=False, suffix=".txt", encoding="utf-8") as f1, \
-        tempfile.NamedTemporaryFile("w", delete=False, suffix=".txt", encoding="utf-8") as f2:
-        f1.write(content_requirement+"\n Test design:"+test_design)
+         tempfile.NamedTemporaryFile("w", delete=False, suffix=".txt", encoding="utf-8") as f2:
+        f1.write(content_requirement + "\n Test design:" + test_design)
         f1_path = f1.name
-        f2.write(file_requirement_content+"\n Test design:"+file_design_content)
+        f2.write(file_requirement_content + "\n Test design:" + file_design_content)
         f2_path = f2.name
 
     try:
@@ -90,8 +92,10 @@ def compare_content_requirement(app):
     # Hiện popup để bạn chọn kết quả
     status = ask_consistency_status(app)
     row[check_idx] = status
+    # Cập nhật lại dòng đã sửa vào app.data
+    app.data[row_idx] = row
     refresh_table(app)
-    set_status(app,"Đã kiểm tra xong dòng đã chọn!", success=True)
+    set_status(app, "Đã kiểm tra xong dòng đã chọn!", success=True)
 
 def ask_consistency_status(app):
     win = tk.Toplevel(app)
