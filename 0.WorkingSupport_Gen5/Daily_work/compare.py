@@ -101,15 +101,20 @@ def compare_content_requirement(app):
     # Lưu 2 đoạn ra file tạm để so sánh bằng Beyond Compare
     with tempfile.NamedTemporaryFile("w", delete=False, suffix=".txt", encoding="utf-8") as f1, \
          tempfile.NamedTemporaryFile("w", delete=False, suffix=".txt", encoding="utf-8") as f2:
-        f1.write(content_requirement + "\n Test design:" + test_design)
+        f1.write("IN SSRS:\n"+content_requirement + "\n Test design:" + test_design)
         f1_path = f1.name
-        f2.write(file_requirement_content + "\n Test design:" + file_design_content)
+        f2.write("IN SCRIPT\n"+file_requirement_content + "\n Test design:" + file_design_content)
         f2_path = f2.name
         # print("debug: tạo file tạm thành công")
 
     try:
-        subprocess.Popen([r'C:\Program Files\Beyond Compare 4\BCompare.exe', f1_path, f2_path])
-        # print("debug: mở Beyond Compare thành công")
+        bcompare_path = find_bcompare_exe()
+        if not bcompare_path:
+            messagebox.showerror("Error", "Cannot find BCompare.exe!")
+            row[check_idx] = "CHECK"
+            refresh_table(app)
+            return
+        subprocess.Popen([bcompare_path, f1_path, f2_path])
     except Exception as e:
         messagebox.showerror("Error", f"Cannot open Beyond Compare: {e}")
         row[check_idx] = "CHECK"
@@ -156,13 +161,19 @@ def compare_ssrs_vs_spec(app):
     # Lưu 2 đoạn ra file tạm để so sánh bằng Beyond Compare
     with tempfile.NamedTemporaryFile("w", delete=False, suffix=".txt", encoding="utf-8") as f1, \
          tempfile.NamedTemporaryFile("w", delete=False, suffix=".txt", encoding="utf-8") as f2:
-        f1.write(content_requirement)
+        f1.write("IN SPEC:\n"+content_requirement)
         f1_path = f1.name
-        f2.write(requirement_text)
+        f2.write("IN SSRS:\n"+requirement_text)
         f2_path = f2.name
 
     try:
-        subprocess.Popen([r'C:\Program Files\Beyond Compare 4\BCompare.exe', f1_path, f2_path])
+        bcompare_path = find_bcompare_exe()
+        if not bcompare_path:
+            messagebox.showerror("Error", "Cannot find BCompare.exe!")
+            row[check_idx] = "CHECK"
+            refresh_table(app)
+            return
+        subprocess.Popen([bcompare_path, f1_path, f2_path])
     except Exception as e:
         messagebox.showerror("Eror", f"Cannot open Beyond Compare: {e}")
         row[check_idx] = "CHECK"
@@ -175,6 +186,32 @@ def compare_ssrs_vs_spec(app):
     app.data[row_idx] = row
     refresh_table(app)
     set_status(app, "Checking completed!", success=True)
+import shutil
+
+def find_bcompare_exe():
+    # Thử tìm trong PATH
+    exe = shutil.which("BCompare.exe")
+    if exe:
+        return exe
+
+    # Thử các vị trí cài đặt phổ biến
+    possible_paths = [
+        r"C:\Program Files\Beyond Compare 4\BCompare.exe",
+        r"C:\Program Files (x86)\Beyond Compare 4\BCompare.exe",
+        r"C:\Program Files\Beyond Compare 3\BCompare.exe",
+        r"C:\Program Files (x86)\Beyond Compare 3\BCompare.exe",
+    ]
+    for path in possible_paths:
+        if os.path.exists(path):
+            return path
+
+    # Nếu vẫn không thấy, hỏi người dùng chọn file exe
+    from tkinter import filedialog
+    exe = filedialog.askopenfilename(
+        title="Select Beyond Compare (BCompare.exe)",
+        filetypes=[("Beyond Compare", "BCompare.exe")],
+    )
+    return exe if exe else None
 
 def ask_consistency_status(app):
     win = tk.Toplevel(app)

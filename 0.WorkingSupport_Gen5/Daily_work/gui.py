@@ -44,8 +44,8 @@ class CustomApp(ttk.Window):
     def __init__(self):
         super().__init__(themename="cosmo")
         style = Style()
-        self.title("Release working")
-        self.geometry("1000x700")
+        self.title("Testing Tool")
+        self.geometry("1200x900")
 
         # Style definitions
         style.configure("Sidebar.TFrame", background="#FFFFFF")
@@ -58,7 +58,8 @@ class CustomApp(ttk.Window):
         style.configure("StatusSuccess.TLabel", foreground="green", font=("Segoe UI", 10, "bold"))
         style.configure("StatusError.TLabel", foreground="red", font=("Segoe UI", 10, "bold"))
         # Thêm style cho header button (nên đặt sau style = Style())
-        style.configure("Collapsible.TButton", font=("Segoe UI", 8), foreground="#222", anchor="w", relief="flat", background="#FFFFFF")
+        style.configure("Bold.TButton", font=("Segoe UI", 10, "bold"))
+        style.configure("Collapsible.TButton", font=("Segoe UI", 8, "bold"), foreground="#222", anchor="w", relief="flat", background="#FFFFFF")
         
         ico_path = os.path.join(os.path.dirname(__file__), "App.ico")
         self.iconbitmap(ico_path)
@@ -168,7 +169,7 @@ class CustomApp(ttk.Window):
         def show_about_popup():
             popup = tk.Toplevel(self)
             popup.title("About")
-            popup.geometry("340x200")
+            popup.geometry("300x250")
             popup.iconbitmap(ico_path)
             popup.resizable(False, False)
             ttk.Label(popup, text="Release Working Tool\nVersion 1.1\nDeveloped by NguyenLoc", font=("Segoe UI", 13, "bold")).pack(pady=30)
