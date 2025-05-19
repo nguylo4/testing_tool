@@ -63,7 +63,7 @@ def write_excel_cell_by_label(filepath, row_label, col_label, value, sheet_name=
             col_idx = cell.column
             break
     if col_idx is None:
-        raise ValueError(f"Không tìm thấy cột '{col_label}'")
+        raise ValueError(f"Can not found column!'{col_label}'")
 
     # Tìm vị trí hàng theo row_label (ở cột A)
     row_idx = None
@@ -72,7 +72,7 @@ def write_excel_cell_by_label(filepath, row_label, col_label, value, sheet_name=
             row_idx = row[0].row
             break
     if row_idx is None:
-        raise ValueError(f"Không tìm thấy hàng '{row_label}'")
+        raise ValueError(f"Can not found a row!'{row_label}'")
 
     # Ghi giá trị vào ô xác định
     ws.cell(row=row_idx, column=col_idx, value=value)
@@ -96,7 +96,7 @@ def read_excel_cell_by_label(filepath, row_label, col_label, sheet_name=None):
             break
     if col_idx is None:
         wb.close()
-        raise ValueError(f"Không tìm thấy cột '{col_label}'")
+        raise ValueError(f"Can not found column!'{col_label}'")
 
     # Tìm vị trí hàng theo row_label (ở cột A)
     row_idx = None
@@ -106,7 +106,7 @@ def read_excel_cell_by_label(filepath, row_label, col_label, sheet_name=None):
             break
     if row_idx is None:
         wb.close()
-        raise ValueError(f"Không tìm thấy hàng '{row_label}'")
+        raise ValueError(f"Can not found row!'{row_label}'")
     
     # Đọc giá trị tại ô xác định
     value = ws.cell(row=row_idx, column=col_idx).value
@@ -124,7 +124,7 @@ def load_excel_table(app):
     # Đảm bảo header là chuỗi, không None, không rỗng, không trùng lặp
     app.headers = []
     for i, cell in enumerate(ws[1]):
-        val = cell.value if cell.value not in [None, ""] else f"Cột {i+1}"
+        val = cell.value if cell.value not in [None, ""] else f"Column {i+1}"
         while val in app.headers:
             val += "_1"
         app.headers.append(str(val))
@@ -137,7 +137,7 @@ def load_excel_table(app):
 def save_excel_table(app):
     from file_ops import set_status
     if not app.excel_path or not app.data:
-        messagebox.showwarning("Chưa có dữ liệu", "Hãy mở file Excel trước!")
+        messagebox.showwarning("Not have data", "Open excel file before!")
         return
     wb = openpyxl.load_workbook(app.excel_path)
     ws = wb.active
@@ -150,23 +150,25 @@ def save_excel_table(app):
             ws.cell(row=i, column=j, value=value)
     wb.save(app.excel_path)
     wb.close()
-    set_status(app,"Đã lưu", "Dữ liệu đã được lưu vào file Excel!")
+    set_status(app,"Saved", "Data is saved into yout Excel file!")
 
 def open_excel_file(app):
     if not app.excel_path:
-        messagebox.showwarning("Chưa có file", "Hãy mở file Excel trước!")
+        messagebox.showwarning("Error", "Open excel file before!")
         return
     open_excel_file_exec(app.excel_path)
 
 def add_column_to_table(app):
     from file_ops import refresh_table
     if not app.excel_path:
-        messagebox.showwarning("Chưa có file", "Hãy mở file Excel trước!")
+        messagebox.showwarning("Error", "Open excel file before!")
         return
     # Hỏi tên cột mới
-    new_col_name = simpledialog.askstring("Đổi tên cột", "Nhập tên cột mới:", initialvalue=f"Cột mới {len(app.headers) + 1}")
+    new_col_name = simpledialog.askstring("Change name of column", "Name of new column:")
+    if new_col_name is None:  # Nếu bấm Cancel thì không tạo cột
+        return
     if not new_col_name:
-        new_col_name = f"Cột mới {len(app.headers) + 1}"
+        new_col_name = f"New column {len(app.headers) + 1}"
     # Đảm bảo không trùng tên
     while new_col_name in app.headers:
         new_col_name += "_1"
@@ -178,7 +180,7 @@ def add_column_to_table(app):
 def add_row_to_table(app):
     from file_ops import refresh_table
     if not app.excel_path:
-        messagebox.showwarning("Chưa có file", "Hãy mở file Excel trước!")
+        messagebox.showwarning("Error", "Open excel file before!")
         return
     new_row = [""] * len(app.headers)
     app.data.append(new_row)

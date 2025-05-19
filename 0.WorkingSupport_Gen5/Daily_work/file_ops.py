@@ -275,4 +275,4 @@ def refresh_all(app):
     save_excel_table(app)
     save_workspace(app)
     refresh_table(app)
-    set_status(app,"Đã làm mới, lưu Excel và workspace!", success=True)
+    set_status(app,"Refreshed!, Saved Excel and workspace!", success=True)

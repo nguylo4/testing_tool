@@ -1,8 +1,5 @@
 from tkinter import filedialog, messagebox
 import os
-import time
-import webbrowser
-import shutil
 from file_ops import set_status, refresh_table, sanitize_filename
 import Handle_file as hf
 import tkinter as tk

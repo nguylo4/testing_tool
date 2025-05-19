@@ -8,6 +8,9 @@ from script_handle import ensure_script_file
 import tksheet
 
 def compare_content_requirement(app):
+    if not hasattr(app, "sheet") or app.sheet is None:
+        messagebox.showwarning("No table", "No table loaded!")
+        return
     # Thêm cột "Check Consistency" nếu chưa có
     if "Consistency Spec vs Script" not in app.headers:
         app.headers.append("Consistency Spec vs Script")
@@ -108,7 +111,7 @@ def compare_content_requirement(app):
         subprocess.Popen([r'C:\Program Files\Beyond Compare 4\BCompare.exe', f1_path, f2_path])
         # print("debug: mở Beyond Compare thành công")
     except Exception as e:
-        messagebox.showerror("Lỗi", f"Không thể mở Beyond Compare: {e}")
+        messagebox.showerror("Error", f"Cannot open Beyond Compare: {e}")
         row[check_idx] = "CHECK"
         refresh_table(app)
         return
@@ -119,9 +122,12 @@ def compare_content_requirement(app):
     # Cập nhật lại dòng đã sửa vào app.data
     app.data[row_idx] = row
     refresh_table(app)
-    set_status(app, "Đã kiểm tra xong dòng đã chọn!", success=True)
+    set_status(app, "Checking completed!", success=True)
 
 def compare_ssrs_vs_spec(app):
+    if not hasattr(app, "sheet") or app.sheet is None:
+        messagebox.showwarning("No table", "No table loaded!")
+        return
     # Thêm cột "Consistency SSRS vs Spec" nếu chưa có
     if "Consistency SSRS vs Spec" not in app.headers:
         app.headers.append("Consistency SSRS vs Spec")
@@ -130,7 +136,7 @@ def compare_ssrs_vs_spec(app):
 
     selected = app.sheet.get_selected_cells()
     if not selected:
-        messagebox.showwarning("Chọn dòng", "Hãy chọn một dòng trong bảng!")
+        messagebox.showwarning("Select row", "Please select a row!")
         return
     else:
         row_idx, _ = list(selected)[0]
@@ -141,7 +147,7 @@ def compare_ssrs_vs_spec(app):
         reqtext_idx = app.headers.index("Requirement text")
         check_idx = app.headers.index("Consistency SSRS vs Spec")
     except ValueError:
-        messagebox.showerror("Lỗi", "Không tìm thấy cột cần thiết!")
+        messagebox.showerror("Error", "Can not found colum 'Content Requirement' or 'Requirement text' or 'Consistency SSRS vs Spec'!")
         return
 
     content_requirement = str(row[content_idx]).strip()
@@ -158,7 +164,7 @@ def compare_ssrs_vs_spec(app):
     try:
         subprocess.Popen([r'C:\Program Files\Beyond Compare 4\BCompare.exe', f1_path, f2_path])
     except Exception as e:
-        messagebox.showerror("Lỗi", f"Không thể mở Beyond Compare: {e}")
+        messagebox.showerror("Eror", f"Cannot open Beyond Compare: {e}")
         row[check_idx] = "CHECK"
         refresh_table(app)
         return
@@ -168,13 +174,13 @@ def compare_ssrs_vs_spec(app):
     row[check_idx] = status
     app.data[row_idx] = row
     refresh_table(app)
-    set_status(app, "Đã kiểm tra xong dòng đã chọn!", success=True)
+    set_status(app, "Checking completed!", success=True)
 
 def ask_consistency_status(app):
     win = tk.Toplevel(app)
-    win.title("Chọn kết quả kiểm tra")
+    win.title("Choose result of checking")
     win.geometry("300x120")
-    tk.Label(win, text="Kết quả kiểm tra file này là gì?", font=("Segoe UI", 11)).pack(pady=10)
+    tk.Label(win, text="Checking OK or NOT?", font=("Segoe UI", 11)).pack(pady=10)
     result = {"value": None}
     def set_result(val):
         result["value"] = val
