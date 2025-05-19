@@ -1,18 +1,68 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, simpledialog, filedialog, messagebox
 from file_ops import*
 from Handle_file import*
 from compare import *
+import os
 
 class CustomApp(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("Customizable Application")
+        self.title("Release working")
+        ico_path = os.path.join(os.path.dirname(__file__), "App.ico")
+        self.iconbitmap(ico_path)
         self.geometry("1000x700")
         self.configure(bg="#4786E6")
         init_app_state(self)
 
+        self._workspace_to_load = None  # <--- Thêm biến này
 
+        # --- Popup khởi động ---
+        self.withdraw()  # Ẩn cửa sổ chính tạm thời
+
+        def on_load_workspace():
+            file_path = filedialog.askopenfilename(
+                title="Open workspace",
+                filetypes=[("JSON files", "*.json")]
+            )
+            if file_path:
+                self._workspace_to_load = file_path  # <--- Lưu lại đường dẫn
+                self.project = project_var.get()
+                self.Test_level = testlevel_var.get()
+                popup.destroy()
+            else:
+                messagebox.showinfo("Noted!", "Not any workspace loaded!")
+
+        def on_ok():
+            self.project = project_var.get()
+            self.Test_level = testlevel_var.get()
+            popup.destroy()
+
+        popup = tk.Toplevel(self)
+        popup.title("Selection Project and Test level")
+        popup.geometry("320x180")
+        popup.iconbitmap(ico_path)
+        popup.grab_set()
+        popup.resizable(False, False)
+
+        tk.Label(popup, text="Project:", font=("Segoe UI", 11)).pack(pady=(18, 2))
+        project_var = tk.StringVar(value=self.project)
+        tk.Entry(popup, textvariable=project_var, width=28).pack()
+
+        tk.Label(popup, text="Test level:", font=("Segoe UI", 11)).pack(pady=(10, 2))
+        testlevel_var = tk.StringVar(value=self.Test_level)
+        tk.Entry(popup, textvariable=testlevel_var, width=28).pack()
+
+        btn_frame = tk.Frame(popup)
+        btn_frame.pack(pady=16)
+    
+        ttk.Button(btn_frame, text="OK", width=10, command=on_ok).pack(side="left", padx=6)
+        ttk.Button(btn_frame, text="Load workspace", width=16, command=on_load_workspace).pack(side="left", padx=6)
+
+        self.wait_window(popup)
+        self.deiconify()  # Hiện lại cửa sổ chính
+
+        # --- Sau khi giao diện đã khởi tạo xong ---
         # PanedWindow cho phép resize các vùng
         self.paned = tk.PanedWindow(self, orient=tk.HORIZONTAL, sashrelief=tk.RAISED, bg="#4786E6")
         self.paned.pack(fill="both", expand=True)
@@ -81,17 +131,17 @@ class CustomApp(tk.Tk):
         # Bind double click
         self.tree = None
 
-        # Frame chứa Project và Test level ở dưới bên phải
-        bottom_right_frame = tk.Frame(self, bg="#e0e0e0")
-        bottom_right_frame.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=0)
+        # Frame chứa Project và Test level ở dưới bên trái
+        bottom_left_frame = tk.Frame(self, bg="#e0e0e0")
+        bottom_left_frame.place(relx=0.0, rely=1.0, anchor="sw", x=10, y=0)
 
-        tk.Label(bottom_right_frame, text="Project:", bg="#e0e0e0").grid(row=0, column=0, sticky="e", padx=2)
+        tk.Label(bottom_left_frame, text="Project:", bg="#e0e0e0").grid(row=0, column=0, sticky="e", padx=2)
         self.project_var = tk.StringVar(value=self.project)
-        tk.Entry(bottom_right_frame, textvariable=self.project_var, width=18).grid(row=0, column=1, padx=2)
+        tk.Entry(bottom_left_frame, textvariable=self.project_var, width=18).grid(row=0, column=1, padx=2)
 
-        tk.Label(bottom_right_frame, text="Test level:", bg="#e0e0e0").grid(row=1, column=0, sticky="e", padx=2)
+        tk.Label(bottom_left_frame, text="Test level:", bg="#e0e0e0").grid(row=1, column=0, sticky="e", padx=2)
         self.testlevel_var = tk.StringVar(value=self.Test_level)
-        tk.Entry(bottom_right_frame, textvariable=self.testlevel_var, width=18).grid(row=1, column=1, padx=2)
+        tk.Entry(bottom_left_frame, textvariable=self.testlevel_var, width=18).grid(row=1, column=1, padx=2)
 
         # --- Đồng bộ giá trị khi thay đổi ---
         def update_project_var(*args):
@@ -100,6 +150,16 @@ class CustomApp(tk.Tk):
             self.Test_level = self.testlevel_var.get()
         self.project_var.trace_add("write", update_project_var)
         self.testlevel_var.trace_add("write", update_testlevel_var)
+
+        # Nếu có workspace được chỉ định để load, thực hiện load ngay
+        if self._workspace_to_load:
+            load_workspace(self, file_path=self._workspace_to_load)
+
+        self.progress_var = tk.IntVar(value=0)
+        self.progress_bar = ttk.Progressbar(self, orient="horizontal", length=250, mode="determinate", maximum=20, variable=self.progress_var)
+        self.progress_bar.place(relx=0.5, rely=1.0, anchor="s", y=-5)  # căn giữa dưới cùng, cách mép 5px
+        self.progress_bar.lower()  # Ẩn mặc định
+
 
 
 

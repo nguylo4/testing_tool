@@ -35,7 +35,7 @@ def compare_content_requirement(app):
     save_path = ensure_script_file(app, values, auto_open=False)
     if not save_path or not os.path.exists(save_path):
         # print("debug: file script không tồn tại")
-        messagebox.showwarning("Không tìm thấy file", "File script không tồn tại!")
+        messagebox.showwarning("Can not found", "File script is not existed!")
         row[check_idx] = "CHECK"
         refresh_table(app)
         return
