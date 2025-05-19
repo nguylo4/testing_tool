@@ -1,0 +1,149 @@
+/*@!Encoding:65001*/
+includes {
+
+}
+
+variables {
+
+}
+
+/*
+************************************************************************************************************************************************
+*INFORMATION
+************************************************************************************************************************************************
+@brief:			check that "Diag_DevelopmentMessageCommunicationActiveError" is set correctly following test design
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+@SW release:    30_SW_Test
+ @Author: 		nguylo4
+ @Date: 		2025-05-19
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+@requirement/s
+[PO_01_RS_102886]
+IF «
+		"Diag_VEICDevelopmentCommunicationEth" == 'not activated',
+	AND
+		"Diag_VBCDevelopmentCommunicationCan"  == 'not activated',
+AND
+		"[Group 3 Xcp].bit 5" == 'Disabled' //See PO_01_RS_101581
+	AND
+		Diag_XcpActivationStatus_CFG  == 'not activated'. //implement in Plattform see (XcpQmActiveError)»,		
+THEN:
+	the function "Diag UDS Processing" shall « 
+		-set "Diag_DevelopmentMessageCommunicationActiveError" := 'NotDetected'
+ELSE: «
+ 		-set "Diag_DevelopmentMessageCommunicationActiveError" := 'Detected'.
+» .
+//Hint: shall be performed in DiagMdw_Main().
+------------------------------------------------------------------------------------------------------------------------------------------------
+@Test design
+the function "Diag UDS Processing" shall performs as following:
+
+*Testcase 1:
+Set:
+- "Diag_VEICDevelopmentCommunicationEth" == 'not activated'
+- "Diag_VBCDevelopmentCommunicationCan"  == 'not activated'
+- "[Group 3 Xcp].bit 5" == 'Disabled' //See PO_01_RS_101581
+Check:
+- "Diag_DevelopmentMessageCommunicationActiveError" := 'NotDetected'
+
+*Testcase 2:
+Set:
+- "Diag_VEICDevelopmentCommunicationEth" == 'not activated'
+- "Diag_VBCDevelopmentCommunicationCan"  == 'not activated'
+- "[Group 3 Xcp].bit 5" <> 'Disabled' //See PO_01_RS_101581
+Check:
+- "Diag_DevelopmentMessageCommunicationActiveError" := 'Detected'
+
+*Testcase 3:
+Set:
+- "Diag_VEICDevelopmentCommunicationEth" == 'not activated'
+- "Diag_VBCDevelopmentCommunicationCan"  <> 'not activated'
+- "[Group 3 Xcp].bit 5" == 'Disabled' //See PO_01_RS_101581
+Check:
+- "Diag_DevelopmentMessageCommunicationActiveError" := 'Detected'
+
+*Testcase 4:
+Set:
+- "Diag_VEICDevelopmentCommunicationEth" <> 'not activated'
+- "Diag_VBCDevelopmentCommunicationCan"  == 'not activated'
+- "[Group 3 Xcp].bit 5" == 'Disabled' //See PO_01_RS_101581
+Check:
+- "Diag_DevelopmentMessageCommunicationActiveError" := 'Detected'
+*/
+testcase SwT_VW_02_13782()
+{
+	const NUMBER_OF_TESTCASE = 5;
+    int i,SensorID;
+	char reportname[255];
+	
+	
+
+	/* Input*/	
+		char ipt1[255] = "";
+		char ipt2[255] = "";
+		char ipt3[255] = "";
+		
+		
+	/* Output*/	
+		char opt1[255] = ""; 
+		char opt2[255] = ""; 	
+		char opt3[255] = ""; 
+		
+		
+
+	/* Input_Value*/						
+		int ipt1Val[NUMBER_OF_TESTCASE] =  {2, 2, 2, 2, 2}; 
+		int ipt2Val[NUMBER_OF_TESTCASE] =  {2, 2, 2, 2, 2}; 
+		int ipt3Val[NUMBER_OF_TESTCASE] =  {0, 0, 0, 0, 0};
+		
+                                            
+	/* Output_Value*/		                
+        int opt1Val[NUMBER_OF_TESTCASE] =  {2, 1, 2, 0, 0};
+		int opt2Val[NUMBER_OF_TESTCASE] =  {1, 2, 1, 0, 0};
+		int opt3Val[NUMBER_OF_TESTCASE] =  {1, 1, 1, 1, 1};
+		
+	SensorID=funcIDE_ReadVariable("Rte_SensorId_SensorId_SensorId");
+	TestCaseTitle("SwT_VW_02_13782","check that "Diag_DevelopmentMessageCommunicationActiveError" is set correctly following test design");
+    snprintf(reportname,255,"X:\\30_Reports\\UDSDiagnostics\\SwT_VW_02_13782_ECU%d",SensorID);
+	testReportFileName(reportname);
+
+    //********************************************* Preconditions *********************************************
+    func_testStepSubSection("Reset the environment");
+    funcIDE_DeleteAllBP();
+    funcIDE_Reset();
+	func_Wait(1000);
+    funcIDE_Run();
+    func_Wait(3000);
+    
+    //********************************************* Test Body ************************************************   
+	for ( i = 0; i < NUMBER_OF_TESTCASE; i++)
+	{
+		testStep("+++" , "+++ SECTION: ------------------------------------CASE %d------------------------------------", i+1);
+		
+		funcWinIdea_SetBPSource("Function","BP");
+		funcIDE_WaitForHalt(5000);
+		funcIDE_WriteVariable(ipt1, ipt1Val[i]);
+		funcIDE_WriteVariable(ipt2, ipt2Val[i]);
+		funcIDE_WriteVariable(ipt3, ipt3Val[i]);
+		func_wait(200);
+		
+		func_wait(200);
+		
+		funcWinIdea_SetBPSource("Function","BP");
+		funcIDE_Run();
+		funcIDE_WaitForHalt(5000);
+		funcIDE_ReadVariableAndCheck(opt3, opt3Val[i]);
+		funcIDE_ReadVariableAndCheck(opt4, opt4Val[i]);
+		funcIDE_ReadVariableAndCheck(opt5, opt5Val[i]);
+		
+		
+		func_testStepSubSection("Clean Testcase");
+		funcIDE_DeleteAllBP();
+		funcIDE_Reset();
+		func_Wait(1000);
+		funcIDE_Run();
+		func_Wait(2000);
+    }
+}

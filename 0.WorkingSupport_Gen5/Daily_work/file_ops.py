@@ -104,16 +104,6 @@ def load_workspace(app, file_path=None):
     if hasattr(app, "testlevel_var"):
         app.testlevel_var.set(app.Test_level)
 
-def open_script(app):
-    selected_cells = app.sheet.get_selected_cells()
-    if not selected_cells:
-        messagebox.showwarning("Selecte cell", "Selecte a cell in the table!")
-        return
-    else:
-        row, col = list(selected_cells)[0]
-        values = app.sheet.get_row_data(row)
-    ensure_script_file(app, values, auto_open=True)
-    refresh_table(app)
     
 def on_double_click(app, event):
     item = app.tree.identify_row(event.y)
@@ -144,103 +134,14 @@ def sanitize_filename(name):
     # Loại bỏ ký tự không hợp lệ cho tên file/thư mục trên Windows
     name = re.sub(r'[<>:"/\\|?*\n\r\t]', '_', name)
     return name.strip()
-def ensure_script_file(app, values, auto_open=False):
-    """Đảm bảo file .can đã có ở thư mục working, nếu chưa thì tải/copy về. 
-    Nếu auto_open=True thì mở file sau khi copy."""
-    try:
-        crid_idx = app.headers.index("CR ID")
-        feature_idx = app.headers.index("Feature")
-        id_idx = app.headers.index("Test cases ID")
-    except ValueError:
-        messagebox.showerror("Eror", "Can not found 'CR ID', 'Feature' or 'Test cases ID'!")
-        return None
 
-    crid_val = str(values[crid_idx]).strip()
-    feature_val_raw = str(values[feature_idx]).strip()
-    id_val = str(values[id_idx]).strip()
-    feature_map = {
-        "Cust": "Customization", "cust": "Customization", "Customization": "Customization",
-        "Norm": "Normalization", "norm": "Normalization", "Normalization": "Normalization",
-        "Diag": "UDSDiagnostics", "diag": "UDSDiagnostics", "UDSDiagnostics": "UDSDiagnostics",
-        "DTC": "DTCandErrorHandling", "dtc": "DTCandErrorHandling",
-        "ProgramSequenceMonitoring": "ProgramSequenceMonitoring", "PSM": "ProgramSequenceMonitoring"
-    }
-    feature_val = feature_map.get(feature_val_raw, feature_val_raw)
-
-    # Chọn/tham chiếu thư mục working
-    if not app.working_dir:
-        app.working_dir = filedialog.askdirectory(title="Choose working directory")
-        if not app.working_dir:
-            messagebox.showwarning("Canot save", "Please choose working directory!")
-            return None
-    crid_folder = os.path.join(app.working_dir, sanitize_filename(crid_val))
-    feature_folder = os.path.join(crid_folder, sanitize_filename(feature_val))
-    os.makedirs(feature_folder, exist_ok=True)
-    save_path = os.path.join(feature_folder, f"{sanitize_filename(id_val)}.can")
-    if not id_val or not crid_val or not feature_val:
-        messagebox.showwarning("Information", "Please check CR ID, Feature and Test cases ID is filled!")
-        return None
-    # Nếu file đã tồn tại thì trả về luôn
-    if os.path.exists(save_path):
-        if auto_open:
-            try:
-                os.startfile(save_path)
-                set_status(app,f"Opened: {save_path}", success=True)
-            except Exception as e:
-                messagebox.showerror("Error", f"Can not open {save_path}: {e}")
-                return None
-        return save_path
-
-    # Nếu chưa có file thì tải về và copy
-    url = (
-        f"http://mks1.dc.hella.com:7001/si/viewrevision?"
-        f"projectName=e:/Projects/DAS_RADAR/30_PRJ/10_CUST/10_VAG/{app.project}/60_ST/{app.Test_level}/20_SWT_CC/10_Debugger_Test/20_Scripts/Test_Cases/"
-        f"{feature_val}/project.pj&selection={id_val}.can&revision=:member"
-    )
-    webbrowser.open(url)
-    set_status(app, "Downloading, Please wait a file is arrived in Download...", success=True)
-    download_dir = os.path.join(os.path.expanduser("~"), "Downloads")
-    src_file = os.path.join(download_dir, id_val + ".can")
-
-    # --- Hiện progress bar ở footer ---
-    app.progress_var.set(0)
-    app.progress_bar.lift()
-    app.progress_bar.update()
-    app.progress_bar.place(relx=0.5, rely=1.0, anchor="s", y=-5)
-    app.progress_bar["maximum"] = 20
-
-    found = False
-    for i in range(20):
-        app.progress_var.set(i + 1)
-        app.progress_bar.update()
-        app.update()
-        time.sleep(1)
-        if os.path.exists(src_file):
-            found = True
-            break
-
-    app.progress_bar.lower()  # Ẩn progress bar sau khi xong
-
-    if not found:
-        messagebox.showerror("Lỗi", f"Can not found file {id_val}.can in Download folder after 20s. Please check Feature, Project name, Test level, ID of test case or proxy!, You can see URL in web to know issue here")
-        return None
-
-    try:
-        hf.copy_file_by_name(app, download_dir, feature_folder, id_val + ".can")
-        set_status(app, f"Copied file into working folder successful: {save_path}", success=True)
-        if auto_open:
-            os.startfile(save_path)
-    except Exception as e:
-        messagebox.showerror("Error", f"Can not copy/open file: {e}")
-        return None
-    return save_path
 
 def refresh_table(app):
     # Xóa bảng cũ nếu có
     for widget in app.main_area.winfo_children():
         widget.destroy()
 
-    tk.Label(app.main_area, text="Working table", font=("Segoe UI", 14, "bold"), bg="white").pack(pady=10)
+    tk.Label(app.main_area, text="Working dashbroad", font=("Segoe UI", 14, "bold"), bg="white").pack(pady=10)
 
     # Tạo frame chứa sheet
     frame = tk.Frame(app.main_area)
@@ -272,7 +173,7 @@ def refresh_table(app):
     # Đánh dấu tick file tồn tại
     try:
         crid_idx = app.headers.index("CR ID")
-        feature_idx = app.headers.index("Feature")
+        feature_idx = app.headers.index("H_Feature")
         id_idx = app.headers.index("Test cases ID")
         file_exist_idx = app.headers.index("File existed")
     except Exception:
@@ -366,13 +267,9 @@ def refresh_table(app):
 
     app.sheet.extra_bindings([("column_width_resize", update_column_widths)])
 
-def set_status(app, message, success=True):
-        app.status_label.config(
-            text=message,
-            fg="#2e7d32" if success else "#c62828",
-            bg="#e0e0e0"
-        )
-        app.status_label.after(4000, lambda: app.status_label.config(text=""))
+def set_status(app, text, success=True):
+    style_name = "StatusSuccess.TLabel" if success else "StatusError.TLabel"
+    app.status_label.config(text=text, style=style_name)
 
 def refresh_all(app):
     save_excel_table(app)

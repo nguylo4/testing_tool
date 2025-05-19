@@ -1,32 +1,49 @@
+from ttkbootstrap import Style
+from ttkbootstrap.constants import *
+from ttkbootstrap.widgets import Frame
+import ttkbootstrap as ttk
 import tkinter as tk
-from tkinter import ttk, simpledialog, filedialog, messagebox
-from file_ops import*
-from Handle_file import*
+from tkinter import filedialog, messagebox
+from file_ops import *
+from Handle_file import *
 from compare import *
+from script_handle import *
 import os
+import ttkbootstrap as ttk
 
-class CustomApp(tk.Tk):
+class CustomApp(ttk.Window):
     def __init__(self):
-        super().__init__()
+        super().__init__(themename="cosmo")
+        style = Style()
         self.title("Release working")
+        self.geometry("1000x700")
+
+        # Style definitions
+        style.configure("Sidebar.TFrame", background="#FFFFFF")
+        style.configure("Sidebar.TLabel", font=("Segoe UI", 12, "bold"), background="#ffffff")
+        style.configure("Custom.TLabelframe", background="#ffffff", relief="flat")
+        style.configure("Custom.TLabelframe.Label", font=("Segoe UI", 10, "bold"), background="#ffffff", foreground="#333")
+        style.configure("TButton", font=("Segoe UI", 10), padding=4)
+        style.configure("Success.TButton", foreground="Green", background="#11e61b")
+        style.map("Success.TButton", background=[('active', "#ffffff"), ('!active', "#ffffff")])
+        style.configure("StatusSuccess.TLabel", foreground="green", font=("Segoe UI", 10, "bold"))
+        style.configure("StatusError.TLabel", foreground="red", font=("Segoe UI", 10, "bold"))
+
+        
         ico_path = os.path.join(os.path.dirname(__file__), "App.ico")
         self.iconbitmap(ico_path)
-        self.geometry("1000x700")
-        self.configure(bg="#4786E6")
+        
         init_app_state(self)
 
-        self._workspace_to_load = None  # <--- Thêm biến này
+        self._workspace_to_load = None
 
-        # --- Popup khởi động ---
-        self.withdraw()  # Ẩn cửa sổ chính tạm thời
+        # Startup popup
+        self.withdraw()
 
         def on_load_workspace():
-            file_path = filedialog.askopenfilename(
-                title="Open workspace",
-                filetypes=[("JSON files", "*.json")]
-            )
+            file_path = filedialog.askopenfilename(title="Open workspace", filetypes=[("JSON files", "*.json")])
             if file_path:
-                self._workspace_to_load = file_path  # <--- Lưu lại đường dẫn
+                self._workspace_to_load = file_path
                 self.project = project_var.get()
                 self.Test_level = testlevel_var.get()
                 popup.destroy()
@@ -40,7 +57,7 @@ class CustomApp(tk.Tk):
 
         popup = tk.Toplevel(self)
         popup.title("Selection Project and Test level")
-        popup.geometry("320x180")
+        popup.geometry("320x190")
         popup.iconbitmap(ico_path)
         popup.grab_set()
         popup.resizable(False, False)
@@ -55,110 +72,98 @@ class CustomApp(tk.Tk):
 
         btn_frame = tk.Frame(popup)
         btn_frame.pack(pady=16)
-    
         ttk.Button(btn_frame, text="OK", width=10, command=on_ok).pack(side="left", padx=6)
         ttk.Button(btn_frame, text="Load workspace", width=16, command=on_load_workspace).pack(side="left", padx=6)
 
         self.wait_window(popup)
-        self.deiconify()  # Hiện lại cửa sổ chính
+        self.deiconify()
 
-        # --- Sau khi giao diện đã khởi tạo xong ---
-        # PanedWindow cho phép resize các vùng
-        self.paned = tk.PanedWindow(self, orient=tk.HORIZONTAL, sashrelief=tk.RAISED, bg="#4786E6")
+        self.paned = tk.PanedWindow(self, orient=tk.HORIZONTAL, sashrelief=tk.RAISED, bg="#f0f4f7")
         self.paned.pack(fill="both", expand=True)
 
-        # Sidebar
-        self.sidebar = tk.Frame(self.paned, bg="#077786", width=200)
+        self.sidebar = ttk.Frame(self.paned, style="Sidebar.TFrame", width=220)
         self.sidebar.pack_propagate(False)
-        tk.Label(self.sidebar, text="Configuration", bg="#077786", fg="white", font=("Segoe UI", 12, "bold")).pack(pady=5)
-        
+        ttk.Label(self.sidebar, text="Configuration", style="Sidebar.TLabel").pack(pady=8)
 
-        # Group 1: Quản lý Excel
-        frame_excel = tk.LabelFrame(self.sidebar, text="Excel mannagment", bg="#077786", fg="white")
-        frame_excel.pack(fill="x", padx=8, pady=4)
-        ttk.Button(frame_excel, text="Open new Excel file", command=lambda: load_excel_table(self)).pack(fill="x", pady=2)
-        ttk.Button(frame_excel, text="Save Excel file", command=lambda: save_excel_table(self)).pack(fill="x", pady=2)
-        ttk.Button(frame_excel, text="Open Excel file", command=lambda: open_excel_file(self)).pack(fill="x", pady=2)
+       # === Excel Management ===
+        excel_frame = ttk.Labelframe(self.sidebar, text="📂 Excel Management")
+        excel_frame.pack(fill="x", padx=12, pady=6, ipadx=4, ipady=4)
 
-        # Group 2: Chỉnh sửa bảng
-        frame_edit = tk.LabelFrame(self.sidebar, text="Table setting", bg="#077786", fg="white")
-        frame_edit.pack(fill="x", padx=8, pady=4)
-        ttk.Button(frame_edit, text="Add column", command=lambda: add_column_to_table(self)).pack(fill="x", pady=2)
-        ttk.Button(frame_edit, text="Add row", command=lambda: add_row_to_table(self)).pack(fill="x", pady=2)
+        ttk.Button(excel_frame, text="📄 Open New Excel File", bootstyle="outline", command=lambda: load_excel_table(self)).pack(fill=X, pady=2)
+        ttk.Button(excel_frame, text="💾 Save Excel File", bootstyle="success", command=lambda: save_excel_table(self)).pack(fill=X, pady=2)
+        ttk.Button(excel_frame, text="📂 Edit in Excel", bootstyle="secondary", command=lambda: open_excel_file(self)).pack(fill=X, pady=2)
 
-        # Group 3: Quản lý workspace
-        frame_ws = tk.LabelFrame(self.sidebar, text="Workspace", bg="#077786", fg="white")
-        frame_ws.pack(fill="x", padx=8, pady=4)
-        ttk.Button(frame_ws, text="Open new workspace", command=lambda: load_workspace(self)).pack(fill="x", pady=2)
-        ttk.Button(frame_ws, text="Save workspace", command=lambda: save_workspace(self)).pack(fill="x", pady=2)
-        ttk.Button(frame_ws, text="Save as workspace", command=lambda: save_workspace(self, save_as=True)).pack(fill="x", pady=2)
+        # === Workspace ===
+        workspace_frame = ttk.Labelframe(self.sidebar, text="🧩 Workspace", padding=10)
+        workspace_frame.pack(padx=10, pady=5, fill=X)
 
-        # Group 4: Checking file
-        frame_other = tk.LabelFrame(self.sidebar, text="Checking file", bg="#077786", fg="white")
-        frame_other.pack(fill="x", padx=8, pady=4)
-        self.btn_open_script = ttk.Button(frame_other, text="Open Automation script", command=lambda: open_script(self))
-        self.btn_open_script.pack(fill="x", pady=2)
-        ttk.Button(frame_other, text="Consistency Spec vs Script", command=lambda: compare_content_requirement(self)).pack(fill="x", pady=2)
-        ttk.Button(frame_other, text="Consistency SSRS vs Spec", command=lambda: compare_ssrs_vs_spec(self)).pack(fill="x", pady=2)
+        ttk.Button(workspace_frame, text="🆕 Open New Workspace", bootstyle="outline", command=lambda: load_workspace(self)).pack(fill=X, pady=2)
+        ttk.Button(workspace_frame, text="💾 Save Workspace", bootstyle="success", command=lambda: save_workspace(self)).pack(fill=X, pady=2)
+        ttk.Button(workspace_frame, text="📁 Save As Workspace", bootstyle="secondary", command=lambda: save_workspace(self, save_as=True)).pack(fill=X, pady=2)
 
-        # Nút dưới cùng
-        frame_refresh = tk.Frame(self.sidebar, bg="#077786")
-        frame_refresh.pack(side="bottom", fill="x", padx=8, pady=8)
-        ttk.Button(frame_refresh, text="Save & refresh all", command=lambda: refresh_all(self)).pack(fill="x", pady=2)
+        # === Table Setting ===
+        table_frame = ttk.Labelframe(self.sidebar, text="📋 Table Settings", padding=10)
+        table_frame.pack(padx=10, pady=5, fill=X)
+
+        ttk.Button(table_frame, text="➕ Add Column", bootstyle="primary", command=lambda: add_column_to_table(self)).pack(fill=X, pady=2)
+        ttk.Button(table_frame, text="➕ Add Row", bootstyle="primary", command=lambda: add_row_to_table(self)).pack(fill=X, pady=2)
+
+        # === Consistency Check ===
+        consistency_frame = ttk.Labelframe(self.sidebar, text="🔍 Consistency Check", padding=10)
+        consistency_frame.pack(padx=10, pady=5, fill=X)
+
+        ttk.Button(consistency_frame, text="🔍 SPEC vs Script", bootstyle="warning", command=lambda: compare_content_requirement(self)).pack(fill=X, pady=2)
+        ttk.Button(consistency_frame, text="🔎 SSRS vs SPEC", bootstyle="warning", command=lambda: compare_ssrs_vs_spec(self)).pack(fill=X, pady=2)
+
+        # === Scripting ===
+        script_frame = ttk.Labelframe(self.sidebar, text="📜 Scripting", padding=10)
+        script_frame.pack(padx=10, pady=5, fill=X)
+
+        ttk.Button(script_frame, text="📂 Open Script", bootstyle="outline", command=lambda: open_script(self)).pack(fill=X, pady=2)
+        ttk.Button(script_frame, text="🛠️ Create Script", bootstyle="info", command=lambda: create_new_script(self)).pack(fill=X, pady=2)
+        ttk.Button(script_frame, text="⬇️ Download Script", bootstyle="secondary", command=lambda: download_script(self)).pack(fill=X, pady=2)
+
+        # === Save All ===
+        ttk.Button(self.sidebar, text="✅ Save & Refresh All", bootstyle="success", command=lambda: refresh_all(self)).pack(pady=10, fill=X)
 
         self.paned.add(self.sidebar, minsize=120)
 
-        # Main area
-        self.main_area = tk.Frame(self.paned, bg="white")
+        self.main_area = ttk.Frame(self.paned, style="TFrame")
         self.paned.add(self.main_area, minsize=300)
-        tk.Label(self.main_area, text="Main Area", bg="white", font=("Segoe UI", 14, "bold")).pack(pady=10)
+        ttk.Label(self.main_area, text="Main Area", style="TLabel", font=("Segoe UI", 14, "bold")).pack(pady=10)
 
-        # Footer
-        self.footer = tk.Frame(self, bg="#e0e0e0", height=20)
+        self.footer = ttk.Frame(self, style="TFrame", height=20)
         self.footer.pack(side="bottom", fill="x")
-        tk.Label(self.footer, text="Develop by Nguyen Loc", bg="#e0e0e0").pack(pady=1)
-        self.status_label = tk.Label(self.footer, text="", bg="#e0e0e0", fg="green", anchor="e", font=("Segoe UI", 10, "bold"))
+        ttk.Label(self.footer, text="Develop by NguyenLoc", style="TLabel").pack(pady=1)
+        self.status_label = ttk.Label(self.footer, text="", style="TLabel", foreground="green", anchor="e", font=("Segoe UI", 10, "bold"))
         self.status_label.pack(side="right", padx=10)
 
-        # Style
-        style = ttk.Style()
-        style.configure("Success.TButton", foreground="Green", background="#11e61b")
-        style.map("Success.TButton",
-          background=[('active', '#388e3c'), ('!active', '#2e7d32')])
-        
-
-
-        # Bind double click
         self.tree = None
 
-        # Frame chứa Project và Test level ở dưới bên trái
-        bottom_left_frame = tk.Frame(self, bg="#e0e0e0")
+        bottom_left_frame = ttk.Frame(self, style="TFrame")
         bottom_left_frame.place(relx=0.0, rely=1.0, anchor="sw", x=10, y=0)
-
-        tk.Label(bottom_left_frame, text="Project:", bg="#e0e0e0").grid(row=0, column=0, sticky="e", padx=2)
+        ttk.Label(bottom_left_frame, text="Project:", style="TLabel").grid(row=0, column=0, sticky="e", padx=2)
         self.project_var = tk.StringVar(value=self.project)
-        tk.Entry(bottom_left_frame, textvariable=self.project_var, width=18).grid(row=0, column=1, padx=2)
-
-        tk.Label(bottom_left_frame, text="Test level:", bg="#e0e0e0").grid(row=1, column=0, sticky="e", padx=2)
+        ttk.Entry(bottom_left_frame, textvariable=self.project_var, width=18).grid(row=0, column=1, padx=2)
+        ttk.Label(bottom_left_frame, text="Test level:", style="TLabel").grid(row=1, column=0, sticky="e", padx=2)
         self.testlevel_var = tk.StringVar(value=self.Test_level)
-        tk.Entry(bottom_left_frame, textvariable=self.testlevel_var, width=18).grid(row=1, column=1, padx=2)
+        ttk.Entry(bottom_left_frame, textvariable=self.testlevel_var, width=18).grid(row=1, column=1, padx=2)
 
-        # --- Đồng bộ giá trị khi thay đổi ---
         def update_project_var(*args):
             self.project = self.project_var.get()
         def update_testlevel_var(*args):
             self.Test_level = self.testlevel_var.get()
+
         self.project_var.trace_add("write", update_project_var)
         self.testlevel_var.trace_add("write", update_testlevel_var)
 
-        # Nếu có workspace được chỉ định để load, thực hiện load ngay
         if self._workspace_to_load:
             load_workspace(self, file_path=self._workspace_to_load)
 
         self.progress_var = tk.IntVar(value=0)
-        self.progress_bar = ttk.Progressbar(self, orient="horizontal", length=250, mode="determinate", maximum=20, variable=self.progress_var)
-        self.progress_bar.place(relx=0.5, rely=1.0, anchor="s", y=-5)  # căn giữa dưới cùng, cách mép 5px
-        self.progress_bar.lower()  # Ẩn mặc định
+        self.progress_bar = ttk.Progressbar(self, orient="horizontal", length=250, mode="determinate", maximum=20, variable=self.progress_var, bootstyle="success-striped")
+        self.progress_bar.place(relx=0.5, rely=1.0, anchor="s", y=-5)
+        self.progress_bar.lower()
 
 
 

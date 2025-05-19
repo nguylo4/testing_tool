@@ -1,0 +1,246 @@
+/*@!Encoding:1252*/
+includes{
+}
+
+///@cond DoxyComp
+variables{
+//@cond DoxyComp
+}
+///@endcond
+
+/*
+
+************************************************************************************************************************************************
+*INFORMATION
+************************************************************************************************************************************************
+@brief:			Check that function Diag UDS Processing shall send content of Techinal_specification_version from NVRAM ... correctly.
+------------------------------------------------------------------------------------------------------------------------------------------------
+@SW release:    RC_CUST_DAS_VW_04_SW_A420.02.01
+@author:     	HungLong Nguyen
+@date:      	24-Apr-2024
+------------------------------------------------------------------------------------------------------------------------------------------------
+@SW release:    RC_CUST_DAS_VW_02_SW_U155.01.01
+@author:     	HungLong Nguyen
+@date:      	09-Oct-2024
+------------------------------------------------------------------------------------------------------------------------------------------------
+@SW release:    RC_CUST_DAS_VW_02_SW_U175.01.01
+@author:     	Hoang Viet
+@date:      	1 April 2025
+------------------------------------------------------------------------------------------------------------------------------------------------
+@SW release : RC_CUST_DAS_VW_02_SW_U190.01.01
+@author:     	Hoang Viet
+@date:      	07 May 2025
+------------------------------------------------------------------------------------------------------------------------------------------------
+@requirement(s):
+[PO_01_RS_98227]
+he function "Diag UDS Processing"
+ shall «send the content of "Technical_specifications_version" from NVRAM from NR ECUs in the positive response via "ReadDataByIdentifierResponse[]" in the following format for UDS DID 0xF1B4-Technical_specifications_version according 'PH_Identifikation_VW_02',  attribute "Status Hella an VW" as follows:
+ 
+Where		
+Byte#4		MajorVersion of 80114   // Refer:  LAH.DUM.909.A, DocID_PO_01_RS_4706
+Byte#5		MinorVersion of 80114   // Refer:  LAH.DUM.909.A, DocID_PO_01_RS_4706
+Byte#6		MajorVersion of 80124   // Refer:  LAH.DUM.909.G, DocID_PO_01_RS_4707
+Byte#7		MinorVersion of 80124   // Refer:  LAH.DUM.909.G, DocID_PO_01_RS_4707
+Byte#8		MajorVersion of 80125   // Refer:  LAH.000.900.N, DocID_PO_01_RS_4708
+Byte#9		MinorVersion of 80125   // Refer:  LAH.000.900.N, DocID_PO_01_RS_4708
+Byte#10	    MajorVersion of 80126   // Refer:  LAH.DUM.906.A, DocID_PO_01_RS_4712
+Byte#11	    MinorVersion of 80126   // Refer:  LAH.DUM.906.A, DocID_PO_01_RS_4712
+Byte#12	    MajorVersion of 80127   // Refer:  LAH.DUM.909.B, DocID_PO_01_RS_4709
+Byte#13	    MinorVersion of 80127   // Refer:  LAH.DUM.909.B, DocID_PO_01_RS_4709
+Byte#14	    MajorVersion of 80128_3 // Refer:  LAH.DUM.906.B, DocID_PO_01_RS_4713
+Byte#15	    MinorVersion of 80128_3 // Refer:  LAH.DUM.906.B, DocID_PO_01_RS_4713
+Byte#16	    MajorVersion of DSDL    // Refer:  LAH.DUM.907.R.1, DocID_PO_01_RS_4714
+Byte#17	    MinorVersion of DSDL    // Refer:  LAH.DUM.907.R.1, DocID_PO_01_RS_4714
+Byte#18	    MajorVersion of DUL     // Refer: LAH.000.900.S, e:\Projects\DAS_RADAR\30_PRJ\10_CUST\10_VAG\DAS_VW_02\20_SYS\10_Cust_Spec\QLAH_MQB37w_Baseline_Januar_2021_PDF\Diagnose\020_188_LAH.000.900.S_Datenupload_UDS-Stg_V1.3.pdf
+Byte#19	    MinorVersion of DUL     // Refer: LAH.000.900.S, e:\Projects\DAS_RADAR\30_PRJ\10_CUST\10_VAG\DAS_VW_02\20_SYS\10_Cust_Spec\QLAH_MQB37w_Baseline_Januar_2021_PDF\Diagnose\020_188_LAH.000.900.S_Datenupload_UDS-Stg_V1.3.pdf
+Byte#20	    MajorVersion of SFD     // Refer:  LAH.DUM.907.BD, DocID_PO_01_RS_8548
+Byte#21	    MinorVersion of SFD     // Refer:  LAH.DUM.907.BD, DocID_PO_01_RS_8548
+Byte#22	    MajorVersion of SWaP    // Not used in VW_04
+Byte#23	    MinorVersion of SWaP    // Not used in VW_04
+Byte#24	    MajorVersion of ORU     // Refer:  LAH.DUM.035.E, DocID_PO_01_RS_98280
+Byte#25	    MinorVersion of ORU     // Refer:  LAH.DUM.035.E, DocID_PO_01_RS_98280
+Byte#26	    MajorVersion of PMode   // Refer:  LAH.DUM.907.AS, DocID_PO_01_RS_4716
+Byte#27	    MinorVersion of PMode   // Refer:  LAH.DUM.907.AS, DocID_PO_01_RS_4716
+Byte#28	    MajorVersion of VKMS    // Not used in VW_04
+Byte#29	    MinorVersion of VKMS    // Not used in VW_04
+
+IF "ReadDataByIdentifierResponse[]" == 0xF1B4
+THEN
+        -set ReadDataByIdentifierResponse[Byte#4][Byte#5]		:= "Diag_TechnicalSpecificationsDoc80114Version_CFG" ,
+        -set ReadDataByIdentifierResponse[Byte#6][Byte#7]		:= "Diag_TechnicalSpecificationsDoc80124Version_CFG",
+        -set ReadDataByIdentifierResponse[Byte#8][Byte#9]		:= "Diag_TechnicalSpecificationsDoc80125Version_CFG",
+        -set ReadDataByIdentifierResponse[Byte#10][Byte#11]	:= "Diag_TechnicalSpecificationsDoc80126Version_CFG",
+        -set ReadDataByIdentifierResponse[Byte#12][Byte#13]	:= "Diag_TechnicalSpecificationsDoc80127Version_CFG",
+        -set ReadDataByIdentifierResponse[Byte#14][Byte#15]	:= "Diag_TechnicalSpecificationsDoc80128-3Version_CFG",
+        -set ReadDataByIdentifierResponse[Byte#16][Byte#17]	:= "Diag_TechnicalSpecificationsDocDSDLVersion_CFG",
+        -set ReadDataByIdentifierResponse[Byte#18][Byte#19]	:= "Diag_TechnicalSpecificationsDocDULVersion_CFG",
+        -set ReadDataByIdentifierResponse[Byte#20][Byte#21]	:= "Diag_TechnicalSpecificationsDocSFDVersion_CFG",
+        -set ReadDataByIdentifierResponse[Byte#22][Byte#23]	:= "Diag_TechnicalSpecificationsDocSWaPVersion_CFG",
+        <!-- Perform Coding Check -->
+        IF
+            "DiagCodingPlattformVW02" == ['3: MEB']
+        THEN
+            -set ReadDataByIdentifierResponse[Byte#24][Byte#25]	:= "Diag_TechnicalSpecificationsDocORUVersion_CFG",
+        ELSE
+            -set ReadDataByIdentifierResponse[Byte#24][Byte#25]	:= "0x00, 0x00"
+        <!-- END of Perform Coding Check -->
+        
+        -set ReadDataByIdentifierResponse[Byte#26][Byte#27]	:= "Diag_TechnicalSpecificationsDocPModeVersion_CFG",
+        -set ReadDataByIdentifierResponse[Byte#28][Byte#29]	:= "Diag_TechnicalSpecificationsDocVKMSVersion_CFG"
+
+/*
+UDS standard requirements (e.g. vehicle velocity threshhold) must be applied according to Q-LAH.DUM.909.G (VW 80124).
+The value expected of Specification Version in SSI should be using attribute "H_CustomerValue_VW_02".
+*
+».
+//Hint: For the Specifications that have not been implemented in project, F1B4 sends output with major version = 0 and minor version = 0.
+------------------------------------------------------------------------------------------------------------------------------------------------
+@test design:
+Case 1:
+SET:
+	Request DID 0xF1B4 via ReadDataByIdentifierRequest
+	DiagCodingPlattformVW02 = ['3: MEB']
+THEN: 
+	THEN 																												Min		Default		CusVW04Val	 CusVW02Val		Max
+	-set ReadDataByIdentifierResponse[Byte#4][Byte#5]		:= ""Diag_TechnicalSpecificationsDoc80114Version_CFG"" ,	0x00 	- 			0x05,0x13	 0x05,0x09		0xFF
+	-set ReadDataByIdentifierResponse[Byte#6][Byte#7]		:= ""Diag_TechnicalSpecificationsDoc80124Version_CFG"",		0x00 	- 			0x02,0x13	 0x02,0x09		0xFF
+	-set ReadDataByIdentifierResponse[Byte#8][Byte#9]		:= ""Diag_TechnicalSpecificationsDoc80125Version_CFG"",		0x00 	- 			0x05,0x13	 0x05,0x09		0xFF
+	-set ReadDataByIdentifierResponse[Byte#10][Byte#11]		:= ""Diag_TechnicalSpecificationsDoc80126Version_CFG"",		0x00 	- 			0x02,0x13	 0x02,0x0A		0xFF
+	-set ReadDataByIdentifierResponse[Byte#12][Byte#13]		:= ""Diag_TechnicalSpecificationsDoc80127Version_CFG"",		0x00 	- 			0x01,0x12	 0x00,0x00		0xFF
+	-set ReadDataByIdentifierResponse[Byte#14][Byte#15]		:= ""Diag_TechnicalSpecificationsDoc80128-3Version_CFG"",	0x00 	- 			0x04,0x09	 0x04,0x06		0xFF
+	-set ReadDataByIdentifierResponse[Byte#16][Byte#17]		:= ""Diag_TechnicalSpecificationsDocDSDLVersion_CFG"",		0x00 	- 			0x03,0x10	 0x03,0x07		0xFF
+	-set ReadDataByIdentifierResponse[Byte#18][Byte#19]		:= ""Diag_TechnicalSpecificationsDocDULVersion_CFG"",		0x00 	- 			0x01,0x03	 0x00,0x00		0xFF
+	-set ReadDataByIdentifierResponse[Byte#20][Byte#21]		:= ""Diag_TechnicalSpecificationsDocSFDVersion_CFG"",		0x00 	- 			0x02,0x05	 0x02,0x02		0xFF
+	-set ReadDataByIdentifierResponse[Byte#22][Byte#23]		:= ""Diag_TechnicalSpecificationsDocSWaPVersion_CFG"",		0x00 	- 			0x00,0x00	 0x00,0x00		0xFF
+	-set ReadDataByIdentifierResponse[Byte#24][Byte#25]		:= ""Diag_TechnicalSpecificationsDocORUVersion_CFG"",		0x00 	- 			0x02,0x02	 0x02,0x02		0xFF
+	-set ReadDataByIdentifierResponse[Byte#26][Byte#27]		:= ""Diag_TechnicalSpecificationsDocPModeVersion_CFG"",		0x00 	- 			0x09,0x07	 0x09,0x05		0xFF
+	-set ReadDataByIdentifierResponse[Byte#28][Byte#29]		:= ""Diag_TechnicalSpecificationsDocVKMSVersion_CFG""		0x00 	- 			0x00,0x00	 0x00,0x00		0xFF
+	
+Case 2:
+SET:
+	Request DID 0xF1B4 via ReadDataByIdentifierRequest
+	DiagCodingPlattformVW02 != ['3: MEB']
+THEN: 
+	THEN 																												Min		Default		CusVW04Val	 CusVW02Val		Max
+	-set ReadDataByIdentifierResponse[Byte#4][Byte#5]		:= ""Diag_TechnicalSpecificationsDoc80114Version_CFG"" ,	0x00 	- 			0x05,0x13	 0x05,0x09		0xFF
+	-set ReadDataByIdentifierResponse[Byte#6][Byte#7]		:= ""Diag_TechnicalSpecificationsDoc80124Version_CFG"",		0x00 	- 			0x02,0x13	 0x02,0x09		0xFF
+	-set ReadDataByIdentifierResponse[Byte#8][Byte#9]		:= ""Diag_TechnicalSpecificationsDoc80125Version_CFG"",		0x00 	- 			0x05,0x13	 0x05,0x09		0xFF
+	-set ReadDataByIdentifierResponse[Byte#10][Byte#11]		:= ""Diag_TechnicalSpecificationsDoc80126Version_CFG"",		0x00 	- 			0x02,0x13	 0x02,0x0A		0xFF
+	-set ReadDataByIdentifierResponse[Byte#12][Byte#13]		:= ""Diag_TechnicalSpecificationsDoc80127Version_CFG"",		0x00 	- 			0x01,0x12	 0x00,0x00		0xFF
+	-set ReadDataByIdentifierResponse[Byte#14][Byte#15]		:= ""Diag_TechnicalSpecificationsDoc80128-3Version_CFG"",	0x00 	- 			0x04,0x09	 0x04,0x06		0xFF
+	-set ReadDataByIdentifierResponse[Byte#16][Byte#17]		:= ""Diag_TechnicalSpecificationsDocDSDLVersion_CFG"",		0x00 	- 			0x03,0x10	 0x03,0x07		0xFF
+	-set ReadDataByIdentifierResponse[Byte#18][Byte#19]		:= ""Diag_TechnicalSpecificationsDocDULVersion_CFG"",		0x00 	- 			0x01,0x03	 0x00,0x00		0xFF
+	-set ReadDataByIdentifierResponse[Byte#20][Byte#21]		:= ""Diag_TechnicalSpecificationsDocSFDVersion_CFG"",		0x00 	- 			0x02,0x05	 0x02,0x02		0xFF
+	-set ReadDataByIdentifierResponse[Byte#22][Byte#23]		:= ""Diag_TechnicalSpecificationsDocSWaPVersion_CFG"",		0x00 	- 			0x00,0x00	 0x00,0x00		0xFF
+	-set ReadDataByIdentifierResponse[Byte#24][Byte#25]		:= "0x00, 0x00",											0x00 	- 			0x02,0x02	 0x02,0x02		0xFF 
+	-set ReadDataByIdentifierResponse[Byte#26][Byte#27]		:= ""Diag_TechnicalSpecificationsDocPModeVersion_CFG"",		0x00 	- 			0x09,0x07	 0x09,0x05		0xFF
+	-set ReadDataByIdentifierResponse[Byte#28][Byte#29]		:= ""Diag_TechnicalSpecificationsDocVKMSVersion_CFG""		0x00 	- 			0x00,0x00	 0x00,0x00		0xFF	
+	//Note Base on Diag spec e:\Projects\DAS_RADAR\30_PRJ\10_CUST\10_VAG\DAS_VW_02\20_SYS\10_Cust_Spec\QLAH_MQB37w_Baseline_Januar_2021_PDF\Diagnose\020_188_LAH.000.900.S_Datenupload_UDS-Stg_V1.3.pdf 
+	Standards to request included:
+	- Extended session
+	- Sercurity UDS check
+	- Vehicle velocity threshold
+	- ?
+	The original ideas of checking this reqs in SW Test is checking the [Byte#X] will be set corresponding with ""Diag_TechnicalSpecificationsDocXXXXXVersion_CFG""
+------------------------------------------------------------------------------------------------------------------------------------------------
+@comment:
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+*/
+
+testcase SwT_VW_02_13398()
+{
+	int i, j, flag = 1; 
+	const NUMCOUNT = 2;
+	
+	char opt1[255] = "Diag_TechnicalSpecificationsDoc80114Version_au8[0]";
+	char opt2[255] = "Diag_TechnicalSpecificationsDoc80124Version_au8[0]";
+	char opt3[255] = "Diag_TechnicalSpecificationsDoc80125Version_au8[0]";
+	char opt4[255] = "Diag_TechnicalSpecificationsDoc80126Version_au8[0]";
+	char opt5[255] = "Diag_TechnicalSpecificationsDoc80127Version_au8[0]";
+	char opt6[255] = "Diag_TechnicalSpecificationsDoc801283Version_au8[0]";
+	char opt7[255] = "Diag_TechnicalSpecificationsDocDSDLVersion_au8[0]";
+	char opt8[255] = "Diag_TechnicalSpecificationsDocDULVersion_au8[0]";
+	char opt9[255] = "Diag_TechnicalSpecificationsDocSFDVersion_au8[0]";
+	char optA[255] = "Diag_TechnicalSpecificationsDocSWaPVersion_au8[0]";
+	char optB[255] = "Diag_TechnicalSpecificationsDocORUVersion_au8[0]";
+	char optC[255] = "Diag_TechnicalSpecificationsDocPModeVersion_au8[0]";
+	char optD[255] = "Diag_TechnicalSpecificationsDocVKMSVersion_au8[0]";
+	
+	// These data get from SSI
+	// int listData[26] = {0x05, 0x13, 0x02, 0x13, 0x05, 0x13, 0x02, 0x13, 0x01, 0x12, 0x04, 0x09, 0x03, 0x10, 0x01, 0x03, 0x02, 0x05, 0x00, 0x00, 0x02, 0x02, 0x09, 0x07, 0x00, 0x00}; // VW_04
+	int listData1[26] = {0x05, 0x09, 0x02, 0x09, 0x05, 0x09, 0x02, 0x0A, 0x00, 0x00, 0x04, 0x06, 0x03, 0x07, 0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 0x02, 0x02, 0x09, 0x05, 0x00, 0x00}; // VW_02
+	int listData2[26] = {0x05, 0x09, 0x02, 0x09, 0x05, 0x09, 0x02, 0x0A, 0x00, 0x00, 0x04, 0x06, 0x03, 0x07, 0x00, 0x00, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x09, 0x05, 0x00, 0x00}; // VW_02
+	
+	int opt1Val, opt2Val, opt3Val, opt4Val, opt5Val, opt6Val, opt7Val, opt8Val, opt9Val, optAVal, optBVal, optCVal, optDVal;
+	
+	diagRequest  ID1_Phys2.DiagnServi_ReadDataByIdentECUIdent ReadDataByIdentifierRequest;
+	diagResponse ID1_Phys2.DiagnServi_ReadDataByIdentECUIdent ReadDataByIdentifierRequest_res;
+	
+	struct BreakPointFunction bp1 = {"DiagMdw_Read_Diag_TechnicalSpecificationsVersion", "if(NULL_PTR != tmp_technicalSpecVersion_au8)"};
+
+	funcAgr_SetTestCase("SwT_VW_02_13398", "Check that function Diag UDS Processing shall send content of Techinal_specification_version from NVRAM ... correctly.");
+	testReportFileName("X:\\30_Reports\\UDS\\SwT_VW_02_13398");
+
+/***********************************************************************************************************************************************
+ * PRECONDS
+ ***********************************************************************************************************************************************/
+
+	func_testStepSubSection("Reset the environment");
+	funcIDE_DeleteAllBP();
+	funcIDE_Run();
+	func_Wait(2000);
+
+/***********************************************************************************************************************************************
+ * TEST CASE
+ ***********************************************************************************************************************************************/
+
+	for (i = 0; i < NUMCOUNT; i++) {
+		testStep("+++" , "+++ SECTION: ------------------------------------CASE %d------------------------------------", i + 1);
+		testWaitForTesterConfirmation("Check that the coding is set correctly: Case1: coding MEB, Case2: coding != MEB");
+		
+		// Send Diag request 
+		diagResize(ReadDataByIdentifierRequest, 3);
+		DiagSetPrimitiveByte(ReadDataByIdentifierRequest, 1, 0xF1);
+		DiagSetPrimitiveByte(ReadDataByIdentifierRequest, 2, 0xB4);
+		diagSendRequest(ReadDataByIdentifierRequest);
+		func_Wait(2000);
+		
+		diagGetLastResponse(ReadDataByIdentifierRequest_res);
+		testReportWriteDiagObject(ReadDataByIdentifierRequest_res);
+		if (i == 0){
+		for (j = 3; j < 29; j++) {
+			// write("============= %d =================== %X ===================== %X ======= %d", j, diagGetPrimitiveByte(ReadDataByIdentifierRequest_res, j), listData1[j - 3], flag);
+			if (diagGetPrimitiveByte(ReadDataByIdentifierRequest_res, j) == listData1[j - 3])	testStepPass("Data response is CORRECT");
+			else testStepFail("Data response is INCORRECT");
+		}
+		}else{
+		for (j = 3; j < 29; j++) {
+			// write("============= %d =================== %X ===================== %X ======= %d", j, diagGetPrimitiveByte(ReadDataByIdentifierRequest_res, j), listData2[j - 3], flag);
+			if (diagGetPrimitiveByte(ReadDataByIdentifierRequest_res, j) == listData2[j - 3])	testStepPass("Data response is CORRECT");
+			else testStepFail("Data response is INCORRECT");
+		}
+		}
+		// if (flag == 1) testStepPass("Data response is CORRECT");
+		// else testStepFail("Data response is INCORRECT");
+		// testReportWriteDiagObject(ReadDataByIdentifierRequest_res);
+
+		// DiagMdw_Read_Diag_TechnicalSpecificationsVersion
+		// C:\Data\Project\VW_04\RC_CUST_DAS_VW_04_SW_A420.01.01\A420\Source\DiagnosticMiddleware\Variant_DAS_VW_Specific\DiagMdw_Qm\DiagMdwQm_Version.c
+		
+		// Clean Testcase
+		funcIDE_DeleteAllBP();
+		funcIDE_Reset();
+		funcIDE_Run();
+		func_Wait(3000);
+	}
+ 
+/***********************************************************************************************************************************************
+ * END
+ ***********************************************************************************************************************************************/
+
+	func_testStepSubSection("Clean Testcase");
+	funcIDE_DeleteAllBP();
+	funcIDE_Reset();
+	funcIDE_Run();
+}

@@ -1,0 +1,617 @@
+/*@!Encoding:65001*/
+includes {
+
+}
+
+variables {
+
+}
+
+/*
+************************************************************************************************************************************************
+*INFORMATION
+************************************************************************************************************************************************
+@brief:			Check function "TLT Customizing Function" run correctly
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+@SW release:    30_SW_Test
+ @Author: 		nguylo4
+ @Date: 		2025-05-19
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+@requirement/s
+[PO_01_RS_93649]
+IF           "Ident_SensorID" == 'ECU0' OR 'ECU8', THEN: the function "TLT Customizing Function" shall «set "TLT_Req_NR_03_BZ_XIX_TLT_Req_NR_03_XIX_FASCANFD2" := "Cust_TLTSlaveNRx_BZ"»       // Nanoradar NR_3
+
+ELSE IF "Ident_SensorID"  == 'ECU1' OR 'ECU9', THEN: the function "TLT Customizing Function" shall «set "TLT_Req_NR_04_BZ_XIX_TLT_Req_NR_04_XIX_FASCANFD2" := "Cust_TLTSlaveNRx_BZ"»       // Nanoradar NR_4
+
+ELSE IF "Ident_SensorID"  == 'ECU2', THEN: the function "TLT Customizing Function" shall «set "TLT_Req_NR_01_BZ_XIX_TLT_Req_NR_01_XIX_FASCANFD1" := "Cust_TLTSlaveNRx_BZ"»       // Nanoradar NR_1
+
+ELSE IF "Ident_SensorID"  == 'ECU3', THEN: the function "TLT Customizing Function" shall «set "TLT_Req_NR_02_BZ_XIX_TLT_Req_NR_02_XIX_FASCANFD1" := "Cust_TLTSlaveNRx_BZ"».       // Nanoradar NR_2
+
+
+//  else branch is not considered because it's equal to 'ECU0' - behaviour defined and realized by Feature "Sensor Identification (Ident)".
+------------------------------------------------------------------------------------------------------------------------------------------------
+@Test design
+@Test case:
+Check the function "TLT Customizing Function" shall set as requirement
+min == 0
+min+1 == 1
+max == 255
+max - 1 = 254
+random value: 127
+
+/-------------------------MQB coding----------------------------
+*Case 1:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU0'
+- "Cust_TLTSlaveNRx_BZ" := 0
+Check: 
+- "TLT_Req_NR_03_BZ_XIX_TLT_Req_NR_03_XIX_FASCANFD2" := 0
+
+*Case 2:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU0'
+- "Cust_TLTSlaveNRx_BZ" := 1
+Check: 
+- "TLT_Req_NR_03_BZ_XIX_TLT_Req_NR_03_XIX_FASCANFD2" := 1
+
+Case 3:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU0'
+- "Cust_TLTSlaveNRx_BZ" := 255
+Check: 
+- "TLT_Req_NR_03_BZ_XIX_TLT_Req_NR_03_XIX_FASCANFD2" := 255
+
+Case 4:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU0'
+- "Cust_TLTSlaveNRx_BZ" := 254
+Check: 
+- "TLT_Req_NR_03_BZ_XIX_TLT_Req_NR_03_XIX_FASCANFD2" := 254
+
+*Case 5:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU0'
+- "Cust_TLTSlaveNRx_BZ" := 127
+Check: 
+- "TLT_Req_NR_03_BZ_XIX_TLT_Req_NR_03_XIX_FASCANFD2" := 127
+
+*Case 6:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU1'
+- "Cust_TLTSlaveNRx_BZ" := 0
+Check: 
+- "TLT_Req_NR_04_BZ_XIX_TLT_Req_NR_04_XIX_FASCANFD2" := 0
+
+*Case 7:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU1'
+- "Cust_TLTSlaveNRx_BZ" := 1
+Check: 
+- "TLT_Req_NR_04_BZ_XIX_TLT_Req_NR_04_XIX_FASCANFD2" := 1
+
+Case 8:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU1'
+- "Cust_TLTSlaveNRx_BZ" := 255
+Check: 
+- "TLT_Req_NR_04_BZ_XIX_TLT_Req_NR_04_XIX_FASCANFD2" := 255
+
+Case 9:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU1'
+- "Cust_TLTSlaveNRx_BZ" := 254
+Check: 
+- "TLT_Req_NR_04_BZ_XIX_TLT_Req_NR_04_XIX_FASCANFD2" := 254
+
+*Case 10:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU1'
+- "Cust_TLTSlaveNRx_BZ" := 127
+Check: 
+- "TLT_Req_NR_04_BZ_XIX_TLT_Req_NR_04_XIX_FASCANFD2" := 127
+
+*Case 11:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU8'
+- "Cust_TLTSlaveNRx_BZ" := 0
+Check: 
+- "TLT_Req_NR_03_BZ_XIX_TLT_Req_NR_03_XIX_FASCANFD2" := 0
+
+*Case 12:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU8'
+- "Cust_TLTSlaveNRx_BZ" := 1
+Check: 
+- "TLT_Req_NR_03_BZ_XIX_TLT_Req_NR_03_XIX_FASCANFD2" := 1
+
+Case 13:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU8'
+- "Cust_TLTSlaveNRx_BZ" := 255
+Check: 
+- "TLT_Req_NR_03_BZ_XIX_TLT_Req_NR_03_XIX_FASCANFD2" := 255
+
+Case 14:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU8'
+- "Cust_TLTSlaveNRx_BZ" := 254
+Check: 
+- "TLT_Req_NR_03_BZ_XIX_TLT_Req_NR_03_XIX_FASCANFD2" := 254
+
+*Case 15:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU8'
+- "Cust_TLTSlaveNRx_BZ" := 127
+Check: 
+- "TLT_Req_NR_03_BZ_XIX_TLT_Req_NR_03_XIX_FASCANFD2" := 127
+
+*Case 16:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU9'
+- "Cust_TLTSlaveNRx_BZ" := 0
+Check: 
+- "TLT_Req_NR_04_BZ_XIX_TLT_Req_NR_04_XIX_FASCANFD2" := 0
+
+*Case 17:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU9'
+- "Cust_TLTSlaveNRx_BZ" := 1
+Check: 
+- "TLT_Req_NR_04_BZ_XIX_TLT_Req_NR_04_XIX_FASCANFD2" := 1
+
+Case 18:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU9'
+- "Cust_TLTSlaveNRx_BZ" := 255
+Check: 
+- "TLT_Req_NR_04_BZ_XIX_TLT_Req_NR_04_XIX_FASCANFD2" := 255
+
+Case 19:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU9'
+- "Cust_TLTSlaveNRx_BZ" := 254
+Check: 
+- "TLT_Req_NR_04_BZ_XIX_TLT_Req_NR_04_XIX_FASCANFD2" := 254
+
+*Case 20:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU9'
+- "Cust_TLTSlaveNRx_BZ" := 127
+Check: 
+- "TLT_Req_NR_04_BZ_XIX_TLT_Req_NR_04_XIX_FASCANFD2" := 127
+
+*Case 21:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU2'
+- "Cust_TLTSlaveNRx_BZ" := 0
+Check: 
+- "TLT_Req_NR_01_BZ_XIX_TLT_Req_NR_01_XIX_FASCANFD1" := 0
+
+*Case 22:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU2'
+- "Cust_TLTSlaveNRx_BZ" := 1
+Check: 
+- "TLT_Req_NR_01_BZ_XIX_TLT_Req_NR_01_XIX_FASCANFD1" := 1
+
+Case 23:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU2'
+- "Cust_TLTSlaveNRx_BZ" := 255
+Check: 
+- "TLT_Req_NR_01_BZ_XIX_TLT_Req_NR_01_XIX_FASCANFD1" := 255
+
+Case 24:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU2'
+- "Cust_TLTSlaveNRx_BZ" := 254
+Check: 
+- "TLT_Req_NR_01_BZ_XIX_TLT_Req_NR_01_XIX_FASCANFD1" := 254
+
+*Case 25:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU2'
+- "Cust_TLTSlaveNRx_BZ" := 127
+Check: 
+- "TLT_Req_NR_01_BZ_XIX_TLT_Req_NR_01_XIX_FASCANFD1" := 127
+
+*Case 26:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU3'
+- "Cust_TLTSlaveNRx_BZ" := 0
+Check: 
+- "TLT_Req_NR_02_BZ_XIX_TLT_Req_NR_02_XIX_FASCANFD1" := 0
+
+*Case 27:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU3'
+- "Cust_TLTSlaveNRx_BZ" := 1
+Check: 
+- "TLT_Req_NR_02_BZ_XIX_TLT_Req_NR_02_XIX_FASCANFD1" := 1
+
+Case 28:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU3'
+- "Cust_TLTSlaveNRx_BZ" := 255
+Check: 
+- "TLT_Req_NR_02_BZ_XIX_TLT_Req_NR_02_XIX_FASCANFD1" := 255
+
+Case 29:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU3'
+- "Cust_TLTSlaveNRx_BZ" := 254
+Check: 
+- "TLT_Req_NR_02_BZ_XIX_TLT_Req_NR_02_XIX_FASCANFD1" := 254
+
+*Case 30:
+Set: 
+- "DiagCodingPlattformVW02" == ['1: MQB37W']
+- "Ident_SensorID"  := 'ECU3'
+- "Cust_TLTSlaveNRx_BZ" := 127
+Check: 
+- "TLT_Req_NR_02_BZ_XIX_TLT_Req_NR_02_XIX_FASCANFD1" := 127
+
+/------------------------- MEB coding --------------------------------
+*Case 31:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU0'
+- "Cust_TLTSlaveNRx_BZ" := 0
+Check: 
+- "TLT_Req_NR_03_BZ_XIX_TLT_Req_NR_03_XIX_FASCANFD2" := 0
+
+*Case 32:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU0'
+- "Cust_TLTSlaveNRx_BZ" := 1
+Check: 
+- "TLT_Req_NR_03_BZ_XIX_TLT_Req_NR_03_XIX_FASCANFD2" := 1
+
+Case 33:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU0'
+- "Cust_TLTSlaveNRx_BZ" := 255
+Check: 
+- "TLT_Req_NR_03_BZ_XIX_TLT_Req_NR_03_XIX_FASCANFD2" := 255
+
+Case 34:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU0'
+- "Cust_TLTSlaveNRx_BZ" := 254
+Check: 
+- "TLT_Req_NR_03_BZ_XIX_TLT_Req_NR_03_XIX_FASCANFD2" := 254
+
+*Case 35:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU0'
+- "Cust_TLTSlaveNRx_BZ" := 127
+Check: 
+- "TLT_Req_NR_03_BZ_XIX_TLT_Req_NR_03_XIX_FASCANFD2" := 127
+
+*Case 36:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU1'
+- "Cust_TLTSlaveNRx_BZ" := 0
+Check: 
+- "TLT_Req_NR_04_BZ_XIX_TLT_Req_NR_04_XIX_FASCANFD2" := 0
+
+*Case 37:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU1'
+- "Cust_TLTSlaveNRx_BZ" := 1
+Check: 
+- "TLT_Req_NR_04_BZ_XIX_TLT_Req_NR_04_XIX_FASCANFD2" := 1
+
+Case 38:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU1'
+- "Cust_TLTSlaveNRx_BZ" := 255
+Check: 
+- "TLT_Req_NR_04_BZ_XIX_TLT_Req_NR_04_XIX_FASCANFD2" := 255
+
+Case 39:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU1'
+- "Cust_TLTSlaveNRx_BZ" := 254
+Check: 
+- "TLT_Req_NR_04_BZ_XIX_TLT_Req_NR_04_XIX_FASCANFD2" := 254
+
+*Case 40:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU1'
+- "Cust_TLTSlaveNRx_BZ" := 127
+Check: 
+- "TLT_Req_NR_04_BZ_XIX_TLT_Req_NR_04_XIX_FASCANFD2" := 127
+
+*Case 41:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU8'
+- "Cust_TLTSlaveNRx_BZ" := 0
+Check: 
+- "TLT_Req_NR_03_BZ_XIX_TLT_Req_NR_03_XIX_FASCANFD2" := 0
+
+*Case 42:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU8'
+- "Cust_TLTSlaveNRx_BZ" := 1
+Check: 
+- "TLT_Req_NR_03_BZ_XIX_TLT_Req_NR_03_XIX_FASCANFD2" := 1
+
+Case 43:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU8'
+- "Cust_TLTSlaveNRx_BZ" := 255
+Check: 
+- "TLT_Req_NR_03_BZ_XIX_TLT_Req_NR_03_XIX_FASCANFD2" := 255
+
+Case 44:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU8'
+- "Cust_TLTSlaveNRx_BZ" := 254
+Check: 
+- "TLT_Req_NR_03_BZ_XIX_TLT_Req_NR_03_XIX_FASCANFD2" := 254
+
+*Case 45:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU8'
+- "Cust_TLTSlaveNRx_BZ" := 127
+Check: 
+- "TLT_Req_NR_03_BZ_XIX_TLT_Req_NR_03_XIX_FASCANFD2" := 127
+
+*Case 46:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU9'
+- "Cust_TLTSlaveNRx_BZ" := 0
+Check: 
+- "TLT_Req_NR_04_BZ_XIX_TLT_Req_NR_04_XIX_FASCANFD2" := 0
+
+*Case 47:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU9'
+- "Cust_TLTSlaveNRx_BZ" := 1
+Check: 
+- "TLT_Req_NR_04_BZ_XIX_TLT_Req_NR_04_XIX_FASCANFD2" := 1
+
+Case 48:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU9'
+- "Cust_TLTSlaveNRx_BZ" := 255
+Check: 
+- "TLT_Req_NR_04_BZ_XIX_TLT_Req_NR_04_XIX_FASCANFD2" := 255
+
+Case 49:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU9'
+- "Cust_TLTSlaveNRx_BZ" := 254
+Check: 
+- "TLT_Req_NR_04_BZ_XIX_TLT_Req_NR_04_XIX_FASCANFD2" := 254
+
+*Case 50:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU9'
+- "Cust_TLTSlaveNRx_BZ" := 127
+Check: 
+- "TLT_Req_NR_04_BZ_XIX_TLT_Req_NR_04_XIX_FASCANFD2" := 127
+
+*Case 51:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU2'
+- "Cust_TLTSlaveNRx_BZ" := 0
+Check: 
+- "TLT_Req_NR_01_BZ_XIX_TLT_Req_NR_01_XIX_FASCANFD1" := 0
+
+*Case 52:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU2'
+- "Cust_TLTSlaveNRx_BZ" := 1
+Check: 
+- "TLT_Req_NR_01_BZ_XIX_TLT_Req_NR_01_XIX_FASCANFD1" := 1
+
+Case 53:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU2'
+- "Cust_TLTSlaveNRx_BZ" := 255
+Check: 
+- "TLT_Req_NR_01_BZ_XIX_TLT_Req_NR_01_XIX_FASCANFD1" := 255
+
+Case 54:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU2'
+- "Cust_TLTSlaveNRx_BZ" := 254
+Check: 
+- "TLT_Req_NR_01_BZ_XIX_TLT_Req_NR_01_XIX_FASCANFD1" := 254
+
+*Case 55:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU2'
+- "Cust_TLTSlaveNRx_BZ" := 127
+Check: 
+- "TLT_Req_NR_01_BZ_XIX_TLT_Req_NR_01_XIX_FASCANFD1" := 127
+
+*Case 56:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU3'
+- "Cust_TLTSlaveNRx_BZ" := 0
+Check: 
+- "TLT_Req_NR_02_BZ_XIX_TLT_Req_NR_02_XIX_FASCANFD1" := 0
+
+*Case 57:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU3'
+- "Cust_TLTSlaveNRx_BZ" := 1
+Check: 
+- "TLT_Req_NR_02_BZ_XIX_TLT_Req_NR_02_XIX_FASCANFD1" := 1
+
+Case 58:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU3'
+- "Cust_TLTSlaveNRx_BZ" := 255
+Check: 
+- "TLT_Req_NR_02_BZ_XIX_TLT_Req_NR_02_XIX_FASCANFD1" := 255
+
+Case 59:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU3'
+- "Cust_TLTSlaveNRx_BZ" := 254
+Check: 
+- "TLT_Req_NR_02_BZ_XIX_TLT_Req_NR_02_XIX_FASCANFD1" := 254
+
+*Case 60:
+Set: 
+- "DiagCodingPlattformVW02" == ['3: MEB']
+- "Ident_SensorID"  := 'ECU3'
+- "Cust_TLTSlaveNRx_BZ" := 127
+Check: 
+- "TLT_Req_NR_02_BZ_XIX_TLT_Req_NR_02_XIX_FASCANFD1" := 127
+
+//Negative case
+*Case 61:
+Set: 
+- "DiagCodingPlattformVW02" ==['1: MQB37W']
+- "Ident_SensorID"  := 'ECU4'
+Check:
+Not expected to check
+// Negative case for ECU  <>  ECU0,  ECU1,  ECU2,  ECU3,  ECU8,  ECU9. Other sensor (ex. ECU4) is not applicable for SW configuration and RBS file is unavaible for testing
+
+*Case 62:
+Set: 
+- "DiagCodingPlattformVW02" ==['3: MEB']
+- "Ident_SensorID"  := 'ECU4'
+Check:
+Not expected to check
+// Negative case for ECU  <>  ECU0,  ECU1,  ECU2,  ECU3,  ECU8,  ECU9. Other sensor (ex. ECU4) is not applicable for SW configuration and RBS file is unavaible for testing
+*/
+testcase SwT_VW_02_7288()
+{
+	const NUMBER_OF_TESTCASE = 5;
+    int i,SensorID;
+	char reportname[255];
+	
+	
+
+	/* Input*/	
+		char ipt1[255] = "";
+		char ipt2[255] = "";
+		char ipt3[255] = "";
+		
+		
+	/* Output*/	
+		char opt1[255] = ""; 
+		char opt2[255] = ""; 	
+		char opt3[255] = ""; 
+		
+		
+
+	/* Input_Value*/						
+		int ipt1Val[NUMBER_OF_TESTCASE] =  {2, 2, 2, 2, 2}; 
+		int ipt2Val[NUMBER_OF_TESTCASE] =  {2, 2, 2, 2, 2}; 
+		int ipt3Val[NUMBER_OF_TESTCASE] =  {0, 0, 0, 0, 0};
+		
+                                            
+	/* Output_Value*/		                
+        int opt1Val[NUMBER_OF_TESTCASE] =  {2, 1, 2, 0, 0};
+		int opt2Val[NUMBER_OF_TESTCASE] =  {1, 2, 1, 0, 0};
+		int opt3Val[NUMBER_OF_TESTCASE] =  {1, 1, 1, 1, 1};
+		
+	SensorID=funcIDE_ReadVariable("Rte_SensorId_SensorId_SensorId");
+	TestCaseTitle("SwT_VW_02_7288","Check function "TLT Customizing Function" run correctly");
+    snprintf(reportname,255,"X:\\30_Reports\\Customization\\SwT_VW_02_7288_ECU%d",SensorID);
+	testReportFileName(reportname);
+
+    //********************************************* Preconditions *********************************************
+    func_testStepSubSection("Reset the environment");
+    funcIDE_DeleteAllBP();
+    funcIDE_Reset();
+	func_Wait(1000);
+    funcIDE_Run();
+    func_Wait(3000);
+    
+    //********************************************* Test Body ************************************************   
+	for ( i = 0; i < NUMBER_OF_TESTCASE; i++)
+	{
+		testStep("+++" , "+++ SECTION: ------------------------------------CASE %d------------------------------------", i+1);
+		
+		funcWinIdea_SetBPSource("Function","BP");
+		funcIDE_WaitForHalt(5000);
+		funcIDE_WriteVariable(ipt1, ipt1Val[i]);
+		funcIDE_WriteVariable(ipt2, ipt2Val[i]);
+		funcIDE_WriteVariable(ipt3, ipt3Val[i]);
+		func_wait(200);
+		
+		func_wait(200);
+		
+		funcWinIdea_SetBPSource("Function","BP");
+		funcIDE_Run();
+		funcIDE_WaitForHalt(5000);
+		funcIDE_ReadVariableAndCheck(opt3, opt3Val[i]);
+		funcIDE_ReadVariableAndCheck(opt4, opt4Val[i]);
+		funcIDE_ReadVariableAndCheck(opt5, opt5Val[i]);
+		
+		
+		func_testStepSubSection("Clean Testcase");
+		funcIDE_DeleteAllBP();
+		funcIDE_Reset();
+		func_Wait(1000);
+		funcIDE_Run();
+		func_Wait(2000);
+    }
+}

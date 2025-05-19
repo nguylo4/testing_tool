@@ -1,0 +1,184 @@
+/*@!Encoding:1252*/
+variables
+{
+  byte hexArray[64];
+}
+/*
+[PO_01_RS_102004]
+The function "Diag UDS Processing" shall «provide the identification value 'System Supplier ECU Hardware Number' (DID 0xF192) via service "ReadDataByIdentifierRequest[]" regarding allowed Diagnostic Session ID ('PH_DataByIdentifier') as follows:
+	-ReadDataByIdentifierResponse[SystemSupplierECUHardwareNumber] := "HPS_HellaAbart_CFG"
+,
+	
+».
+------------------------------------------------------------------------------------------------------------------------------------------------
+// @SW release : RC_CUST_DAS_VW_02_SW_U190.01.01
+@date : 06 May 2025
+@author : Nguyen Loc
+@observations :
+------------------------------------------------------------------------------------------------------------------------------------------------
+@design
+CASE 1:
+-IF:
+	Request DID 0xF192 via "ReadDataByIdentifierRequest[]" 
+-THEN:
+	-ReadDataByIdentifierResponse[SystemSupplierECUHardwareNumber] := "HPS_HellaAbart_CFG"
+
+
+CASE 2:
+-IF:
+	Request DID 0xF192 via "ReadDataByIdentifierRequest[]" ends with Error
+-THEN:
+	-return the NegativeResponseCode: NRC_0x22_ConditionNotCorrect.	
+
+// Request 22 F1 92 will return "SystemSupplierECUHardwareNumber' based on  "HPS_HellaAbart_CFG"
+*/
+testcase SwT_VW_02_13784()
+{
+	char reportfile[255], cnTemp[255];
+	int i,j,sensorID, bit;
+	char bytes;
+  
+	const int NUMBER_OF_TESTCASE =2;
+	const int length_HellaAbart_hex = 10;
+	const int length_HellaAbart_ASCII = 10;
+  
+	char HPS_HellaAbart_CFG[length_HellaAbart_ASCII*2+1];
+	int response[NUMBER_OF_TESTCASE]={0x62, 0x7F};
+	int DID[2]={0xF1, 0x92};
+	char variable[255],chTemp[255];
+	diagRequest DiagnServi_DiagnSessiContrExtenSessi extended_session;
+	diagRequest DiagnServi_ReadDataByIdentCalibData data;
+	diagResponse DiagnServi_ReadDataByIdentCalibData data_res;
+	snprintf(HPS_HellaAbart_CFG,length_HellaAbart_ASCII*2+1,"3031372E3432302D3030");
+	/*Information:
+		- HPS_HellaAbart_CFG have blockid is PRODDATA_ID_HellaAbart = 0x02
+		- in "...\85_Release\OTP\OTP_5Gx.s3" -> open it with notepad, after that we have format line contain data is "S325 + 4 bytes address    + PRODDATA_DATA_START_INDEX bytes (see below) + Data + check sum"
+																										// example:   S325       801FC040         01 07 00001234567890 FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF45 60
+																													  S235 + address:0x801FC040 + BlockID = 1, legnth = 7 , data 00 00 12 34 56 78 90 (20bytes ASCII), check sum = 0x60
+		- PRODDATA_DATA_START_INDEX
+			The data field is structured in the following way:
+			Byte 1 - block id. <<-- 
+			Byte 2 - length of the usefull data, the rest is padded with 0xFF.
+			The data starts after this byte. <<-- Data that you use to check here, please see SSI to see length of your data
+			Byte 32 - the CRC byte of the previous 31 bytes.	
+	*/
+	
+	
+	
+	//********************************************* Preconditions *********************************************
+    funcIDE_DeleteAllBP();
+    funcIDE_Reset(); 
+    funcIDE_Run();
+    func_wait(3000);
+	set_target();
+
+	sensorID = funcIDE_ReadVariable("Rte_SensorId_SensorId_SensorId");
+	snprintf(reportfile, 255, "X:\\30_Reports\\Diag\\SwT_VW_02_13784");
+	TestCaseTitle("SwT_VW_02_13784","The function Diag UDS Processing shall «provide the identification value 'VW Data Set Version Number' (DID 0xF192) via service ReadDataByIdentifierRequest[]  correctly set with HPS_HellaAbart_CFG");
+	testReportFileName(reportfile);
+
+	
+    //******************************************** End Preconditions *****************************************
+	for (i=0;i<NUMBER_OF_TESTCASE;i++)
+	{
+		testStep("+++" , "+++ SECTION: ------------------------------------CASE %d------------------------------------",i+1);
+		diagResize(data, 3);
+  		diagSetPrimitiveByte(data, 0, 0x22);
+  		diagSetPrimitiveByte(data, 1, DID[0]);
+  		diagSetPrimitiveByte(data, 2, DID[1]);
+     
+		funcWinIdea_SetBPSource("DataServices_Data_DiagnServi_TABROW_SysteSupplECUHardwNumbe_Read_ReadData", "if(RTE_E_OK == retVal_u8)");
+  		DiagSendRequest(extended_session);
+  		func_Wait(1000);
+  		DiagSendRequest(data);
+  		funcIDE_WaitForHalt(5000); 
+		if (1==i)
+			funcIDE_WriteVariable("retVal_u8",1);
+		else
+		{
+			for (j = 0; j < length_HellaAbart_ASCII; j++) {	
+  			snprintf(variable, 255, "tmpHellaAbart_st.HellaDeviceNumber_au8[%d]", j);
+  			bit = check_bytes(HPS_HellaAbart_CFG, j);
+  			funcIDE_readVariableandcheck(variable, bit);
+  			func_wait(100);
+			}
+		}	
+		funcIDE_DeleteAllBP();
+		funcIDE_Run();
+		testWaitForDiagResponse(data, 5000);    
+		diagGetLastResponse(data_res);
+		if (DiagGetPrimitiveByte(data_res, 0)==response[i])
+		{
+			if (0x62==response[i])
+			{
+				for (j = 0; j < length_HellaAbart_hex; j++) {
+//					convertAsciiToHex(HPS_HellaAbart_CFG);
+					bit = check_bytes(HPS_HellaAbart_CFG, j);
+					if (DiagGetPrimitiveByte(data_res, j+3) == bit)
+					{
+						snprintf(chTemp, 1024, "Compare OK: DiagResponse byte %d = %X match with byte %d in OTP: %X", j+3, DiagGetPrimitiveByte(data_res, j+3), j, bit );
+						teststeppass(chTemp);
+					}
+					else
+					{
+						snprintf(chTemp, 1024, "Compare NOK: DiagResponse byte %d = %X match with byte %d in OTP: %X", j+3, DiagGetPrimitiveByte(data_res, j+3), j, bit );
+						teststepfail(chTemp);
+					}
+					func_wait(100);
+				}
+			}
+			else
+			{
+				if (DiagGetPrimitiveByte(data_res, 2) == 0x22)
+					teststeppass("NRC22 is received!");
+
+				else
+					teststepfail("NRC22 is NOT received!");
+			}
+		}
+		else
+		{
+			snprintf(chTemp, 1024, "Response %X is received is not match with expected!",DiagGetPrimitiveByte(data_res, 0));
+			teststepfail(chTemp);
+		}
+		funcIDE_DeleteAllBP();
+		funcIDE_Reset();
+		funcIDE_Run();
+		func_Wait(2000);
+		
+	}
+	
+	//********************************************* End ******************************************************
+    func_testStepSubSection("Clean Testcase");
+    funcIDE_DeleteAllBP();
+    funcIDE_Reset();
+    funcIDE_Run();
+    func_Wait(2000);
+}
+int check_bytes(char data_byte[],int start_byte)
+{
+	char bytes[255];
+	int value;
+	substr_cpy(bytes, data_byte, 2 * start_byte, 2, 1024);
+	value = HexStringToNumber(bytes);
+	return value;
+}
+void convertAsciiToHex(char asciiStr[])
+{
+  int i;
+  int len;
+
+  // Copy ký t? v௠m?ng hexArray, t?i da 14 ký t?
+  len = strlen(asciiStr);
+  for (i = 0; i < 64; i++)
+  {
+    if (i < len)
+    {
+      hexArray[i] = asciiStr[i]; // Luu ASCII code v௠m?ng
+    }
+    else
+    {
+      hexArray[i] = 0x20; // Ch讠kho?ng tr?ng n?u thi?u
+    }
+  }
+}

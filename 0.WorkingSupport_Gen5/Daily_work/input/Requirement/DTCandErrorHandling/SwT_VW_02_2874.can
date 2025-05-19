@@ -1,0 +1,342 @@
+/*@!Encoding:65001*/
+includes {
+
+}
+
+variables {
+
+}
+
+/*
+************************************************************************************************************************************************
+*INFORMATION
+************************************************************************************************************************************************
+@brief:			Check if the function DTC DatasetOverallErrorDetection will calculate HellaDatasetInvalid, HellaDatasetImplausible
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+@SW release:    U159.01.01
+------------------------------------------------------------------------------------------------------------------------------------------------
+ @Author: 		MinhTien Tran
+ @Date: 		19/11/2024	
+					        
+------------------------------------------------------------------------------------------------------------------------------------------------
+@SW release : RC_CUST_DAS_VW_02_SW_U190.01.01
+@date : 07/05/2025
+@author : Hoang Viet
+@observations :
+@requirement/s
+------------------------------------------------------------------------------------------------------------------------------------------------
+[PO_01_RS_61947]
+The function "DTC DatasetOverallErrorDetection" shall « execute PO_01_RS_61934 and PO_01_RS_61777 as follows:
+IF
+	(
+	  (Cust_WAI_DatasetInvalid is received at least once) ||
+	  (Cust_WAI_DatasetImplausible is received at least once)
+	) 
+	AND
+	(
+	  ("NVRAM_DSCRCFailureError" is not 'NotTested') ||
+	  ("NVRAM_DSConfigurationNotFoundError" is not 'NotTested') ||
+	  ("NVRAM_DSConsistenceError" is not 'NotTested') ||
+	  ("NVRAM_DSInternalError" is not 'NotTested') ||
+	  ("NVRAM_DSParsingStoppedError" is not 'NotTested' ) ||
+	  ("NVRAM_DSStructureVersionError" is not 'NotTested')
+	)
+	AND
+	("Diag_HellaDatasetDefaultDataActiveError" is not 'NotTested')
+THEN execute
+	PO_01_RS_61934 and
+	PO_01_RS_61777
+».
+// Hint precondition to execute PO_01_RS_61934 and PO_01_RS_61777.
+// SPECIFIC FOR VW_02: the requirement PO_01_RS_61777 shall be replaced by requirement ID PO_01_RS_100295. This change was made in CR 1922443
+------------------------------------------------------------------------------------------------------------------------------------------------
+@Test design
+------------------------------------------------------------------------------------------------------------------------------------------------
+Case 1:
+- Set:
+	 Cust_WAI_DatasetInvalid is NOT received
+	 Cust_WAI_DatasetImplausible is received at least once
+	"NVRAM_DSCRCFailureError" is not 'NotTested'
+	"NVRAM_DSConfigurationNotFoundError" is 'NotTested'
+	"NVRAM_DSConsistenceError" is 'NotTested'
+	"NVRAM_DSInternalError" is 'NotTested'
+	"NVRAM_DSParsingStoppedError" is 'NotTested' 
+	"NVRAM_DSStructureVersionError" is 'NotTested'
+	"Diag_HellaDatasetDefaultDataActiveError" is not 'NotTested'
+- Check:
+	Implementation of PO_01_RS_61934 and PO_01_RS_100295 are executed.
+	It is covered by case 1 in Requirement PO_01_RS_61902 (SwT_VW_02_3041)
+	
+Case 2:
+- Set:
+	 Cust_WAI_DatasetInvalid is received at least once
+	 Cust_WAI_DatasetImplausible is NOT received
+	"NVRAM_DSCRCFailureError" is 'NotTested'
+	"NVRAM_DSConfigurationNotFoundError" is not 'NotTested'
+	"NVRAM_DSConsistenceError" is 'NotTested'
+	"NVRAM_DSInternalError" is 'NotTested'
+	"NVRAM_DSParsingStoppedError" is 'NotTested' 
+	"NVRAM_DSStructureVersionError" is 'NotTested'
+	"Diag_HellaDatasetDefaultDataActiveError" is not 'NotTested'
+- Check:
+	Implementation of PO_01_RS_61934 and PO_01_RS_100295 are executed.
+	It is covered by case 3 in Requirement PO_01_RS_61902 (SwT_VW_02_3041)
+	
+Case 3:
+- Set:
+	 Cust_WAI_DatasetInvalid is received at least once
+	 Cust_WAI_DatasetImplausible is NOT received
+	"NVRAM_DSCRCFailureError" is 'NotTested'
+	"NVRAM_DSConfigurationNotFoundError" is 'NotTested'
+	"NVRAM_DSConsistenceError" is not 'NotTested'
+	"NVRAM_DSInternalError" is 'NotTested'
+	"NVRAM_DSParsingStoppedError" is 'NotTested' 
+	"NVRAM_DSStructureVersionError" is 'NotTested'
+	"Diag_HellaDatasetDefaultDataActiveError" is not 'NotTested'
+- Check:
+	Implementation of PO_01_RS_61934 and PO_01_RS_100295 are executed.
+	It is covered by case 4 in Requirement PO_01_RS_61902 (SwT_VW_02_3041)
+	
+Case 4:
+- Set:
+	 Cust_WAI_DatasetInvalid is received at least once
+	 Cust_WAI_DatasetImplausible is NOT received
+	"NVRAM_DSCRCFailureError" is 'NotTested'
+	"NVRAM_DSConfigurationNotFoundError" is 'NotTested'
+	"NVRAM_DSConsistenceError" is 'NotTested'
+	"NVRAM_DSInternalError" is not 'NotTested'
+	"NVRAM_DSParsingStoppedError" is 'NotTested' 
+	"NVRAM_DSStructureVersionError" is 'NotTested'
+	"Diag_HellaDatasetDefaultDataActiveError" is not 'NotTested'
+- Check:
+	Implementation of PO_01_RS_61934 and PO_01_RS_100295 are executed.
+	It is covered by case 5 in Requirement PO_01_RS_61902 (SwT_VW_02_3041)
+	
+Case 5:
+- Set:
+	 Cust_WAI_DatasetInvalid is received at least once
+	 Cust_WAI_DatasetImplausible is NOT received
+	"NVRAM_DSCRCFailureError" is 'NotTested'
+	"NVRAM_DSConfigurationNotFoundError" is 'NotTested'
+	"NVRAM_DSConsistenceError" is 'NotTested'
+	"NVRAM_DSInternalError" is 'NotTested'
+	"NVRAM_DSParsingStoppedError" is not 'NotTested' 
+	"NVRAM_DSStructureVersionError" is 'NotTested'
+	"Diag_HellaDatasetDefaultDataActiveError" is not 'NotTested'
+- Check:
+	Implementation of PO_01_RS_61934 and PO_01_RS_100295 are executed.
+	It is covered by case 6 in Requirement PO_01_RS_61902 (SwT_VW_02_3041)
+	
+Case 6:
+- Set:
+	 Cust_WAI_DatasetInvalid is received at least once
+	 Cust_WAI_DatasetImplausible is NOT received
+	"NVRAM_DSCRCFailureError" is 'NotTested'
+	"NVRAM_DSConfigurationNotFoundError" is 'NotTested'
+	"NVRAM_DSConsistenceError" is 'NotTested'
+	"NVRAM_DSInternalError" is 'NotTested'
+	"NVRAM_DSParsingStoppedError" is 'NotTested' 
+	"NVRAM_DSStructureVersionError" is not 'NotTested'
+	"Diag_HellaDatasetDefaultDataActiveError" is not 'NotTested'
+- Check:
+	Implementation of PO_01_RS_61934 and PO_01_RS_100295 are executed.
+	It is covered by case 2 in Requirement PO_01_RS_61902 (SwT_VW_02_3041)
+	
+Case 7:
+- Set:
+	 Cust_WAI_DatasetInvalid is NOT received
+	 Cust_WAI_DatasetImplausible is NOT received
+	"NVRAM_DSCRCFailureError" is not 'NotTested'
+	"NVRAM_DSConfigurationNotFoundError" is not 'NotTested'
+	"NVRAM_DSConsistenceError" is not 'NotTested'
+	"NVRAM_DSInternalError" is not 'NotTested'
+	"NVRAM_DSParsingStoppedError" is not 'NotTested' 
+	"NVRAM_DSStructureVersionError" is not 'NotTested'
+	"Diag_HellaDatasetDefaultDataActiveError" is not 'NotTested'
+- Check:
+	Implementation of PO_01_RS_61934 and PO_01_RS_100295 are NOT executed.
+    Or BreakPoint can not be hit in the implementation of  PO_01_RS_61934 and PO_01_RS_100295
+	
+Case 8:
+- Set:
+	 Cust_WAI_DatasetInvalid is received at least once
+	 Cust_WAI_DatasetImplausible is received at least once
+	"NVRAM_DSCRCFailureError" is 'NotTested'
+	"NVRAM_DSConfigurationNotFoundError" is 'NotTested'
+	"NVRAM_DSConsistenceError" is 'NotTested'
+	"NVRAM_DSInternalError" is 'NotTested'
+	"NVRAM_DSParsingStoppedError" is 'NotTested' 
+	"NVRAM_DSStructureVersionError" is 'NotTested'
+	"Diag_HellaDatasetDefaultDataActiveError" is not 'NotTested'
+- Check:
+	Implementation of PO_01_RS_61934 and PO_01_RS_100295 are NOT executed.
+    Or BreakPoint can not be hit in the implementation of  PO_01_RS_61934 and PO_01_RS_100295
+	
+Case 9:
+- Set:
+	 Cust_WAI_DatasetInvalid is received at least once
+	 Cust_WAI_DatasetImplausible is received at least once
+	"NVRAM_DSCRCFailureError" is not 'NotTested'
+	"NVRAM_DSConfigurationNotFoundError" is not 'NotTested'
+	"NVRAM_DSConsistenceError" is not 'NotTested'
+	"NVRAM_DSInternalError" is not 'NotTested'
+	"NVRAM_DSParsingStoppedError" is not 'NotTested' 
+	"NVRAM_DSStructureVersionError" is not 'NotTested'
+	"Diag_HellaDatasetDefaultDataActiveError" is 'NotTested'
+- Check:
+	Implementation of PO_01_RS_61934 and PO_01_RS_100295 are NOT executed.
+    Or BreakPoint can not be hit in the implementation of  PO_01_RS_61934 and PO_01_RS_100295
+	
+// Because PO_01_RS_61947 is precondition for PO_01_RS_61934 and PO_01_RS_100295, negative case for PO_01_RS_100295 we expect PO_01_RS_61934 and PO_01_RS_100295 are not executed.
+
+*/
+testcase SwT_VW_02_2874()
+{
+	const NUMBER_OF_TESTCASE = 9;
+    int i;
+	const EVHND_EVENT_DSH_DSCRCFAILURE = 317;
+	const EVHND_EVENT_DSH_DSCONFIGURATIONNOTFOUND = 319;
+	const EVHND_EVENT_DSH_DSCONSISTENCE = 318;
+	const EVHND_EVENT_DSH_DSINTERNAL = 320;
+	const EVHND_EVENT_DSH_DSPARSINGSTOPPED = 321;
+	const EVHND_EVENT_MLM_DSSTRUCTUREVERSION = 322;
+	const EVHND_EVENT_HELLA_DATASET_DFLT_DATA_ACTIVE = 58;
+	
+	
+
+	/* Input*/	
+		char ipt1[255] = "Eventmdw_SendDataset_st.Invalid_b";
+		char ipt2[255] = "Eventmdw_SendDataset_st.Implausible_b";
+		char ipt3[255] = "Rte_Core0AsilB_RxUpdateFlags.Rte_RxUpdate_EventMdw_AstechDatasetStatus_Data";
+		char ipt4[255] = "((EventMdw_ErrorResult_ast)[EVHND_EVENT_DSH_DSCRCFAILURE]).debounceResult_u8";
+		char ipt5[255] = "((EventMdw_ErrorResult_ast)[EVHND_EVENT_DSH_DSCONFIGURATIONNOTFOUND]).debounceResult_u8";
+		char ipt6[255] = "((EventMdw_ErrorResult_ast)[EVHND_EVENT_DSH_DSCONSISTENCE]).debounceResult_u8";
+		char ipt7[255] = "((EventMdw_ErrorResult_ast)[EVHND_EVENT_DSH_DSINTERNAL]).debounceResult_u8";
+		char ipt8[255] = "((EventMdw_ErrorResult_ast)[EVHND_EVENT_DSH_DSPARSINGSTOPPED]).debounceResult_u8";
+		char ipt9[255] = "((EventMdw_ErrorResult_ast)[EVHND_EVENT_MLM_DSSTRUCTUREVERSION]).debounceResult_u8";
+		char ipt10[255] = "((EventMdw_ErrorResult_ast)[EVHND_EVENT_HELLA_DATASET_DFLT_DATA_ACTIVE]).debounceResult_u8";
+		
+		
+	/* Output*/	
+		char opt1[255] = "Eventmdw_SendDataset_st.Invalid_b"; 
+		char opt2[255] = "Eventmdw_SendDataset_st.Implausible_b"; 	
+		char opt3[255] = "Eventmdw_DatasetStatus_flag_b"; 
+		char opt4[255] = "Event_Error_Status_st[EVHND_EVENT_DSH_DSCRCFAILURE].debounceResult_u8";
+		char opt5[255] = "Event_Error_Status_st[EVHND_EVENT_DSH_DSCONFIGURATIONNOTFOUND].debounceResult_u8";
+		char opt6[255] = "Event_Error_Status_st[EVHND_EVENT_DSH_DSCONSISTENCE].debounceResult_u8";
+		char opt7[255] = "Event_Error_Status_st[EVHND_EVENT_DSH_DSINTERNAL].debounceResult_u8";
+		char opt8[255] = "Event_Error_Status_st[EVHND_EVENT_DSH_DSPARSINGSTOPPED].debounceResult_u8";
+		char opt9[255] = "Event_Error_Status_st[EVHND_EVENT_MLM_DSSTRUCTUREVERSION].debounceResult_u8";
+		char opt10[255] = "Event_Error_Status_st[EVHND_EVENT_HELLA_DATASET_DFLT_DATA_ACTIVE].debounceResult_u8";
+		
+
+	/* Input_Value*/	
+		int ipt1Val[NUMBER_OF_TESTCASE] =  {2, 2, 2, 2, 2, 2, 2, 2, 2}; // Set init value of Eventmdw_SendDataset_st.Invalid_b
+		int ipt2Val[NUMBER_OF_TESTCASE] =  {2, 2, 2, 2, 2, 2, 2, 2, 2}; // Set init value of Eventmdw_SendDataset_st.Implausible_b
+		int ipt3Val[NUMBER_OF_TESTCASE] =  {0, 0, 0, 0, 0, 0, 1, 0, 0};
+		int ipt4Val[NUMBER_OF_TESTCASE] =  {2, 0, 0, 0, 0, 0, 2, 0, 2};
+		int ipt5Val[NUMBER_OF_TESTCASE] =  {0, 2, 0, 0, 0, 0, 2, 0, 2};
+		int ipt6Val[NUMBER_OF_TESTCASE] =  {0, 0, 2, 0, 0, 0, 2, 0, 2};
+		int ipt7Val[NUMBER_OF_TESTCASE] =  {0, 0, 0, 2, 0, 0, 2, 0, 2};
+		int ipt8Val[NUMBER_OF_TESTCASE] =  {0, 0, 0, 0, 2, 0, 2, 0, 2};
+		int ipt9Val[NUMBER_OF_TESTCASE] =  {0, 0, 0, 0, 0, 2, 2, 0, 2};
+		int ipt10Val[NUMBER_OF_TESTCASE] = {1, 1, 1, 1, 1, 1, 1, 1, 0};
+
+	/* Output_Value*/		
+        int opt1Val[NUMBER_OF_TESTCASE] =  {1, 2, 2, 2, 2, 2, 2, 2, 2};
+		int opt2Val[NUMBER_OF_TESTCASE] =  {2, 1, 1, 1, 1, 1, 2, 2, 2};
+		int opt3Val[NUMBER_OF_TESTCASE] =  {1, 1, 1, 1, 1, 1, 0, 1, 1};
+		int opt4Val[NUMBER_OF_TESTCASE] =  {2, 0, 0, 0, 0, 0, 2, 0, 2};
+		int opt5Val[NUMBER_OF_TESTCASE] =  {0, 2, 0, 0, 0, 0, 2, 0, 2};
+		int opt6Val[NUMBER_OF_TESTCASE] =  {0, 0, 2, 0, 0, 0, 2, 0, 2};
+		int opt7Val[NUMBER_OF_TESTCASE] =  {0, 0, 0, 2, 0, 0, 2, 0, 2};
+		int opt8Val[NUMBER_OF_TESTCASE] =  {0, 0, 0, 0, 2, 0, 2, 0, 2};
+		int opt9Val[NUMBER_OF_TESTCASE] =  {0, 0, 0, 0, 0, 2, 2, 0, 2};
+		int opt10Val[NUMBER_OF_TESTCASE] = {1, 1, 1, 1, 1, 1, 1, 1, 0};
+
+	TestCaseTitle("SwT_VW_02_2874","Check if the function DTC DatasetOverallErrorDetection will calculate HellaDatasetInvalid, HellaDatasetImplausible");
+    testReportFileName("X:\\30_Reports\\UDSDiagnostic\\SwT_VW_02_2874");
+
+    //********************************************* Preconditions *********************************************
+    func_testStepSubSection("Reset the environment");
+    funcIDE_DeleteAllBP();
+    funcIDE_Reset();
+    funcIDE_Run();
+    func_Wait(3000);
+    
+    //********************************************* Test Body ************************************************   
+	for ( i = 0; i < NUMBER_OF_TESTCASE; i++) {
+	testStep("+++" , "+++ SECTION: ------------------------------------CASE %d------------------------------------", i+1);
+	
+	if( 0 == i){
+	testStep("+++" , "+++ It is covered by case 1 in Requirement PO_01_RS_61902 (SwT_VW_02_3041)--------------------", i);
+	}
+	if( 1 == i){
+	testStep("+++" , "+++ It is covered by case 3 in Requirement PO_01_RS_61902 (SwT_VW_02_3041)--------------------", i);
+	}
+	if( 2 == i){
+	testStep("+++" , "+++ It is covered by case 4 in Requirement PO_01_RS_61902 (SwT_VW_02_3041)--------------------", i);
+	}
+	if( 3 == i){
+	testStep("+++" , "+++ It is covered by case 5 in Requirement PO_01_RS_61902 (SwT_VW_02_3041)--------------------", i);
+	}
+	if( 4 == i){
+	testStep("+++" , "+++ It is covered by case 6 in Requirement PO_01_RS_61902 (SwT_VW_02_3041)--------------------", i);
+	}
+	if( 5 == i){
+	testStep("+++" , "+++ It is covered by case 2 in Requirement PO_01_RS_61902 (SwT_VW_02_3041)--------------------", i);
+	}
+	funcIDE_Reset();
+	
+	funcWinIdea_SetBPSource("Eventmdw_DTC_DatasetOverallErrorDetection","if (TRUE == Rte_IsUpdated_AstechDatasetStatus_Data())");
+	funcIDE_Run();
+	funcIDE_WaitForHalt(5000);
+	funcIDE_WriteVariable(ipt1, ipt1Val[i]);
+	funcIDE_WriteVariable(ipt2, ipt2Val[i]);
+	funcIDE_WriteVariable(ipt3, ipt3Val[i]);
+	func_wait(200);
+	funcIDE_WriteVariable(ipt4, ipt4Val[i]);
+	funcIDE_WriteVariable(ipt5, ipt5Val[i]);
+	funcIDE_WriteVariable(ipt6, ipt6Val[i]);
+	func_wait(200);
+	funcIDE_WriteVariable(ipt7, ipt7Val[i]);
+	funcIDE_WriteVariable(ipt8, ipt8Val[i]);
+	funcIDE_WriteVariable(ipt9, ipt9Val[i]);
+	funcIDE_WriteVariable(ipt10, ipt10Val[i]);
+    func_wait(200);
+	
+	funcWinIdea_SetBPSource("Eventmdw_DTC_DatasetOverallErrorDetection","if ((TRUE == Eventmdw_DatasetStatus_flag_b) &&");
+	funcIDE_Run();
+	funcIDE_WaitForHalt(5000);
+	funcIDE_ReadVariableAndCheck(opt3, opt3Val[i]);
+	funcIDE_ReadVariableAndCheck(opt4, opt4Val[i]);
+	funcIDE_ReadVariableAndCheck(opt5, opt5Val[i]);
+	funcIDE_ReadVariableAndCheck(opt6, opt6Val[i]);
+	funcIDE_ReadVariableAndCheck(opt7, opt7Val[i]);
+	funcIDE_ReadVariableAndCheck(opt8, opt8Val[i]);
+	funcIDE_ReadVariableAndCheck(opt9, opt9Val[i]);
+	funcIDE_ReadVariableAndCheck(opt10, opt10Val[i]);
+	
+	funcWinIdea_SetBPSource("Eventmdw_DTC_DatasetOverallErrorDetection","if (RTE_E_OK == retVal_u8)");
+	func_wait(200);
+	//funcIDE_SetBPLine(2192,"Y:/Source/EventMiddleware/Variant_DAS_VW_02/EventMdw_OEM_Specific.c");
+	funcIDE_Run();
+	funcIDE_WaitForHalt(5000);
+	
+	funcIDE_ReadVariableAndCheck(opt1, opt1Val[i]);
+	funcIDE_ReadVariableAndCheck(opt2, opt2Val[i]);
+	
+	// Clean Testcase
+    funcIDE_DeleteAllBP();
+    funcIDE_ReSet();
+    funcIDE_Run();
+    func_Wait(500);
+    }
+    //********************************************* End ************************************************
+    func_testStepSubSection("Clean Testcase");
+    funcIDE_DeleteAllBP();
+    funcIDE_Reset();
+    funcIDE_Run();
+    func_Wait(2000);
+}
