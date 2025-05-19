@@ -36,12 +36,12 @@ def save_workspace(app, save_as=False):
         for row in app.data
     ]
     # ...existing code...
-    # Lưu width các cột nếu tree đã được tạo
+    # Lưu width các cột nếu sheet đã được tạo
     column_widths = {}
-    if hasattr(app, "tree") and app.tree is not None:
-        for col in app.headers:
+    if hasattr(app, "sheet") and app.sheet is not None:
+        for idx, col in enumerate(app.headers):
             try:
-                column_widths[col] = app.tree.column(col)["width"]
+                column_widths[col] = app.sheet.column_width(idx)
             except Exception:
                 column_widths[col] = 120  # mặc định
 
@@ -132,7 +132,7 @@ def ensure_script_file(app, values, auto_open=False):
     """Đảm bảo file .can đã có ở thư mục working, nếu chưa thì tải/copy về. 
     Nếu auto_open=True thì mở file sau khi copy."""
     try:
-        crid_idx = app.headers.index("CR Related")
+        crid_idx = app.headers.index("CR ID")
         feature_idx = app.headers.index("Feature")
         id_idx = app.headers.index("Test cases ID")
     except ValueError:
@@ -223,7 +223,10 @@ def refresh_table(app):
     app.headers = valid_headers
     filtered_data = []
     for row in app.data:
-        filtered_row = [row[idx] if idx < len(row) and row[idx] is not None else "" for idx in valid_indices]
+        filtered_row = [
+            str(row[idx] if idx < len(row) and row[idx] is not None else "").replace("_x000D_", "")
+            for idx in valid_indices
+        ]
         filtered_data.append(filtered_row)
     app.data = filtered_data
 
@@ -235,7 +238,7 @@ def refresh_table(app):
 
     # Đánh dấu tick file tồn tại
     try:
-        crid_idx = app.headers.index("CR Related")
+        crid_idx = app.headers.index("CR ID")
         feature_idx = app.headers.index("Feature")
         id_idx = app.headers.index("Test cases ID")
         file_exist_idx = app.headers.index("File existed")
@@ -299,6 +302,14 @@ def refresh_table(app):
     app.sheet.extra_bindings([("end_edit_cell", update_data)])
 
     # Nếu muốn double click mở sửa ô, tksheet đã hỗ trợ mặc định
+    # Set lại width các cột nếu có thông tin
+    if hasattr(app, "column_widths") and app.column_widths:
+        for idx, col in enumerate(app.headers):
+            w = app.column_widths.get(col, 120)
+            try:
+                app.sheet.column_width(idx, w)
+            except Exception:
+                pass
 
 def set_status(app, message, success=True):
         app.status_label.config(

@@ -21,6 +21,7 @@ class CustomApp(tk.Tk):
         self.sidebar = tk.Frame(self.paned, bg="#077786", width=200)
         self.sidebar.pack_propagate(False)
         tk.Label(self.sidebar, text="Configuration", bg="#077786", fg="white", font=("Segoe UI", 12, "bold")).pack(pady=5)
+        
 
         # Group 1: Quản lý Excel
         frame_excel = tk.LabelFrame(self.sidebar, text="Excel mannagment", bg="#077786", fg="white")
@@ -42,12 +43,13 @@ class CustomApp(tk.Tk):
         ttk.Button(frame_ws, text="Save workspace", command=lambda: save_workspace(self)).pack(fill="x", pady=2)
         ttk.Button(frame_ws, text="Save as workspace", command=lambda: save_workspace(self, save_as=True)).pack(fill="x", pady=2)
 
-        # Group 4: Khác
+        # Group 4: Checking file
         frame_other = tk.LabelFrame(self.sidebar, text="Checking file", bg="#077786", fg="white")
         frame_other.pack(fill="x", padx=8, pady=4)
         self.btn_open_script = ttk.Button(frame_other, text="Open Automation script", command=lambda: open_script(self))
         self.btn_open_script.pack(fill="x", pady=2)
-        ttk.Button(frame_other, text="Check Consistency", command=lambda: compare_content_requirement(self)).pack(fill="x", pady=2)
+        ttk.Button(frame_other, text="Consistency Spec vs Script", command=lambda: compare_content_requirement(self)).pack(fill="x", pady=2)
+        ttk.Button(frame_other, text="Consistency SSRS vs Spec", command=lambda: compare_ssrs_vs_spec(self)).pack(fill="x", pady=2)
 
         # Nút dưới cùng
         frame_refresh = tk.Frame(self.sidebar, bg="#077786")
@@ -78,6 +80,26 @@ class CustomApp(tk.Tk):
 
         # Bind double click
         self.tree = None
-    
+
+        # Frame chứa Project và Test level ở dưới bên phải
+        bottom_right_frame = tk.Frame(self, bg="#e0e0e0")
+        bottom_right_frame.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=0)
+
+        tk.Label(bottom_right_frame, text="Project:", bg="#e0e0e0").grid(row=0, column=0, sticky="e", padx=2)
+        self.project_var = tk.StringVar(value=self.project)
+        tk.Entry(bottom_right_frame, textvariable=self.project_var, width=18).grid(row=0, column=1, padx=2)
+
+        tk.Label(bottom_right_frame, text="Test level:", bg="#e0e0e0").grid(row=1, column=0, sticky="e", padx=2)
+        self.testlevel_var = tk.StringVar(value=self.Test_level)
+        tk.Entry(bottom_right_frame, textvariable=self.testlevel_var, width=18).grid(row=1, column=1, padx=2)
+
+        # --- Đồng bộ giá trị khi thay đổi ---
+        def update_project_var(*args):
+            self.project = self.project_var.get()
+        def update_testlevel_var(*args):
+            self.Test_level = self.testlevel_var.get()
+        self.project_var.trace_add("write", update_project_var)
+        self.testlevel_var.trace_add("write", update_testlevel_var)
+
 
 
