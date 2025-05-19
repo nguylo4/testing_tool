@@ -10,6 +10,8 @@ from compare import *
 from script_handle import *
 import os
 import ttkbootstrap as ttk
+from edit_report import *
+from ttkbootstrap.window import Window
 
 class CollapsibleFrame(ttk.Frame):
     def __init__(self, parent, text="", width=110, *args, **kwargs):
@@ -40,7 +42,7 @@ class CollapsibleFrame(ttk.Frame):
 
 
 
-class CustomApp(ttk.Window):
+class CustomApp(Window):
     def __init__(self):
         super().__init__(themename="cosmo")
         style = Style()
@@ -160,7 +162,164 @@ class CustomApp(ttk.Window):
         ttk.Button(script_frame.sub_frame, text="📂 Open", bootstyle="outline", width=21, command=lambda: open_script(self)).pack(side="left", padx=2, pady=1)
         ttk.Button(script_frame.sub_frame, text="🛠️ Create", bootstyle="info", width=21, command=lambda: create_new_script(self)).pack(side="left", padx=2, pady=1)
         ttk.Button(script_frame.sub_frame, text="⬇️ Download", bootstyle="secondary", width=21, command=lambda: download_script(self)).pack(side="left", padx=2, pady=1)
+        
+        # --- Tab Report Tools ---
+        report_tab = ttk.Frame(self.notebook)
+        self.notebook.add(report_tab, text="Report")
 
+        # Tạo Notebook con cho các chức năng report
+        report_notebook = ttk.Notebook(report_tab)
+        report_notebook.pack(expand=True, fill="both")
+
+        # Split HTML Tab
+        split_html_tab = ttk.Frame(report_notebook)
+        report_notebook.add(split_html_tab, text="Split Report")
+
+        label2 = tk.Label(split_html_tab, text="Split Report")
+        label2.grid(row=0, column=0, padx=5, pady=5)
+
+        label_path = tk.Label(split_html_tab, text="Input folder path:")
+        label_path.grid(row=1, column=0, padx=5, pady=5, sticky="e")
+
+        entry_path = tk.Entry(split_html_tab, width=50)
+        entry_path.grid(row=1, column=1, padx=5, pady=5)
+
+        button_browse = tk.Button(split_html_tab, text="Choose input folder", command=select_directory)
+        button_browse.grid(row=1, column=2, padx=5, pady=5)
+
+        label_files = tk.Label(split_html_tab, text="List files:")
+        label_files.grid(row=4, column=0, padx=5, pady=5, sticky="w")
+
+        file_listbox = tk.Listbox(split_html_tab, width=50, selectmode=tk.MULTIPLE)
+        file_listbox.grid(row=4, column=0, columnspan=3, padx=5, pady=5)
+
+        button_export_passed = ttk.Button(
+            split_html_tab, bootstyle="success", text="Export PASSED files",
+            command=lambda: export_to_html_report(passed=True, failed=False)
+        )
+        button_export_passed.grid(row=5, column=0, padx=5, pady=5, sticky="we")
+
+        button_export_failed = ttk.Button(
+            split_html_tab, bootstyle="warning", text="Export FAILED files",
+            command=lambda: export_to_html_report(passed=False, failed=True)
+        )
+        button_export_failed.grid(row=5, column=1, padx=5, pady=5, sticky="we")
+
+        button_export_all = ttk.Button(
+            split_html_tab, bootstyle="outline", text="Export ALL files",
+            command=lambda: export_to_html_report(passed=True, failed=True)
+        )
+        button_export_all.grid(row=5, column=2, padx=5, pady=5, sticky="we")
+
+        label_output_path = tk.Label(split_html_tab, text="Output folder path:")
+        label_output_path.grid(row=3, column=0, padx=5, pady=5, sticky="e")
+
+        output_entry = tk.Entry(split_html_tab, width=50)
+        output_entry.grid(row=3, column=1, padx=5, pady=5)
+
+        button_output_browse = tk.Button(split_html_tab, text="Choose output folder", command=select_output_directory)
+        button_output_browse.grid(row=3, column=2, padx=5, pady=5)
+
+        label_count = tk.Label(split_html_tab, text="")
+        label_count.grid(row=7, column=0, columnspan=3, padx=5, pady=5)
+
+        def update_count_label():
+            global passed_count, failed_count
+            label_count.config(text=f"Passed: {passed_count}\nFailed: {failed_count}")
+
+        button_open_output = tk.Button(split_html_tab, text="Open output folder", command=open_output_folder)
+        button_open_output.grid(row=8, column=2, padx=5, pady=5, sticky="w")
+
+        passed_files_label = tk.Label(split_html_tab, text="Passed Files:")
+        passed_files_label.grid(row=9, column=0, padx=5, pady=5, sticky="we")
+        passed_files_listbox = tk.Listbox(split_html_tab, width=50)
+        passed_files_listbox.grid(row=10, column=0, padx=5, pady=5)
+
+        failed_files_label = tk.Label(split_html_tab, text="Failed Files:")
+        failed_files_label.grid(row=9, column=1, padx=5, pady=5, sticky="we")
+        failed_files_listbox = tk.Listbox(split_html_tab, width=50)
+        failed_files_listbox.grid(row=10, column=1, padx=5, pady=5)
+
+        # Merge HTML Tab
+        merge_html_tab = ttk.Frame(report_notebook)
+        report_notebook.add(merge_html_tab, text="Merge HTML")
+        app = HTMLMergerApp(merge_html_tab)
+
+        # Edit Name Files Tab
+        edit_name_files_tab = ttk.Frame(report_notebook)
+        report_notebook.add(edit_name_files_tab, text="Edit name files")
+
+        # Directory selection
+        tk.Label(edit_name_files_tab, text="Select Directory:").grid(row=0, column=0, padx=10, pady=10)
+        directory_entry = tk.Entry(edit_name_files_tab, width=50)
+        directory_entry.grid(row=0, column=1, padx=10, pady=10)
+        browse_dir_button = tk.Button(edit_name_files_tab, text="Browse", command=browse_directory)
+        browse_dir_button.grid(row=0, column=2, padx=10, pady=10)
+        ToolTip(browse_dir_button, "Select the directory containing the files to rename")
+
+        # File extension entry
+        tk.Label(edit_name_files_tab, text="File Extension:").grid(row=1, column=0, padx=10, pady=10)
+        ext_entry = tk.Entry(edit_name_files_tab, width=10)
+        ext_entry.grid(row=1, column=1, padx=10, pady=10)
+        ToolTip(ext_entry, "Enter the file extension of the files to rename (e.g., .txt, .jpg)")
+
+        # Rename options
+        rename_var = tk.StringVar(value="Add/Remove")
+        tk.Radiobutton(edit_name_files_tab, text="Add/Remove", variable=rename_var, value="Add/Remove", command=update_preview_list).grid(row=2, column=0, padx=10, pady=10)
+        tk.Radiobutton(edit_name_files_tab, text="Replace", variable=rename_var, value="Replace", command=update_preview_list).grid(row=2, column=1, padx=10, pady=10)
+        ToolTip(edit_name_files_tab.nametowidget(edit_name_files_tab.winfo_children()[-2]), "Select this option to add or remove text from file names")
+        ToolTip(edit_name_files_tab.nametowidget(edit_name_files_tab.winfo_children()[-1]), "Select this option to replace text in file names")
+
+        # Excel or manual input
+        excel_var = tk.BooleanVar(value=False)
+        tk.Checkbutton(edit_name_files_tab, text="Use Excel", variable=excel_var, command=update_preview_list).grid(row=3, column=0, padx=10, pady=10)
+        ToolTip(edit_name_files_tab.nametowidget(edit_name_files_tab.winfo_children()[-1]), "Check this box to use an Excel file for renaming")
+
+        # Excel file selection
+        tk.Label(edit_name_files_tab, text="Excel File:").grid(row=4, column=0, padx=10, pady=10)
+        excel_entry = tk.Entry(edit_name_files_tab, width=50)
+        excel_entry.grid(row=4, column=1, padx=10, pady=10)
+        browse_excel_button = tk.Button(edit_name_files_tab, text="Browse", command=browse_excel_file)
+        browse_excel_button.grid(row=4, column=2, padx=10, pady=10)
+        ToolTip(browse_excel_button, "Select the Excel file containing the renaming rules")
+
+        # Add/Remove entry
+        tk.Label(edit_name_files_tab, text="Add/Remove Text:").grid(row=5, column=0, padx=10, pady=10)
+        add_remove_entry = tk.Entry(edit_name_files_tab, width=30)
+        add_remove_entry.grid(row=5, column=1, padx=10, pady=10)
+        ToolTip(add_remove_entry, "Enter the text to add or remove from file names")
+
+        # Replace entries
+        tk.Label(edit_name_files_tab, text="Replace From:").grid(row=6, column=0, padx=10, pady=10)
+        replace_from_entry = tk.Entry(edit_name_files_tab, width=30)
+        replace_from_entry.grid(row=6, column=1, padx=10, pady=10)
+        ToolTip(replace_from_entry, "Enter the text to replace in file names")
+
+        tk.Label(edit_name_files_tab, text="Replace To:").grid(row=7, column=0, padx=10, pady=10)
+        replace_to_entry = tk.Entry(edit_name_files_tab, width=30)
+        replace_to_entry.grid(row=7, column=1, padx=10, pady=10)
+        ToolTip(replace_to_entry, "Enter the text to replace with in file names")
+
+        # Current and preview file lists
+        tk.Label(edit_name_files_tab, text="Current Files:").grid(row=8, column=0, padx=10, pady=10)
+        current_files_listbox = tk.Listbox(edit_name_files_tab, width=50)
+        current_files_listbox.grid(row=9, column=0, padx=10, pady=10)
+        ToolTip(current_files_listbox, "List of current files in the selected directory")
+
+        tk.Label(edit_name_files_tab, text="Preview Files:").grid(row=8, column=1, padx=10, pady=10)
+        preview_files_listbox = tk.Listbox(edit_name_files_tab, width=50)
+        preview_files_listbox.grid(row=9, column=1, padx=10, pady=10)
+        ToolTip(preview_files_listbox, "Preview of the renamed files")
+
+        # Refresh button
+        refresh_button = tk.Button(edit_name_files_tab, text="Refresh", command=update_preview_list)
+        refresh_button.grid(row=10, column=0, padx=10, pady=10)
+        ToolTip(refresh_button, "Click to refresh the preview list")
+
+        # Execute button
+        execute_button = tk.Button(edit_name_files_tab, text="Execute", command=execute_rename)
+        execute_button.grid(row=10, column=1, padx=10, pady=10)
+        ToolTip(execute_button, "Click to execute the renaming operation")
 
         # --- Tab About ---
         about_tab = ttk.Frame(self.notebook)
@@ -177,7 +336,7 @@ class CustomApp(ttk.Window):
             ttk.Button(popup, text="Close", command=popup.destroy, bootstyle="danger").pack(pady=18)
             popup.grab_set()
         def on_tab_changed(event):
-            if self.notebook.index("current") == 2:  # About tab index
+            if self.notebook.index("current") == 3:  # About tab index
                 show_about_popup()
                 self.notebook.select(0)  # Quay lại tab đầu tiên sau khi đóng popup
         self.notebook.bind("<<NotebookTabChanged>>", on_tab_changed)
@@ -233,6 +392,8 @@ class CustomApp(ttk.Window):
 
         self.file_sidebar = file_sidebar
         self.working_sidebar = working_sidebar
+
+
 
 
 
