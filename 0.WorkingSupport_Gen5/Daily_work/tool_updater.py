@@ -28,6 +28,9 @@ def download_with_progress(url, dest, progress_callback):
                     percent = int(downloaded * 100 / total) if total else 0
                     progress_callback(percent)
     progress_callback(100)
+    # Kiểm tra file có dung lượng hợp lý không
+    if os.path.getsize(dest) < 1000:  # file quá nhỏ, có thể là lỗi
+        raise Exception("Downloaded file is too small, possibly not a valid 7z file.")
 
 def extract_7z_and_overwrite(archive_path, extract_to):
     with py7zr.SevenZipFile(archive_path, mode='r') as z:
