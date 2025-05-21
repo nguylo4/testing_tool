@@ -10,8 +10,9 @@ def check_update():
         if resp.status_code == 200:
             data = resp.json()
             latest = data.get("version", "")
+            change = data.get("Change_log", "")
             if latest > CURRENT_VERSION:
-                return f"Có bản cập nhật mới: {latest}"
+                return f"Có bản cập nhật mới: {latest}!\n{change}\nBạn có muốn tải về không? (Y/N)"
             else:
                 return "Bạn đang dùng bản mới nhất."
         else:
