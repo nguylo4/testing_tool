@@ -12,6 +12,7 @@ import os
 import ttkbootstrap as ttk
 from edit_report import *
 from ttkbootstrap.window import Window
+from tool_updater import check_update
 
 # KANBAN_STATES = [
 #     "Start", "Prepare_Spec", "Spec_Done", "Implement TC", "Executed", "Review", "Done"
@@ -180,12 +181,18 @@ class CustomApp(Window):
         def show_about_popup():
             popup = tk.Toplevel(self)
             popup.title("About")
-            popup.geometry("300x250")
+            popup.geometry("300x270")
             popup.iconbitmap(ico_path)
             popup.resizable(False, False)
-            ttk.Label(popup, text="Release Working Tool\nVersion 1.2\nDeveloped by NguyenLoc", font=("Segoe UI", 13, "bold")).pack(pady=30)
+            ttk.Label(popup, text="Release Working Tool\nVersion 1.2\nDeveloped by NguyenLoc", font=("Segoe UI", 13, "bold")).pack(pady=20)
             ttk.Label(popup, text="Contact: loc.nguyen@forvia.com", font=("Segoe UI", 10)).pack(pady=5)
-            ttk.Button(popup, text="Close", command=popup.destroy, bootstyle="danger").pack(pady=18)
+            
+            def on_check_update():
+                result = check_update()
+                messagebox.showinfo("Kiểm tra cập nhật", result, parent=popup)
+            
+            ttk.Button(popup, text="Kiểm tra cập nhật", command=on_check_update, bootstyle="info").pack(pady=4)
+            ttk.Button(popup, text="Close", command=popup.destroy, bootstyle="danger").pack(pady=8)
             popup.grab_set()
         def on_tab_changed(event):
             if self.notebook.index("current") == 2:  # About tab index
