@@ -12,7 +12,8 @@ import os
 import ttkbootstrap as ttk
 from edit_report import *
 from ttkbootstrap.window import Window
-from tool_updater import check_update
+from tool_updater import *
+
 
 # KANBAN_STATES = [
 #     "Start", "Prepare_Spec", "Spec_Done", "Implement TC", "Executed", "Review", "Done"
@@ -49,7 +50,7 @@ class CollapsibleFrame(ttk.Frame):
 
 class CustomApp(Window):
     def __init__(self):
-        super().__init__(themename="cosmo")
+        super().__init__(themename="yeti")
         style = Style()
         self.title("Testing Tool")
         self.geometry("1200x900")
@@ -68,7 +69,14 @@ class CustomApp(Window):
         style.configure("Bold.TButton", font=("Segoe UI", 10, "bold"))
         style.configure("Collapsible.TButton", font=("Segoe UI", 8, "bold"), foreground="#222", anchor="w", relief="flat", background="#ffffff")
         
-        ico_path = os.path.join(os.path.dirname(__file__), "App.ico")
+        
+        if getattr(sys, 'frozen', False):
+            # Đang chạy trong exe
+            ico_path = os.path.join(sys._MEIPASS, 'App.ico')
+        else:
+            # Đang chạy file .py
+            ico_path = os.path.join(os.path.dirname(__file__), "App.ico")
+
         self.iconbitmap(ico_path)
         
         init_app_state(self)
@@ -184,14 +192,16 @@ class CustomApp(Window):
             popup.geometry("300x270")
             popup.iconbitmap(ico_path)
             popup.resizable(False, False)
-            ttk.Label(popup, text="Release Working Tool\nVersion 1.2\nDeveloped by NguyenLoc", font=("Segoe UI", 13, "bold")).pack(pady=20)
+            ttk.Label(popup, text="Release Working Tool\nVersion 1.0\nDeveloped by NguyenLoc", font=("Segoe UI", 13, "bold")).pack(pady=20)
             ttk.Label(popup, text="Contact: loc.nguyen@forvia.com", font=("Segoe UI", 10)).pack(pady=5)
             
             def on_check_update():
-                result = check_update()
-                messagebox.showinfo("Kiểm tra cập nhật", result, parent=popup)
-            
-            ttk.Button(popup, text="Kiểm tra cập nhật", command=on_check_update, bootstyle="info").pack(pady=4)
+                try:
+                    result = update_software_gui(self)
+                    popup.destroy
+                except Exception as e:
+                    messagebox.showinfo("Error", "Update failed!\n" + str(e))
+            ttk.Button(popup, text="Check update", command=on_check_update, bootstyle="info").pack(pady=4)
             ttk.Button(popup, text="Close", command=popup.destroy, bootstyle="danger").pack(pady=8)
             popup.grab_set()
         def on_tab_changed(event):
