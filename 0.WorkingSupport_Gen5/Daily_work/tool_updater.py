@@ -47,7 +47,7 @@ def update_software_gui(root):
         download_url = info["download_url"]
         changelog = info["change_log"]
         if latest_version > CURRENT_VERSION:
-            msg = f"Có bản cập nhật mới: {latest_version}\n\nThay đổi:\n"
+            msg = f"New update version: {latest_version}\n\nThe change:\n"
             for c in changelog["changes"]:
                 msg += f"- [{c['type']}] {c['description']}\n"
             if not messagebox.askyesno("Software Update", msg + "\nDo you want to update?"):
