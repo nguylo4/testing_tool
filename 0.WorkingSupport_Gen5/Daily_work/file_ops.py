@@ -23,6 +23,13 @@ def init_app_state(app):
     app.working_dir = None
     app.Test_level = "30_SW_Test"
     app.workspace_path = None
+    app.feature_map = {
+            "Cust": "Customization", "cust": "Customization", "Customization": "Customization",
+            "Norm": "Normalization", "norm": "Normalization", "Normalization": "Normalization",
+            "Diag": "UDSDiagnostics", "diag": "UDSDiagnostics", "UDSDiagnostics": "UDSDiagnostics",
+            "DTC": "DTCandErrorHandling", "dtc": "DTCandErrorHandling",
+            "ProgramSequenceMonitoring": "ProgramSequenceMonitoring", "PSM": "ProgramSequenceMonitoring"
+        }
 
 
 
@@ -51,7 +58,7 @@ def save_workspace(app, save_as=False):
     workspace = {
         "headers": app.headers,
         "data": serializable_data,
-        "sidebar_width": app.sidebar.winfo_width(),
+        "sidebar_width": app.file_sidebar.winfo_width(),
         "main_area_width": app.main_area.winfo_width(),
         "excel_path": app.excel_path,
         "working_path": app.working_dir,
@@ -124,10 +131,12 @@ def on_double_click(app, event):
     def save_edit(event=None):
         new_value = entry.get()
         app.data[row_idx][col_idx] = new_value
+        
         entry.destroy()
-        refresh_table(app)
+        
 
     entry.bind("<Return>", save_edit)
+    refresh_table(app)
     entry.bind("<FocusOut>", lambda e: entry.destroy())
     # refresh_table(app)
 def sanitize_filename(name):
@@ -135,6 +144,20 @@ def sanitize_filename(name):
     name = re.sub(r'[<>:"/\\|?*\n\r\t]', '_', name)
     return name.strip()
 
+
+def highlight_verdict_cells(app):
+    try:
+        verdict_idx = app.headers.index("Test Verdict")
+        for r, row in enumerate(app.data):
+            verdict = str(row[verdict_idx]).strip().lower()
+            if verdict == "passed":
+                app.sheet.highlight_cells(row=r, column=verdict_idx, bg="#b6fcb6")
+            elif verdict == "failed":
+                app.sheet.highlight_cells(row=r, column=verdict_idx, bg="#ffb3b3")
+            elif verdict in ("not_tested", "discarded"):
+                app.sheet.highlight_cells(row=r, column=verdict_idx, bg="#fff7b2")
+    except Exception:
+        pass
 
 def refresh_table(app):
     # Xóa bảng cũ nếu có
@@ -184,14 +207,14 @@ def refresh_table(app):
             crid_val = str(row[crid_idx]).strip()
             feature_val_raw = str(row[feature_idx]).strip()
             id_val = str(row[id_idx]).strip()
-            feature_map = {
-                "Cust": "Customization", "cust": "Customization", "Customization": "Customization",
-                "Norm": "Normalization", "norm": "Normalization", "Normalization": "Normalization",
-                "Diag": "UDSDiagnostics", "diag": "UDSDiagnostics", "UDSDiagnostics": "UDSDiagnostics",
-                "DTC": "DTCandErrorHandling", "dtc": "DTCandErrorHandling",
-                "ProgramSequenceMonitoring": "ProgramSequenceMonitoring", "PSM": "ProgramSequenceMonitoring"
-            }
-            feature_val = feature_map.get(feature_val_raw, feature_val_raw)
+            # feature_map = {
+            #     "Cust": "Customization", "cust": "Customization", "Customization": "Customization",
+            #     "Norm": "Normalization", "norm": "Normalization", "Normalization": "Normalization",
+            #     "Diag": "UDSDiagnostics", "diag": "UDSDiagnostics", "UDSDiagnostics": "UDSDiagnostics",
+            #     "DTC": "DTCandErrorHandling", "dtc": "DTCandErrorHandling",
+            #     "ProgramSequenceMonitoring": "ProgramSequenceMonitoring", "PSM": "ProgramSequenceMonitoring"
+            # }
+            feature_val = app.feature_map.get(feature_val_raw, feature_val_raw)
             crid_folder = os.path.join(app.working_dir, crid_val)
             feature_folder = os.path.join(crid_folder, feature_val)
             save_path = os.path.join(feature_folder, f"{id_val}.can")
@@ -229,22 +252,12 @@ def refresh_table(app):
     app.sheet.extra_bindings([("column_width_resize", update_column_widths)])
 
     # Tô màu theo verdict
-    try:
-        verdict_idx = app.headers.index("Test Verdict")
-        for r, row in enumerate(app.data):
-            verdict = str(row[verdict_idx]).strip().lower()
-            if verdict == "passed":
-                app.sheet.highlight_cells(row=r, bg="#b6fcb6")
-            elif verdict == "failed":
-                app.sheet.highlight_cells(row=r, bg="#ffb3b3")
-            elif verdict in ("not_tested", "discarded"):
-                app.sheet.highlight_cells(row=r, bg="#fff7b2")
-    except Exception:
-        pass
+    highlight_verdict_cells(app)
 
-    # Khi sửa sheet, cập nhật lại app.data
+    # Khi sửa sheet, cập nhật lại app.data và tô lại màu verdict
     def update_data(event=None):
         app.data = app.sheet.get_sheet_data(return_copy=True)
+        highlight_verdict_cells(app)
     app.sheet.extra_bindings([("end_edit_cell", update_data)])
 
     # Nếu muốn double click mở sửa ô, tksheet đã hỗ trợ mặc định
@@ -276,3 +289,7 @@ def refresh_all(app):
     save_workspace(app)
     refresh_table(app)
     set_status(app,"Refreshed!, Saved Excel and workspace!", success=True)
+
+
+
+

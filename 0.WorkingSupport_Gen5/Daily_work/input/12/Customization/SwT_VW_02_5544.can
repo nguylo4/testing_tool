@@ -1,0 +1,931 @@
+/*@!Encoding:1252*/
+/*
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// @SW release : RC_CUST_DAS_VW_02_SW_U155.01.01
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+@date : 
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+@author : Ly Nhi
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+@observations :
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+@update: 		MinhTien Tran
+@date:			06.10.2024
+@SW release:	RC_CUST_DAS_VW_02_SW_U155.01.01
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+@update: 		MinhTien Tran
+@date:			15.01.2025
+@SW release:	RC_CUST_DAS_VW_02_SW_U172.01.01
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+@update: 		Nguyen Loc
+@date:			22.05.2025
+@SW release:	RC_CUST_DAS_VW_02_SW_U176.02.01
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+@update: 		MinhTien Tran
+@date:			12.05.2025
+@SW release:	RC_CUST_DAS_VW_02_SW_U190.01.01
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+@requirement/s
+[PO_01_RS_82707]
+The function "Vehicle Bus Normalization (VBN) EDF" shall «evaluate "Cust_VBNGlobalTimeoutError" as follows:
+IF	
+	"DiagCodingPlattformVW02" == '3: MEB'
+AND 
+	("Ident_SensorID" == 'ECU2' OR "Ident_SensorID" == 'ECU3')
+AND 
+	NONE of the following messages was received within "tGLOBAL_TIMEOUT":
+		Message					| Precondition	   
+		Blinkmodi_02_XIX_FASCANFD1		| Cust_CodingDataPreSenseSide == '2: installed'
+		Diagnose_01_XIX_FASCANFD1		| N/A
+		ESC_50_XIX_FASCANFD1			| N/A
+		ESC_51_Auth_XIX_FASNCANFD1	| N/A	
+		ESP_21_XIX_FASCANFD1			| N/A
+		Gateway_73_XIX_FASCANFD1		| N/A
+		Klemmen_Status_01_XIX_FASCANFD1		| N/A	
+		LWI_01_XIX_FASCANFD1			| N/A
+		Motor_54_XIX_FASCANFD1			| N/A
+		QFK_01_Auth_XIX_FASCANFD1		| N/A
+		Systeminfo_01_XIX_FASCANFD1		| N/A
+		ORU_01_XIX_FASCANFD1			| N/A
+		ORUG01_01_XIX_FASCANFD1		| N/A
+		ORUG02_01_XIX_FASCANFD1		| N/A
+	
+THEN:  
+	the function "Vehicle Bus Normalization (VBN) EDF" shall set "Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'Detected'
+ELSE IF
+	"DiagCodingPlattformVW02" == '1: MQB37W'
+AND
+	("Ident_SensorID" == 'ECU2' OR "Ident_SensorID" == 'ECU3')
+AND
+	NONE of the following messages was received within "tGLOBAL_TIMEOUT":
+		Message					| Precondition	   
+		BEM_02_XIX_FASCANFD1			| N/A
+		Blinkmodi_02_XIX_FASCANFD1		| Cust_CodingDataPreSenseSide == '2: installed'	   
+		Diagnose_01_XIX_FASCANFD1		| N/A
+		ESC_50_XIX_FASCANFD1			| N/A
+		ESC_51_Auth_XIX_FASCANFD1		| N/A
+		ESP_21_XIX_FASCANFD1			| N/A
+		Gateway_73_XIX_FASCANFD1		| N/A
+		Klemmen_Status_01_XIX_FASCANFD1		| N/A   
+		LWI_01_XIX_FASCANFD1			| N/A
+		Motor_54_XIX_FASCANFD1			| N/A
+		QFK_01_Auth_XIX_FASCANFD1		| N/A
+		Systeminfo_01_XIX_FASCANFD1		| N/A
+		VIN_01_XIX_FASCANFD1			| N/A
+THEN:
+	the function "Vehicle Bus Normalization (VBN) EDF" shall set "Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'Detected'
+ELSE:
+	the function "Vehicle Bus Normalization (VBN) EDF" shall set "Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+».
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+@test design:
+Case 1:
+- Set
+	Precondition
+		Cust_CodingDataPreSenseSide = '2: installed'
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU2'
+	NONE of the following messages was received within "tGLOBAL_TIMEOUT":
+		Blinkmodi_02_XIX_FASCANFD1     
+		Diagnose_01_XIX_FASCANFD1  
+		ESC_50_XIX_FASCANFD1           
+		ESC_51_Auth_XIX_FASNCANFD1    
+		ESP_21_XIX_FASCANFD1  
+		Gateway_73_XIX_FASCANFD1  
+		Klemmen_Status_01_XIX_FASCANFD1  
+		LWI_01_XIX_FASCANFD1  
+		Motor_54_XIX_FASCANFD1    
+		QFK_01_Auth_XIX_FASCANFD1  
+		Systeminfo_01_XIX_FASCANFD1  
+		ORU_01_XIX_FASCANFD1
+		ORUG01_01_XIX_FASCANFD1
+		ORUG02_01_XIX_FASCANFD1
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'Detected'
+	
+Case 2:
+- Set
+	Precondition
+		Cust_CodingDataPreSenseSide = '2: installed'
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU2'
+	Blinkmodi_02_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+	
+Case 3:
+- Set
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU2'
+	Diagnose_01_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+	
+Case 4:
+- Set
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU2'
+	ESC_50_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+	
+Case 5:
+- Set
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU2'
+	ESC_51_Auth_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+		
+Case 6:
+- Set
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU2'
+	ESP_21_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+			
+Case 7:
+- Set
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU2'
+	Gateway_73_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+				
+Case 8:
+- Set
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU2'
+	Klemmen_Status_01_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+					
+Case 9:
+- Set
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU2'
+	LWI_01_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+						
+Case 10:
+- Set
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU2'
+	Motor_54_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+							
+Case 11:
+- Set
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU2'
+	QFK_01_Auth_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+								
+Case 12:
+- Set
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU2'
+	Systeminfo_01_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+									
+Case 13:
+- Set
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU2'
+	ORU_01_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+	
+Case 14:
+- Set
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU2'
+	ORUG01_01_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+
+Case 15:
+- Set
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU2'
+	ORUG02_01_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+	
+Case 16:
+- Set
+	Precondition
+		Cust_CodingDataPreSenseSide = '2: installed'
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU3'
+	NONE of the following messages was received within "tGLOBAL_TIMEOUT":
+		Blinkmodi_02_XIX_FASCANFD1     
+		Diagnose_01_XIX_FASCANFD1  
+		ESC_50_XIX_FASCANFD1           
+		ESC_51_Auth_XIX_FASNCANFD1    
+		ESP_21_XIX_FASCANFD1  
+		Gateway_73_XIX_FASCANFD1  
+		Klemmen_Status_01_XIX_FASCANFD1  
+		LWI_01_XIX_FASCANFD1  
+		Motor_54_XIX_FASCANFD1    
+		QFK_01_Auth_XIX_FASCANFD1  
+		Systeminfo_01_XIX_FASCANFD1  
+		ORU_01_XIX_FASCANFD1
+		ORUG01_01_XIX_FASCANFD1
+		ORUG02_01_XIX_FASCANFD1
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'Detected'
+	
+Case 17:
+- Set
+	Precondition
+		Cust_CodingDataPreSenseSide = '2: installed'
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU3'
+	Blinkmodi_02_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+	
+Case 18:
+- Set
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU3'
+	Diagnose_01_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+	
+Case 19:
+- Set
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU3'
+	ESC_50_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+	
+Case 20:
+- Set
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU3'
+	ESC_51_Auth_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+		
+Case 21:
+- Set
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU3'
+	ESP_21_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+			
+Case 22:
+- Set
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU3'
+	Gateway_73_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+				
+Case 23:
+- Set
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU3'
+	Klemmen_Status_01_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+					
+Case 24:
+- Set
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU3'
+	LWI_01_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+						
+Case 25:
+- Set
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU3'
+	Motor_54_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+							
+Case 26:
+- Set
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU3'
+	QFK_01_Auth_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+								
+Case 27:
+- Set
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU3'
+	Systeminfo_01_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+									
+Case 28:
+- Set
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU3'
+	ORU_01_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+	
+Case 29:
+- Set
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU3'
+	ORUG01_01_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+
+Case 30:
+- Set
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" = 'ECU3'
+	ORUG02_01_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+	
+Case 31:
+- Set
+	Precondition
+		Cust_CodingDataPreSenseSide = '2: installed'
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" = 'ECU2'
+	NONE of the following messages was received within "tGLOBAL_TIMEOUT":
+		BEM_02_XIX_FASCANFD1
+		Blinkmodi_02_XIX_FASCANFD1     
+		Diagnose_01_XIX_FASCANFD1  
+		ESC_50_XIX_FASCANFD1           
+		ESC_51_Auth_XIX_FASNCANFD1    
+		ESP_21_XIX_FASCANFD1  
+		Gateway_73_XIX_FASCANFD1  
+		Klemmen_Status_01_XIX_FASCANFD1  
+		LWI_01_XIX_FASCANFD1  
+		Motor_54_XIX_FASCANFD1    
+		QFK_01_Auth_XIX_FASCANFD1  
+		Systeminfo_01_XIX_FASCANFD1  
+		VIN_01_XIX_FASCANFD1
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'Detected'
+	
+Case 32:
+- Set
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" = 'ECU2'
+	BEM_02_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+	
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+	
+Case 33:
+- Set
+	Precondition
+		Cust_CodingDataPreSenseSide = '2: installed'
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" = 'ECU2'
+	Blinkmodi_02_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+	
+Case 34:
+- Set
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" = 'ECU2'
+	Diagnose_01_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+	
+Case 35:
+- Set
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" = 'ECU2'
+	ESC_50_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+	
+Case 36:
+- Set
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" = 'ECU2'
+	ESC_51_Auth_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+		
+Case 37:
+- Set
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" = 'ECU2'
+	ESP_21_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+			
+Case 38:
+- Set
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" = 'ECU2'
+	Gateway_73_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+				
+Case 39:
+- Set
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" = 'ECU2'
+	Klemmen_Status_01_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+					
+Case 40:
+- Set
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" = 'ECU2'
+	LWI_01_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+						
+Case 41:
+- Set
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" = 'ECU2'
+	Motor_54_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+							
+Case 42:
+- Set
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" = 'ECU2'
+	QFK_01_Auth_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+								
+Case 43:
+- Set
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" = 'ECU2'
+	Systeminfo_01_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+									
+Case 44:
+- Set
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" = 'ECU2'
+	VIN_01_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+	
+Case 45:
+- Set
+	Precondition
+		Cust_CodingDataPreSenseSide = '2: installed'
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" = 'ECU3'
+	NONE of the following messages was received within "tGLOBAL_TIMEOUT":
+		BEM_02_XIX_FASCANFD1
+		Blinkmodi_02_XIX_FASCANFD1     
+		Diagnose_01_XIX_FASCANFD1  
+		ESC_50_XIX_FASCANFD1           
+		ESC_51_Auth_XIX_FASNCANFD1    
+		ESP_21_XIX_FASCANFD1  
+		Gateway_73_XIX_FASCANFD1  
+		Klemmen_Status_01_XIX_FASCANFD1  
+		LWI_01_XIX_FASCANFD1  
+		Motor_54_XIX_FASCANFD1    
+		QFK_01_Auth_XIX_FASCANFD1  
+		Systeminfo_01_XIX_FASCANFD1  
+		VIN_01_XIX_FASCANFD1
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'Detected'
+	
+Case 46:
+- Set
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" = 'ECU3'
+	BEM_02_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+	
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+	
+Case 47:
+- Set
+	Precondition
+		Cust_CodingDataPreSenseSide = '2: installed'
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" = 'ECU3'
+	Blinkmodi_02_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+	
+Case 48:
+- Set
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" = 'ECU3'
+	Diagnose_01_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+	
+Case 49:
+- Set
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" = 'ECU3'
+	ESC_50_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+	
+Case 50:
+- Set
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" = 'ECU3'
+	ESC_51_Auth_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+		
+Case 51:
+- Set
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" = 'ECU3'
+	ESP_21_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+			
+Case 52:
+- Set
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" = 'ECU3'
+	Gateway_73_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+				
+Case 53:
+- Set
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" = 'ECU3'
+	Klemmen_Status_01_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+					
+Case 54:
+- Set
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" = 'ECU3'
+	LWI_01_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+						
+Case 55:
+- Set
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" = 'ECU3'
+	Motor_54_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+							
+Case 56:
+- Set
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" = 'ECU3'
+	QFK_01_Auth_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+								
+Case 57:
+- Set
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" = 'ECU3'
+	Systeminfo_01_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+									
+Case 58:
+- Set
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" = 'ECU3'
+	VIN_01_XIX_FASCANFD1 was received within "tGLOBAL_TIMEOUT":
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+	
+Case 59:
+- Set
+	"DiagCodingPlattformVW02" = '3: MEB'
+	"Ident_SensorID" != ['ECU2', 'ECU3']
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+
+Case 60:
+- Set
+	"DiagCodingPlattformVW02" = '1: MQB37W'
+	"Ident_SensorID" != ['ECU2', 'ECU3']
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+
+Case 61:
+- Set
+	"DiagCodingPlattformVW02" != ['1: MQB37W', '3: MEB']
+
+- Check
+	"Cust_VBNGlobalTimeout_FASCANFD1_Error" := 'NotDetected'
+
+*/
+testcase SwT_VW_02_5544()
+{
+	  const NUMBER_OF_TESTCASE = 61;
+	  int sensorID, platform;
+	  int i;
+    char chTemp[255]="";
+	  
+    
+	/* Input*/	
+		char ipt1[255] = "retStatusInfo_en";
+		
+	/* Output*/		
+		char opt1[255] = "((EvHnd_EventStatusCore0Qm).EventStatusCore0Qm)[EVHND_EVENT_VDA_GLOBAL_TIMEOUT_FASCANFD1 >> 2]";
+
+    /* Input_Value*/	
+	//								  case        		                      = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61};
+		        int Ident_SensorID[NUMBER_OF_TESTCASE]			    = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2 , 2 , 2 , 2 , 2 , 2 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 1 , 1 , 1 };
+		        int Coding_Data_platform_en[NUMBER_OF_TESTCASE] = {3, 3, 3, 3, 3, 3, 3, 3, 3, 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 3 , 1 , 0 };
+/*1*//*MQB*/int BEM_02[NUMBER_OF_TESTCASE] 				          = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 };
+/*2*/ 		  int Blinkmodi_02[NUMBER_OF_TESTCASE] 			      = {0, 1, 0, 0, 0, 0, 0, 0, 0, 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 };
+/*3*/ 		  int Diagnose_01[NUMBER_OF_TESTCASE] 			      = {0, 0, 1, 0, 0, 0, 0, 0, 0, 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 };
+/*4*/		    int ESC_50[NUMBER_OF_TESTCASE]				          = {0, 0, 0, 1, 0, 0, 0, 0, 0, 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 };
+/*5*/		    int ESC_51[NUMBER_OF_TESTCASE]				          = {0, 0, 0, 0, 1, 0, 0, 0, 0, 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 };
+/*6*/		    int ESP_21[NUMBER_OF_TESTCASE]				          = {0, 0, 0, 0, 0, 1, 0, 0, 0, 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 };
+/*7*/		    int Gateway_73[NUMBER_OF_TESTCASE]				      = {0, 0, 0, 0, 0, 0, 1, 0, 0, 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 };
+/*8*/        int Klemmen_Status_01[NUMBER_OF_TESTCASE]		  = {0, 0, 0, 0, 0, 0, 0, 1, 0, 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 };
+/*9*/        int LWI_01[NUMBER_OF_TESTCASE]		              = {0, 0, 0, 0, 0, 0, 0, 0, 1, 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 };
+/*10*/       int Motor_54[NUMBER_OF_TESTCASE]				        = {0, 0, 0, 0, 0, 0, 0, 0, 0, 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 };
+/*11*/       int QFK_01[NUMBER_OF_TESTCASE]			            = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 };
+/*12*/       int Systeminfo_01[NUMBER_OF_TESTCASE]	        = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 };
+/*13*//*MEB*/int ORU_01[NUMBER_OF_TESTCASE]		              = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 };
+/*14*//*MQB*/int VIN_01[NUMBER_OF_TESTCASE]	                = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 };
+/*15*//*MEB*/int ORUG01_01[NUMBER_OF_TESTCASE]				      = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 };
+/*16*//*MEB*/int ORUG02_01[NUMBER_OF_TESTCASE]				      = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 };
+int CounterGlobalTimeout[NUMBER_OF_TESTCASE]	              = {45,0, 0, 0, 0, 0, 0, 0, 0, 0 , 0 , 0 , 0 , 0 , 0  ,45, 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,45,  0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,45 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 };
+int isUpdated_AllMsg_b[NUMBER_OF_TESTCASE]	                = {0 ,1, 1, 1, 1, 1, 1, 1, 1, 1 , 1 , 1 , 1 , 1 , 1 , 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 };
+
+			 int opt1Val[NUMBER_OF_TESTCASE]	                    = {2, 1, 1, 1, 1, 1, 1, 1, 1, 1 , 1 , 1 , 1 , 1 , 1 , 2 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 2 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 2 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 };
+
+	// platform = 1; //MQB
+	 platform = 3; //MEB
+	sensorID=funcIDE_ReadVariable("Rte_SensorId_SensorId_SensorId"); 
+
+	if (3 == platform){
+	snprintf(chTemp, 255, "X:\\30_Reports\\Customization\\SwT_VW_02_5544_ECU%d_MEB", sensorID);
+	}
+	else{
+	snprintf(chTemp, 255, "X:\\30_Reports\\Customization\\SwT_VW_02_5544_ECU%d_MQB", sensorID);
+	}
+
+	sensorID=funcIDE_ReadVariable("Rte_SensorId_SensorId_SensorId");  
+	// snprintf(chTemp, 255, "X:\\30_Reports\\Customization\\SwT_VW_02_5544_ECU%d", sensorID);
+	testReportFileName(chTemp);
+  TestCaseTitle("SwT_VW_02_5544", "Verify Global Timeout Error by message received with ECU2 and ECU3");
+  
+  //********************************************* Preconditions *********************************************
+    func_testStepSubSection("Reset the environment");  
+  	funcIDE_DeleteAllBP();
+  	funcIDE_Reset();
+  	func_Wait(300);
+  	funcIDE_Run();
+  	func_Wait(4000);	
+  //********************************************* End Preconditions *****************************************
+  for (i = 0; i < 15; i++)  //for ECU2 MEB
+  // // for (i = 30; i < 44; i++)  //for ECU2 MQB //Done
+  // for (i = 15; i <30; i++)  //for ECU3 MEB
+  // for (i = 44; i < 58; i++)  //for ECU3 MQB
+	{
+		while (sensorID!=Ident_SensorID[i] )
+		{
+			if (Ident_SensorID[i]==1)
+			{
+				set_sensorID(1);
+				
+				break;
+			}
+			i=i+1;
+		}
+        testStep("+++" , "+++ SECTION: ------------------------------------CASE %d------------------------------------", i + 1);
+	if (sensorID == Ident_SensorID[i]){
+		
+	funcIDE_WriteVariable("CodingData_st.platform_en", Coding_Data_platform_en[i]);
+	funcIDE_WriteVariable("CodingData_st.preSenseSide_en", 2);
+	func_Wait(200);
+
+    // // //MEB
+ /*1 */    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::Blinkmodi_02_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 			=Blinkmodi_02[i];
+ /*2*/     @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::Diagnose_01_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 			=Diagnose_01[i];
+ /*3*/     @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::ESC_50_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 					=ESC_50[i];
+ /*4*/     @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::ESC_51_Auth_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 			=ESC_51[i];
+ func_Wait(300);
+ /*5*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::ESP_21_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 					=ESP_21[i];
+ /*6*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::Gateway_73_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 				=Gateway_73[i];
+// /*7*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::Klemmen_Status_01_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 		=Klemmen_Status_01[i];
+ /*8*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::LWI_01_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 					=LWI_01[i];
+ func_Wait(300);
+ /*9*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::Motor_54_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 				=Motor_54[i];
+ /*10*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::QFK_01_Auth_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 			=QFK_01[i];
+ /*11*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::Systeminfo_01_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 			=Systeminfo_01[i];
+ /*12*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::ORU_01_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 					=ORU_01[i]; //MEB
+ func_Wait(4000);
+          @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::ORUG01_01_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU=ORUG01_01[i];
+    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::ORUG02_01_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU=ORUG02_01[i];
+ /*9*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::Klemmen_Status_01_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU		=Klemmen_Status_01[i];
+ func_Wait(2400);
+    
+	//MQB 
+// /*1*/     @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::BEM_02_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 				=BEM_02[i];
+// /*2*/     @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::Blinkmodi_02_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 			=Blinkmodi_02[i];
+// /*3*/     @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::Diagnose_01_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 			=Diagnose_01[i];
+// /*4*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::ESC_50_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 					=ESC_50[i];
+// func_Wait(300);
+// /*5*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::ESC_51_Auth_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 			=ESC_51[i];                                                                                                        
+// /*6*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::ESP_21_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 					=ESP_21[i];
+// /*7*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::Gateway_73_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 				=Gateway_73[i];
+// // /*8*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::Klemmen_Status_01_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 		=Klemmen_Status_01[i];
+// func_Wait(300);
+// /*9*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::LWI_01_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 					=LWI_01[i];                                                                                                       
+// /*10*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::Motor_54_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 				=Motor_54[i];
+// /*11*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::QFK_01_Auth_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 			=QFK_01[i];
+// /*12*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::Systeminfo_01_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 			=Systeminfo_01[i];
+// /*13*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::VIN_01_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 				=VIN_01[i]; 
+// func_Wait(4000);
+// /*9*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::Klemmen_Status_01_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU		=Klemmen_Status_01[i];
+// func_Wait(3400);
+
+	
+	funcIDE_ReadVariableAndCheck("EventMdw_ErrorResult_ast[EVHND_EVENT_VDA_GLOBAL_TIMEOUT_FASCANFD1].testResultRaw_u8",opt1Val[i],equal);
+	funcIDE_DeleteAllBP();
+	funcIDE_Reset();
+  	func_Wait(300);
+  	funcIDE_Run();
+	func_Wait(3000);
+	
+    // //MEB
+ /*1*/     @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::Blinkmodi_02_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 			=1;
+ /*2*/     @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::Diagnose_01_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 			=1;
+ /*3*/     @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::ESC_50_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 					=1;
+ /*4*/     @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::ESC_51_Auth_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 			=1;
+ func_Wait(300);                                                                                                           
+ /*5*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::ESP_21_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 					=1;
+ /*6*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::Gateway_73_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 				=1;
+ /*7*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::Klemmen_Status_01_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 		=1;
+ /*8*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::LWI_01_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 					=1;
+ func_Wait(300);                                                                                                           
+ /*9*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::Motor_54_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 				=1;
+ /*10*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::QFK_01_Auth_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 			=1;
+ /*11*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::Systeminfo_01_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 			=1;
+ /*12*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::ORU_01_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 					=1; //MEB
+              @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::ORUG01_01_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU=1;
+    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::ORUG01_01_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU=1;
+ func_Wait(300);
+    
+	//MQB 
+// /*1*/     @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::BEM_02_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 				=1;
+// /*2*/     @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::Blinkmodi_02_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 			=1;
+// /*3*/     @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::Diagnose_01_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 			=1;
+// /*4*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::ESC_50_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 					=1;
+// func_Wait(300);                                                                                                          
+// /*5*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::ESC_51_Auth_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 			=1;                                                                                             
+// /*6*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::ESP_21_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 					=1;
+// /*7*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::Gateway_73_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 				=1;
+// /*8*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::Klemmen_Status_01_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 		=1;
+// func_Wait(300);                                                                                                          
+// /*9*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::LWI_01_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 					=1;                                                                                              
+// /*10*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::Motor_54_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 				=1;
+// /*11*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::QFK_01_Auth_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 			=1;
+// /*12*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::Systeminfo_01_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 			=1;
+// /*13*/    @IL_CAN2::NODES::N_VectorSimulationNode::PDUS::VIN_01_XIX_FASCANFD1::TIMINGS::FIEnableTXofPDU 				=1;
+
+	}
+	
+	funcIDE_DeleteAllBP();
+  	funcIDE_Reset();
+  	func_Wait(300);
+  	funcIDE_Run();
+  	func_Wait(4000);
+   
+	}
+	
+	func_testStepSubSection("----------------------------------CASE 59 ----------------------------------");
+	
+	funcIDE_WriteVariable("CodingData_st.platform_en", 3);
+	funcIDE_WriteVariable("CodingData_st.preSenseSide_en", 2);
+	set_sensorID(1);
+	func_Wait(200);
+	
+	funcIDE_ReadVariableAndCheck("EventMdw_ErrorResult_ast[EVHND_EVENT_VDA_GLOBAL_TIMEOUT_FASCANFD2].testResultRaw_u8",1,equal);
+	
+	funcIDE_DeleteAllBP();
+  	funcIDE_Reset();
+  	func_Wait(300);
+  	funcIDE_Run();
+  	func_Wait(4000);
+	
+	func_testStepSubSection("----------------------------------CASE 60 ----------------------------------");
+	
+	funcIDE_WriteVariable("CodingData_st.platform_en", 1);
+	funcIDE_WriteVariable("CodingData_st.preSenseSide_en", 2);
+	set_sensorID(1);
+	func_Wait(200);
+	
+	funcIDE_ReadVariableAndCheck("EventMdw_ErrorResult_ast[EVHND_EVENT_VDA_GLOBAL_TIMEOUT_FASCANFD2].testResultRaw_u8",1,equal);
+	
+	funcIDE_DeleteAllBP();
+  	funcIDE_Reset();
+  	func_Wait(300);
+  	funcIDE_Run();
+  	func_Wait(4000);
+	
+	func_testStepSubSection("----------------------------------CASE 61 ----------------------------------");
+	
+	funcIDE_WriteVariable("CodingData_st.platform_en", 0);
+	funcIDE_WriteVariable("CodingData_st.preSenseSide_en", 2);
+	func_Wait(3000);
+	
+	funcIDE_ReadVariableAndCheck("EventMdw_ErrorResult_ast[EVHND_EVENT_VDA_GLOBAL_TIMEOUT_FASCANFD2].testResultRaw_u8",1,equal);
+	
+	funcIDE_DeleteAllBP();
+  	funcIDE_Reset();
+  	func_Wait(300);
+  	funcIDE_Run();
+  	func_Wait(4000);
+	
+  //********************************************* End ************************************************
+        func_testStepSubSection("Clean Testcase");
+        funcIDE_DeleteAllBP();
+        funcIDE_ReSet();
+        funcIDE_Run();
+        func_Wait(200);
+}

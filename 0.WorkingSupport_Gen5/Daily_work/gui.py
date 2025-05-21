@@ -13,6 +13,10 @@ import ttkbootstrap as ttk
 from edit_report import *
 from ttkbootstrap.window import Window
 
+# KANBAN_STATES = [
+#     "Start", "Prepare_Spec", "Spec_Done", "Implement TC", "Executed", "Review", "Done"
+# ]
+
 class CollapsibleFrame(ttk.Frame):
     def __init__(self, parent, text="", width=110, *args, **kwargs):
         super().__init__(parent, width=width, *args, **kwargs)
@@ -50,7 +54,7 @@ class CustomApp(Window):
         self.geometry("1200x900")
 
         # Style definitions
-        style.configure("Sidebar.TFrame", background="#FFFFFF")
+        style.configure("Sidebar.TFrame", background="#ffffff")
         style.configure("Sidebar.TLabel", font=("Segoe UI", 12, "bold"), background="#ffffff")
         style.configure("Custom.TLabelframe", background="#ffffff", relief="flat")
         style.configure("Custom.TLabelframe.Label", font=("Segoe UI", 10, "bold"), background="#ffffff", foreground="#333")
@@ -61,13 +65,13 @@ class CustomApp(Window):
         style.configure("StatusError.TLabel", foreground="red", font=("Segoe UI", 10, "bold"))
         # Thêm style cho header button (nên đặt sau style = Style())
         style.configure("Bold.TButton", font=("Segoe UI", 10, "bold"))
-        style.configure("Collapsible.TButton", font=("Segoe UI", 8, "bold"), foreground="#222", anchor="w", relief="flat", background="#FFFFFF")
+        style.configure("Collapsible.TButton", font=("Segoe UI", 8, "bold"), foreground="#222", anchor="w", relief="flat", background="#ffffff")
         
         ico_path = os.path.join(os.path.dirname(__file__), "App.ico")
         self.iconbitmap(ico_path)
         
         init_app_state(self)
-
+        self.sheet = None
         self._workspace_to_load = None
 
         # Startup popup
@@ -127,6 +131,8 @@ class CustomApp(Window):
         excel_frame.pack(side="left", padx=4, pady=4, anchor="w")
         workspace_frame = CollapsibleFrame(file_sidebar, text="🧩 Workspace", width=110)
         workspace_frame.pack(side="left", padx=4, pady=4, anchor="w")
+        table_frame = CollapsibleFrame(file_sidebar, text="📋 Table Settings", width=110)
+        table_frame.pack(side="left", padx=4, pady=4, anchor="w")
 
         # Các nút trong group cũng xếp ngang
         ttk.Button(excel_frame.sub_frame, text="📄 Open New", bootstyle="outline", width=21, command=lambda: load_excel_table(self)).pack(side="left", padx=2, pady=1)
@@ -137,6 +143,11 @@ class CustomApp(Window):
         ttk.Button(workspace_frame.sub_frame, text="💾 Save", bootstyle="success", width=21, command=lambda: save_workspace(self)).pack(side="left", padx=2, pady=1)
         ttk.Button(workspace_frame.sub_frame, text="📁 Save As", bootstyle="secondary", width=21, command=lambda: save_workspace(self, save_as=True)).pack(side="left", padx=2, pady=1)
 
+        ttk.Button(table_frame.sub_frame, text="➕ Add Column", bootstyle="primary", width=21, command=lambda: add_column_to_table(self)).pack(side="left", padx=2, pady=1)
+        ttk.Button(table_frame.sub_frame, text="➕ Add Row", bootstyle="primary", width=21, command=lambda: add_row_to_table(self)).pack(side="left", padx=2, pady=1)
+        ttk.Button(table_frame.sub_frame, text="➖ Delete Column", bootstyle="danger", width=21, command=lambda: delete_column_from_table(self)).pack(side="left", padx=2, pady=1)
+        ttk.Button(table_frame.sub_frame, text="➖ Delete Row", bootstyle="danger", width=21, command=lambda: delete_row_from_table(self)).pack(side="left", padx=2, pady=1)
+
         # --- Tab Working ---
         working_tab = ttk.Frame(self.notebook)
         self.notebook.add(working_tab, text="Working")
@@ -145,182 +156,23 @@ class CustomApp(Window):
         working_sidebar.pack_propagate(False)
 
         # Các group xếp ngang
-        table_frame = CollapsibleFrame(working_sidebar, text="📋 Table Settings", width=110)
-        table_frame.pack(side="left", padx=4, pady=4, anchor="w")
+        
         consistency_frame = CollapsibleFrame(working_sidebar, text="🔍 Consistency", width=110)
         consistency_frame.pack(side="left", padx=4, pady=4, anchor="w")
         script_frame = CollapsibleFrame(working_sidebar, text="📜 Scripting", width=110)
         script_frame.pack(side="left", padx=4, pady=4, anchor="w")
+        
 
         # Các nút trong group cũng xếp ngang
-        ttk.Button(table_frame.sub_frame, text="➕ Add Column", bootstyle="primary", width=21, command=lambda: add_column_to_table(self)).pack(side="left", padx=2, pady=1)
-        ttk.Button(table_frame.sub_frame, text="➕ Add Row", bootstyle="primary", width=21, command=lambda: add_row_to_table(self)).pack(side="left", padx=2, pady=1)
-
         ttk.Button(consistency_frame.sub_frame, text="🔍 SPEC vs Script", bootstyle="warning", width=21, command=lambda: compare_content_requirement(self)).pack(side="left", padx=2, pady=1)
         ttk.Button(consistency_frame.sub_frame, text="🔎 SSRS vs SPEC", bootstyle="warning", width=21, command=lambda: compare_ssrs_vs_spec(self)).pack(side="left", padx=2, pady=1)
+        ttk.Button(consistency_frame.sub_frame, text="🧮 Compare Attribute", bootstyle="info", width=21, command=lambda: compare_attribute(self)).pack(side="left", padx=2, pady=1)
 
         ttk.Button(script_frame.sub_frame, text="📂 Open", bootstyle="outline", width=21, command=lambda: open_script(self)).pack(side="left", padx=2, pady=1)
         ttk.Button(script_frame.sub_frame, text="🛠️ Create", bootstyle="info", width=21, command=lambda: create_new_script(self)).pack(side="left", padx=2, pady=1)
         ttk.Button(script_frame.sub_frame, text="⬇️ Download", bootstyle="secondary", width=21, command=lambda: download_script(self)).pack(side="left", padx=2, pady=1)
         
-        # --- Tab Report Tools ---
-        report_tab = ttk.Frame(self.notebook)
-        self.notebook.add(report_tab, text="Report")
-
-        # Tạo Notebook con cho các chức năng report
-        report_notebook = ttk.Notebook(report_tab)
-        report_notebook.pack(expand=True, fill="both")
-
-        # Split HTML Tab
-        split_html_tab = ttk.Frame(report_notebook)
-        report_notebook.add(split_html_tab, text="Split Report")
-
-        label2 = tk.Label(split_html_tab, text="Split Report")
-        label2.grid(row=0, column=0, padx=5, pady=5)
-
-        label_path = tk.Label(split_html_tab, text="Input folder path:")
-        label_path.grid(row=1, column=0, padx=5, pady=5, sticky="e")
-
-        entry_path = tk.Entry(split_html_tab, width=50)
-        entry_path.grid(row=1, column=1, padx=5, pady=5)
-
-        button_browse = tk.Button(split_html_tab, text="Choose input folder", command=select_directory)
-        button_browse.grid(row=1, column=2, padx=5, pady=5)
-
-        label_files = tk.Label(split_html_tab, text="List files:")
-        label_files.grid(row=4, column=0, padx=5, pady=5, sticky="w")
-
-        file_listbox = tk.Listbox(split_html_tab, width=50, selectmode=tk.MULTIPLE)
-        file_listbox.grid(row=4, column=0, columnspan=3, padx=5, pady=5)
-
-        button_export_passed = ttk.Button(
-            split_html_tab, bootstyle="success", text="Export PASSED files",
-            command=lambda: export_to_html_report(passed=True, failed=False)
-        )
-        button_export_passed.grid(row=5, column=0, padx=5, pady=5, sticky="we")
-
-        button_export_failed = ttk.Button(
-            split_html_tab, bootstyle="warning", text="Export FAILED files",
-            command=lambda: export_to_html_report(passed=False, failed=True)
-        )
-        button_export_failed.grid(row=5, column=1, padx=5, pady=5, sticky="we")
-
-        button_export_all = ttk.Button(
-            split_html_tab, bootstyle="outline", text="Export ALL files",
-            command=lambda: export_to_html_report(passed=True, failed=True)
-        )
-        button_export_all.grid(row=5, column=2, padx=5, pady=5, sticky="we")
-
-        label_output_path = tk.Label(split_html_tab, text="Output folder path:")
-        label_output_path.grid(row=3, column=0, padx=5, pady=5, sticky="e")
-
-        output_entry = tk.Entry(split_html_tab, width=50)
-        output_entry.grid(row=3, column=1, padx=5, pady=5)
-
-        button_output_browse = tk.Button(split_html_tab, text="Choose output folder", command=select_output_directory)
-        button_output_browse.grid(row=3, column=2, padx=5, pady=5)
-
-        label_count = tk.Label(split_html_tab, text="")
-        label_count.grid(row=7, column=0, columnspan=3, padx=5, pady=5)
-
-        def update_count_label():
-            global passed_count, failed_count
-            label_count.config(text=f"Passed: {passed_count}\nFailed: {failed_count}")
-
-        button_open_output = tk.Button(split_html_tab, text="Open output folder", command=open_output_folder)
-        button_open_output.grid(row=8, column=2, padx=5, pady=5, sticky="w")
-
-        passed_files_label = tk.Label(split_html_tab, text="Passed Files:")
-        passed_files_label.grid(row=9, column=0, padx=5, pady=5, sticky="we")
-        passed_files_listbox = tk.Listbox(split_html_tab, width=50)
-        passed_files_listbox.grid(row=10, column=0, padx=5, pady=5)
-
-        failed_files_label = tk.Label(split_html_tab, text="Failed Files:")
-        failed_files_label.grid(row=9, column=1, padx=5, pady=5, sticky="we")
-        failed_files_listbox = tk.Listbox(split_html_tab, width=50)
-        failed_files_listbox.grid(row=10, column=1, padx=5, pady=5)
-
-        # Merge HTML Tab
-        merge_html_tab = ttk.Frame(report_notebook)
-        report_notebook.add(merge_html_tab, text="Merge HTML")
-        app = HTMLMergerApp(merge_html_tab)
-
-        # Edit Name Files Tab
-        edit_name_files_tab = ttk.Frame(report_notebook)
-        report_notebook.add(edit_name_files_tab, text="Edit name files")
-
-        # Directory selection
-        tk.Label(edit_name_files_tab, text="Select Directory:").grid(row=0, column=0, padx=10, pady=10)
-        directory_entry = tk.Entry(edit_name_files_tab, width=50)
-        directory_entry.grid(row=0, column=1, padx=10, pady=10)
-        browse_dir_button = tk.Button(edit_name_files_tab, text="Browse", command=browse_directory)
-        browse_dir_button.grid(row=0, column=2, padx=10, pady=10)
-        ToolTip(browse_dir_button, "Select the directory containing the files to rename")
-
-        # File extension entry
-        tk.Label(edit_name_files_tab, text="File Extension:").grid(row=1, column=0, padx=10, pady=10)
-        ext_entry = tk.Entry(edit_name_files_tab, width=10)
-        ext_entry.grid(row=1, column=1, padx=10, pady=10)
-        ToolTip(ext_entry, "Enter the file extension of the files to rename (e.g., .txt, .jpg)")
-
-        # Rename options
-        rename_var = tk.StringVar(value="Add/Remove")
-        tk.Radiobutton(edit_name_files_tab, text="Add/Remove", variable=rename_var, value="Add/Remove", command=update_preview_list).grid(row=2, column=0, padx=10, pady=10)
-        tk.Radiobutton(edit_name_files_tab, text="Replace", variable=rename_var, value="Replace", command=update_preview_list).grid(row=2, column=1, padx=10, pady=10)
-        ToolTip(edit_name_files_tab.nametowidget(edit_name_files_tab.winfo_children()[-2]), "Select this option to add or remove text from file names")
-        ToolTip(edit_name_files_tab.nametowidget(edit_name_files_tab.winfo_children()[-1]), "Select this option to replace text in file names")
-
-        # Excel or manual input
-        excel_var = tk.BooleanVar(value=False)
-        tk.Checkbutton(edit_name_files_tab, text="Use Excel", variable=excel_var, command=update_preview_list).grid(row=3, column=0, padx=10, pady=10)
-        ToolTip(edit_name_files_tab.nametowidget(edit_name_files_tab.winfo_children()[-1]), "Check this box to use an Excel file for renaming")
-
-        # Excel file selection
-        tk.Label(edit_name_files_tab, text="Excel File:").grid(row=4, column=0, padx=10, pady=10)
-        excel_entry = tk.Entry(edit_name_files_tab, width=50)
-        excel_entry.grid(row=4, column=1, padx=10, pady=10)
-        browse_excel_button = tk.Button(edit_name_files_tab, text="Browse", command=browse_excel_file)
-        browse_excel_button.grid(row=4, column=2, padx=10, pady=10)
-        ToolTip(browse_excel_button, "Select the Excel file containing the renaming rules")
-
-        # Add/Remove entry
-        tk.Label(edit_name_files_tab, text="Add/Remove Text:").grid(row=5, column=0, padx=10, pady=10)
-        add_remove_entry = tk.Entry(edit_name_files_tab, width=30)
-        add_remove_entry.grid(row=5, column=1, padx=10, pady=10)
-        ToolTip(add_remove_entry, "Enter the text to add or remove from file names")
-
-        # Replace entries
-        tk.Label(edit_name_files_tab, text="Replace From:").grid(row=6, column=0, padx=10, pady=10)
-        replace_from_entry = tk.Entry(edit_name_files_tab, width=30)
-        replace_from_entry.grid(row=6, column=1, padx=10, pady=10)
-        ToolTip(replace_from_entry, "Enter the text to replace in file names")
-
-        tk.Label(edit_name_files_tab, text="Replace To:").grid(row=7, column=0, padx=10, pady=10)
-        replace_to_entry = tk.Entry(edit_name_files_tab, width=30)
-        replace_to_entry.grid(row=7, column=1, padx=10, pady=10)
-        ToolTip(replace_to_entry, "Enter the text to replace with in file names")
-
-        # Current and preview file lists
-        tk.Label(edit_name_files_tab, text="Current Files:").grid(row=8, column=0, padx=10, pady=10)
-        current_files_listbox = tk.Listbox(edit_name_files_tab, width=50)
-        current_files_listbox.grid(row=9, column=0, padx=10, pady=10)
-        ToolTip(current_files_listbox, "List of current files in the selected directory")
-
-        tk.Label(edit_name_files_tab, text="Preview Files:").grid(row=8, column=1, padx=10, pady=10)
-        preview_files_listbox = tk.Listbox(edit_name_files_tab, width=50)
-        preview_files_listbox.grid(row=9, column=1, padx=10, pady=10)
-        ToolTip(preview_files_listbox, "Preview of the renamed files")
-
-        # Refresh button
-        refresh_button = tk.Button(edit_name_files_tab, text="Refresh", command=update_preview_list)
-        refresh_button.grid(row=10, column=0, padx=10, pady=10)
-        ToolTip(refresh_button, "Click to refresh the preview list")
-
-        # Execute button
-        execute_button = tk.Button(edit_name_files_tab, text="Execute", command=execute_rename)
-        execute_button.grid(row=10, column=1, padx=10, pady=10)
-        ToolTip(execute_button, "Click to execute the renaming operation")
-
+        
         # --- Tab About ---
         about_tab = ttk.Frame(self.notebook)
         self.notebook.add(about_tab, text="About")
@@ -331,15 +183,22 @@ class CustomApp(Window):
             popup.geometry("300x250")
             popup.iconbitmap(ico_path)
             popup.resizable(False, False)
-            ttk.Label(popup, text="Release Working Tool\nVersion 1.1\nDeveloped by NguyenLoc", font=("Segoe UI", 13, "bold")).pack(pady=30)
+            ttk.Label(popup, text="Release Working Tool\nVersion 1.2\nDeveloped by NguyenLoc", font=("Segoe UI", 13, "bold")).pack(pady=30)
             ttk.Label(popup, text="Contact: loc.nguyen@forvia.com", font=("Segoe UI", 10)).pack(pady=5)
             ttk.Button(popup, text="Close", command=popup.destroy, bootstyle="danger").pack(pady=18)
             popup.grab_set()
         def on_tab_changed(event):
-            if self.notebook.index("current") == 3:  # About tab index
+            if self.notebook.index("current") == 2:  # About tab index
                 show_about_popup()
                 self.notebook.select(0)  # Quay lại tab đầu tiên sau khi đóng popup
         self.notebook.bind("<<NotebookTabChanged>>", on_tab_changed)
+
+        # --- Tab Kanban ---
+        # from tkinter import ttk as tkttk  # Đảm bảo import này ở đầu file nếu chưa có
+        # kanban_tab = ttk.Frame(self.notebook)
+        # self.notebook.add(kanban_tab, text="Kanban")
+        # self.kanban_view = KanbanView(kanban_tab, self)
+        # self.kanban_view.pack(fill="both", expand=True)
 
         # === Main Area luôn hiển thị bên phải ===
         self.main_area = ttk.Frame(self, style="TFrame")
@@ -392,6 +251,116 @@ class CustomApp(Window):
 
         self.file_sidebar = file_sidebar
         self.working_sidebar = working_sidebar
+
+
+
+# class KanbanView(ttk.Frame):
+#     def __init__(self, parent, app):
+#         super().__init__(parent)
+#         self.app = app
+#         self.lists = {}
+#         self.frames = {}
+#         for i, state in enumerate(KANBAN_STATES):
+#             frame = ttk.Labelframe(self, text=state, width=220, height=500, style="Custom.TLabelframe")
+#             frame.grid(row=0, column=i, padx=8, pady=8, sticky="n")
+#             frame.grid_propagate(False)
+#             self.frames[state] = frame
+#             lb = tk.Listbox(frame, width=20, height=22, font=("Segoe UI", 10, "bold"))
+#             lb.pack(fill="both", expand=True, padx=4, pady=4)
+#             lb.bind("<ButtonPress-1>", self.on_drag_start)
+#             lb.bind("<B1-Motion>", self.on_drag_motion)
+#             lb.bind("<ButtonRelease-1>", self.on_drag_release)
+#             self.lists[state] = lb
+
+#         self.drag_data = {"widget": None, "item": None, "from_state": None}
+
+#         self.refresh_kanban()
+
+#     def refresh_kanban(self):
+#         # Xóa hết các list
+#         for lb in self.lists.values():
+#             lb.delete(0, "end")
+#         # Lấy index các cột
+#         try:
+#             tc_idx = self.app.headers.index("Test cases ID")
+#             req_idx = self.app.headers.index("Requirement ID")
+#             cr_idx = self.app.headers.index("CR ID")
+#             state_idx = self.app.headers.index("State")
+#         except Exception:
+#             return
+#         # Thêm từng testcase vào đúng state
+#         for row in self.app.data:
+#             state = row[state_idx] if state_idx < len(row) else "Start"
+#             state = state if state in KANBAN_STATES else "Start"
+#             tcid = str(row[tc_idx])
+#             reqid = str(row[req_idx]) if req_idx is not None else ""
+#             crid = str(row[cr_idx]) if cr_idx is not None else ""
+#             display = f"{tcid}\nReq: {reqid}\nCR: {crid}"
+#             self.lists[state].insert("end", display)
+
+#     def on_drag_start(self, event):
+#         widget = event.widget
+#         idx = widget.nearest(event.y)
+#         if idx >= 0:
+#             self.drag_data["widget"] = widget
+#             self.drag_data["item"] = widget.get(idx)
+#             self.drag_data["from_state"] = self.get_state_by_widget(widget)
+#             widget.selection_set(idx)
+
+#     def on_drag_motion(self, event):
+#         pass  # Optional: highlight target column
+
+#     def on_drag_release(self, event):
+#         widget = event.widget
+#         if self.drag_data["item"]:
+#             # Xác định state mới
+#             for state, lb in self.lists.items():
+#                 if lb == widget:
+#                     new_state = state
+#                     break
+#             else:
+#                 return
+#             # Xóa khỏi state cũ
+#             from_lb = self.lists[self.drag_data["from_state"]]
+#             idx = from_lb.get(0, "end").index(self.drag_data["item"])
+#             from_lb.delete(idx)
+#             # Thêm vào state mới
+#             widget.insert("end", self.drag_data["item"])
+#             # Cập nhật state trong bảng
+#             self.update_table_state(self.drag_data["item"].split("\n")[0], new_state)
+#             self.drag_data = {"widget": None, "item": None, "from_state": None}
+
+#     def get_state_by_widget(self, widget):
+#         for state, lb in self.lists.items():
+#             if lb == widget:
+#                 return state
+#         return None
+
+#     def update_table_state(self, tcid, new_state):
+#         try:
+#             tc_idx = self.app.headers.index("Test cases ID")
+#             state_idx = self.app.headers.index("State")
+#         except Exception:
+#             return
+#         for row in self.app.data:
+#             if str(row[tc_idx]) == tcid:
+#                 row[state_idx] = new_state
+#         refresh_table(self.app)
+
+# def add_row_to_table(app):
+#     from file_ops import refresh_table
+#     if not app.excel_path:
+#         messagebox.showwarning("Error", "Open excel file before!")
+#         return
+#     new_row = [""] * len(app.headers)
+#     # Đảm bảo có cột State
+#     if "State" in app.headers:
+#         state_idx = app.headers.index("State")
+#         new_row[state_idx] = "Start"
+#     app.data.append(new_row)
+#     refresh_table(app)
+#     if hasattr(app, "kanban_view"):
+#         app.kanban_view.refresh_kanban()
 
 
 

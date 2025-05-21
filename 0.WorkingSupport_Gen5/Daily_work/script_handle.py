@@ -5,6 +5,8 @@ import Handle_file as hf
 import tkinter as tk
 from tkinter import ttk
 import datetime
+import re
+import shutil
 
 def get_script_info(app, values):
     """Trả về dict gồm các trường cần thiết để thao tác với script file."""
@@ -14,14 +16,14 @@ def get_script_info(app, values):
     crid_val = str(values[crid_idx]).strip()
     feature_val_raw = str(values[feature_idx]).strip()
     id_val = str(values[id_idx]).strip()
-    feature_map = {
-        "Cust": "Customization", "cust": "Customization", "Customization": "Customization",
-        "Norm": "Normalization", "norm": "Normalization", "Normalization": "Normalization",
-        "Diag": "UDSDiagnostics", "diag": "UDSDiagnostics", "UDSDiagnostics": "UDSDiagnostics",
-        "DTC": "DTCandErrorHandling", "dtc": "DTCandErrorHandling",
-        "ProgramSequenceMonitoring": "ProgramSequenceMonitoring", "PSM": "ProgramSequenceMonitoring"
-    }
-    feature_val = feature_map.get(feature_val_raw, feature_val_raw)
+    # feature_map = {
+    #     "Cust": "Customization", "cust": "Customization", "Customization": "Customization",
+    #     "Norm": "Normalization", "norm": "Normalization", "Normalization": "Normalization",
+    #     "Diag": "UDSDiagnostics", "diag": "UDSDiagnostics", "UDSDiagnostics": "UDSDiagnostics",
+    #     "DTC": "DTCandErrorHandling", "dtc": "DTCandErrorHandling",
+    #     "ProgramSequenceMonitoring": "ProgramSequenceMonitoring", "PSM": "ProgramSequenceMonitoring"
+    # }
+    feature_val = app.feature_map.get(feature_val_raw, feature_val_raw)
     crid_folder = os.path.join(app.working_dir, sanitize_filename(crid_val))
     feature_folder = os.path.join(crid_folder, sanitize_filename(feature_val))
     save_path = os.path.join(feature_folder, f"{sanitize_filename(id_val)}.can")
@@ -83,6 +85,10 @@ def ensure_script_file(app, values, auto_open=False):
     return save_path
 
 def open_script(app):
+    if not hasattr(app, "sheet") or app.sheet is None:
+        messagebox.showwarning("No table", "No table loaded!")
+        return
+
     if not app.working_dir:
         app.working_dir = filedialog.askdirectory(title="Choose working directory")
         if not app.working_dir:
@@ -112,6 +118,12 @@ def open_script(app):
         download_script(app)
     else:
         set_status(app, "Canceled open script.", success=False)
+    try:
+        os.startfile(save_path)
+        set_status(app, f"Opened: {save_path}", success=True)
+    except Exception as e:
+        messagebox.showerror("Error", f"Can not open {save_path}: {e}")
+        return
 
 def download_script(app):
     import time
@@ -121,7 +133,10 @@ def download_script(app):
         if not app.working_dir:
             messagebox.showwarning("Cannot save", "Please choose working directory!")
             return
-
+    if not hasattr(app, "sheet") or app.sheet is None:
+        messagebox.showwarning("No table", "No table loaded!")
+        return
+    
     selected_cells = app.sheet.get_selected_cells()
     if not selected_cells:
         messagebox.showwarning("Select cell", "Select a cell in the table!")
@@ -178,12 +193,25 @@ def download_script(app):
         return False
 
     try:
-        hf.copy_file_by_name(app, download_dir, os.path.dirname(save_path), id_val + ".can")
-        set_status(app, f"Copied file into working folder successful: {save_path}", success=True)
+        # Nếu hf có hàm move_file_by_name thì dùng:
+        hf.move_file_by_name(app, download_dir, os.path.dirname(save_path), id_val + ".can")
+        # Nếu không có thì dùng shutil.move:
+        # shutil.move(src_file, os.path.dirname(save_path),id_val + ".can")
+        set_status(app, f"Moved file into working folder successful: {save_path}", success=True)
+
         return True
     except Exception as e:
-        messagebox.showerror("Error", f"Can not copy/open file: {e}")
+        messagebox.showerror("Error", f"Can not move/open file: {e}")
         return False
+
+def clean_multiline_text(text):
+    """Giữ lại tối đa 1 dòng trống liên tiếp, loại bỏ các dòng trống dư thừa."""
+    # Loại bỏ khoảng trắng đầu/cuối mỗi dòng
+    lines = [line.rstrip() for line in text.splitlines()]
+    text = "\n".join(lines)
+    # Thay thế 3 hoặc nhiều lần xuống dòng liên tiếp thành 2 lần xuống dòng
+    text = re.sub(r'\n{3,}', '\n\n', text)
+    return text
 
 def create_new_script(app):
     if not app.working_dir:
@@ -191,6 +219,9 @@ def create_new_script(app):
         if not app.working_dir:
             messagebox.showwarning("Cannot save", "Please choose working directory!")
             return
+    if not hasattr(app, "sheet") or app.sheet is None:
+        messagebox.showwarning("No table", "No table loaded!")
+        return
 
     selected = app.sheet.get_selected_cells()
     if not selected:
@@ -203,6 +234,7 @@ def create_new_script(app):
         content_idx = app.headers.index("Content Requirement")
         desc_idx = app.headers.index("TS_TestDescription")
         goal_idx = app.headers.index("TS_TestGoal")
+        release_idx = app.headers.index("Release")  # Thêm dòng này
     except ValueError:
         messagebox.showerror("Error", "Can not find required columns!")
         return None
@@ -217,6 +249,11 @@ def create_new_script(app):
     content_val = str(values[content_idx]).strip() if content_idx is not None else ""
     desc_val = str(values[desc_idx]).strip() if desc_idx is not None else ""
     goal_val = str(values[goal_idx]).strip() if goal_idx is not None else ""
+    release_val = str(values[release_idx]).strip() if release_idx is not None else ""  # Thêm dòng này
+
+    # Làm sạch nội dung để tránh xuống dòng quá nhiều
+    content_val = clean_multiline_text(content_val)
+    desc_val = clean_multiline_text(desc_val)
 
     if not app.working_dir:
         app.working_dir = filedialog.askdirectory(title="Choose working directory")
@@ -243,7 +280,7 @@ def create_new_script(app):
 
     # Thay thế các trường trong template
     template = template.replace("<testgoal>", goal_val)
-    template = template.replace("<SW_release>", getattr(app, "Test_level", ""))
+    template = template.replace("<SW_release>", release_val)  # Sửa dòng này
     template = template.replace("<Tester>", os.getlogin())
     template = template.replace("<ImplDate>", datetime.datetime.now().strftime("%Y-%m-%d"))
     template = template.replace("<Requirement Content>", content_val)

@@ -1,0 +1,298 @@
+/*@!Encoding:1252*/
+includes{
+}
+
+///@cond DoxyComp
+variables{
+//@cond DoxyComp
+}
+///@endcond
+
+/*
+
+************************************************************************************************************************************************
+*INFORMATION
+************************************************************************************************************************************************
+@brief:			To check signal "MO_Gangposition" and "GE_Fahrstufe".
+------------------------------------------------------------------------------------------------------------------------------------------------
+@SW release : RC_CUST_DAS_VW_02_SW_U155.01.01
+@date : 08 Oct 2024
+@author : Pham An
+@observations :
+------------------------------------------------------------------------------------------------------------------------------------------------
+@SW release : RC_CUST_DAS_VW_02_SW_U190.01.01
+@date : 08 May 2025
+@author : Hua Truong
+@observations :
+------------------------------------------------------------------------------------------------------------------------------------------------
+@requirement(s):
+[PO_01_RS_99067]
+	IF
+		"DiagCodingPlattformVW02" == ['3: MEB']		
+	THEN:		
+		Signal "MO_Gangposition" in message "Motor_14" shall  not be received.
+		Signal "GE_Fahrstufe" in message "Getriebe_11" shall be received.
+
+//Hint: With coding 'MEB', message "Motor_14" is not available in MEB DBC.
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+@ test design :
+
+***Follow task 1911160 from SE team,  "GE_Fahrstufe" is applied for both MEB and MQB. 
+CASE 1:
+Set:
+	"DiagCodingPlattformVW02" == ['3: MEB']	
+  Set signal "MO_Gangposition" = 15
+  Set signal "GE_Fahrstufe" = 15
+Check:
+  signal "MO_Gangposition"  in message "Motor_14" shall not be received (MO_Gangposition != 15)
+  signal "GE_Fahrstufe" in message "Getriebe_11" shall be received (GE_Fahrstufe = 15)
+
+CASE 2:
+Set:
+	"DiagCodingPlattformVW02" == ['3: MEB']	
+  Set signal "MO_Gangposition" = 14
+  Set signal "GE_Fahrstufe" = 14
+Check:
+  signal "MO_Gangposition"  in message "Motor_14" shall not be received (MO_Gangposition != 14)
+  signal "GE_Fahrstufe" in message "Getriebe_11" shall be received (GE_Fahrstufe = 14)
+
+CASE 3:
+Set:
+	"DiagCodingPlattformVW02" == ['3: MEB']	
+  Set signal "MO_Gangposition" = 7
+  Set signal "GE_Fahrstufe" = 7
+Check:
+  signal "MO_Gangposition"  in message "Motor_14" shall not be received (MO_Gangposition != 7)
+  signal "GE_Fahrstufe" in message "Getriebe_11" shall be received (GE_Fahrstufe = 7)
+
+CASE 4:
+Set:
+	"DiagCodingPlattformVW02" == ['3: MEB']	
+  Set signal "MO_Gangposition" = 1
+  Set signal "GE_Fahrstufe" = 1
+Check:
+  signal "MO_Gangposition"  in message "Motor_14" shall not be received (MO_Gangposition != 1)
+  signal "GE_Fahrstufe" in message "Getriebe_11" shall be received (GE_Fahrstufe = 1)
+
+CASE 5:
+Set:
+	"DiagCodingPlattformVW02" == ['3: MEB']	
+  Set signal "MO_Gangposition" = 0
+  Set signal "GE_Fahrstufe" = 0
+Check:
+  signal "MO_Gangposition"  in message "Motor_14" shall not be received (MO_Gangposition != 0)
+  signal "GE_Fahrstufe" in message "Getriebe_11" shall be received (GE_Fahrstufe = 0)
+
+CASE 6:
+Set:
+	"DiagCodingPlattformVW02" != ['3: MEB']	( = 2: MQB37W)
+  Set signal "MO_Gangposition" = 15
+  Set signal "GE_Fahrstufe" = 15
+Check:
+  signal "MO_Gangposition"  in message "Motor_14" shall be received (MO_Gangposition = 15)
+  signal "GE_Fahrstufe" in message "Getriebe_11" shall be received (GE_Fahrstufe = 15)
+
+CASE 7:
+Set:
+	"DiagCodingPlattformVW02" != ['3: MEB']	( = 2: MQB37W)
+  Set signal "MO_Gangposition" = 14
+  Set signal "GE_Fahrstufe" = 14
+Check:
+  signal "MO_Gangposition"  in message "Motor_14" shall be received (MO_Gangposition = 14)
+  signal "GE_Fahrstufe" in message "Getriebe_11" shall be received (GE_Fahrstufe = 14)
+
+CASE 8:
+Set:
+	"DiagCodingPlattformVW02" != ['3: MEB']	( = 2: MQB37W)
+  Set signal "MO_Gangposition" = 7
+  Set signal "GE_Fahrstufe" = 7
+Check:
+  signal "MO_Gangposition"  in message "Motor_14" shall be received (MO_Gangposition = 7)
+  signal "GE_Fahrstufe" in message "Getriebe_11" shall be received (GE_Fahrstufe = 7)
+
+CASE 9:
+Set:
+	"DiagCodingPlattformVW02" != ['3: MEB']	( = 2: MQB37W)
+  Set signal "MO_Gangposition" = 1
+  Set signal "GE_Fahrstufe" = 1
+Check:
+  signal "MO_Gangposition"  in message "Motor_14" shall be received (MO_Gangposition = 1)
+  signal "GE_Fahrstufe" in message "Getriebe_11" shall be received (GE_Fahrstufe = 1)
+
+CASE 10:
+Set:
+	"DiagCodingPlattformVW02" != ['3: MEB']	( = 2: MQB37W)
+  Set signal "MO_Gangposition" = 0
+  Set signal "GE_Fahrstufe" = 0
+Check:
+  signal "MO_Gangposition"  in message "Motor_14" shall be received (MO_Gangposition = 0)
+  signal "GE_Fahrstufe" in message "Getriebe_11" shall be received (GE_Fahrstufe = 0)
+
+CASE 11:
+Set:
+	"DiagCodingPlattformVW02" != ['3: MEB']	( = NOT CODED)
+
+Check:
+  MO_Gangposition = 14 (default value)
+  GE_Fahrstufe = 1 (default value)
+  ***From K-Matrix
+	
+
+*/
+
+testcase SwT_VW_02_13376()
+{                                 
+    int   MO_Gangposition_Value[5] 	= {15, 14, 7, 1, 0};
+    int   GE_Fahrstufe_Value[5]  	= {15, 14, 7, 1, 0};
+    int i, check_MO;;
+
+    TestCaseTitle("SwT_VW_02_13376","To check signal 'MO_Gangposition' and 'GE_Fahrstufe'");
+    
+    // testStepFail("+++ NOTE: <Missing implement the step 'DiagCodingPlattformVW02 == ['3: MEB']' between Requirement 'PO_01_RS_99067' and Source> +++");
+
+    //********************************************* Preconditions *********************************************
+    funcIDE_Reset();
+    funcIDE_DeleteAllBP();
+    funcIDE_Run();                  
+    func_Wait(5000);
+
+    /////////////////////**************** End Preconditions ******************
+    for (i=0; i<5; i++)
+    {
+        if (funcIDE_ReadVariable("Rte_Coding_Coding_Data.platform_en") == 1)
+        {
+            testReportFileName("X:\\30_Reports\\Customization\\SwT_VW_02_13376_MQB");
+          
+            testStep("+++", "------------------- Case %d -------------------", i+1);
+            
+            //check GE_Fahrstufe
+            setSignal(GE_Fahrstufe_XIX_Getriebe_11_XIX_FASCANFD2, GE_Fahrstufe_Value[i]);
+
+            func_Wait(1000);
+            
+            funcWinIdea_SetBPSource("Frame_Rx_Getriebe_11_FD_02_Process", "(void) WaAstechCust_Wrapper_Write_CanInput_Getriebe_11(&Frame_Rx_Getriebe_11)");
+            funcIDE_WaitForHalt(3000);
+
+            funcIDE_Run();
+            funcIDE_WaitForHalt(3000);
+
+            funcIDE_ReadVariableAndCheck("((Frame_Rx_Getriebe_11).GE_Fahrstufe_v_Signal).raw_u8", GE_Fahrstufe_Value[i], equal);
+
+            funcIDE_DeleteAllBP();
+            funcIDE_Reset();
+            funcIDE_Run();
+            func_Wait(3000);
+
+            //Check MO_Gangposition
+            setSignal(MO_Gangposition_XIX_Motor_14_XIX_FASCANFD2, MO_Gangposition_Value[i]);
+
+            func_Wait(1000);
+            
+            funcWinIdea_SetBPSource("Frame_Rx_Motor_14_FD_02_Process", "(void)WaAstechCust_Wrapper_Write_CanInput_Motor_14(&Frame_Rx_Motor_14)");
+            funcIDE_WaitForHalt(3000);
+
+            funcIDE_Run();
+            funcIDE_WaitForHalt(3000);
+
+            funcIDE_ReadVariableAndCheck("((Frame_Rx_Motor_14).MO_Gangposition).raw_u8", MO_Gangposition_Value[i], equal);
+
+            funcIDE_DeleteAllBP();
+            funcIDE_Reset();
+            funcIDE_Run();
+            func_Wait(3000);
+        } 
+
+        else if (funcIDE_ReadVariable("Rte_Coding_Coding_Data.platform_en") == 3)
+        {
+            testReportFileName("X:\\30_Reports\\Customization\\SwT_VW_02_13376_MEB");
+            testStep("+++", "------------------- Case %d -------------------", i+6);
+
+            //check GE_Fahrstufe
+            setSignal(GE_Fahrstufe_XIX_Getriebe_11_XIX_FASCANFD2, GE_Fahrstufe_Value[i]);
+
+            func_Wait(500);
+            
+            funcWinIdea_SetBPSource("Frame_Rx_Getriebe_11_FD_02_Process", "(void) WaAstechCust_Wrapper_Write_CanInput_Getriebe_11(&Frame_Rx_Getriebe_11)");
+            funcIDE_WaitForHalt(3000);
+
+            funcIDE_Run();
+            funcIDE_WaitForHalt(3000);
+
+            funcIDE_ReadVariableAndCheck("((Frame_Rx_Getriebe_11).GE_Fahrstufe_v_Signal).raw_u8", GE_Fahrstufe_Value[i], equal);
+
+            funcIDE_DeleteAllBP();
+            funcIDE_Reset();
+            funcIDE_Run();
+            func_Wait(3000);
+          
+            //Check MO_Gangposition
+            funcWinIdea_SetBPSource("Frame_Rx_Motor_14_FD_02_Process", "if((TRUE == isMessageReceived) && (WAASTECHCUST_E_VALID == WaAstechCust_LogicalValue_Check");
+            funcIDE_WaitForHalt(3000); 
+            check_MO = funcIDE_ReadVariable("Frame_Rx_Motor_14.MO_Gangposition.raw_u8");
+          
+            funcIDE_DeleteAllBP();
+            funcIDE_Run();
+          
+            setSignal(MO_Gangposition_XIX_Motor_14_XIX_FASCANFD2, MO_Gangposition_Value[i]);
+            func_Wait(1000);
+      
+            funcWinIdea_SetBPSource("Frame_Rx_Motor_14_FD_02_Process", "(void)WaAstechCust_Wrapper_Write_CanInput_Motor_14(&Frame_Rx_Motor_14)");
+            funcIDE_WaitForHaltNeg(3000);
+          
+            funcIDE_DeleteAllBP();
+          
+            funcWinIdea_SetBPSource("Frame_Rx_Motor_14_FD_02_Process", "if (TRUE == isDataWrited_b)");
+            funcIDE_WaitForHalt(3000);
+           
+            funcIDE_Run();
+            funcIDE_WaitForHalt(3000);
+
+            funcIDE_ReadVariableAndCheck("((Frame_Rx_Motor_14).MO_Gangposition).raw_u8", check_MO); //MO_Gangposition still equal previous value, Not received value from signal
+
+            funcIDE_DeleteAllBP();
+            funcIDE_Reset();
+            funcIDE_Run();
+            func_Wait(3000);
+        } 
+
+        else if (funcIDE_ReadVariable("Rte_Coding_Coding_Data.platform_en") == 0)
+        {
+            testReportFileName("X:\\30_Reports\\Customization\\SwT_VW_02_13376_NOT_CODED");
+            testStepFail("Following task analysis 1978789, in case of  �DiagCodingPlattformVW02� is NOT_CODE,  �MO_Gangposition� keep default value (14). The value of MO_Gangposition is received from signal instead of using the default value (14))");
+            testStep("+++", "------------------- Case %d -------------------", 11);
+
+            //check GE_Fahrstufe
+ 
+            funcWinIdea_SetBPSource("Frame_Rx_Getriebe_11_FD_02_Process", "(void) WaAstechCust_Wrapper_Write_CanInput_Getriebe_11(&Frame_Rx_Getriebe_11)");
+            funcIDE_WaitForHalt(3000);
+
+            funcIDE_ReadVariableAndCheck("((Frame_Rx_Getriebe_11).GE_Fahrstufe_v_Signal).raw_u8", 1);
+
+            funcIDE_DeleteAllBP();
+            funcIDE_Reset();
+            funcIDE_Run();
+            func_Wait(3000);
+
+            //Check MO_Gangposition
+            
+            funcWinIdea_SetBPSource("Frame_Rx_Motor_14_FD_02_Process", "if (TRUE == isDataWrited_b)");
+            funcIDE_WaitForHalt(3000);
+
+            funcIDE_ReadVariableAndCheck("((Frame_Rx_Motor_14).MO_Gangposition).raw_u8", 14, equal);
+
+            funcIDE_DeleteAllBP();
+            funcIDE_Reset();
+            funcIDE_Run();
+            func_Wait(3000);
+            break;
+        } 
+
+    funcIDE_DeleteAllBP();
+    func_testStepSubSection("End of test.");
+    funcIDE_Reset();
+    func_Wait(3000);
+    funcIDE_Run();
+
+    }
+}
