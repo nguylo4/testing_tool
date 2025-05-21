@@ -8,7 +8,7 @@ from tkinter import ttk, messagebox
 import threading
 
 UPDATE_JSON_URL = "https://raw.githubusercontent.com/nguylo4/testing_tool/refs/heads/main/0.WorkingSupport_Gen5/Daily_work/Release_update/update_version.json"
-CURRENT_VERSION = "1.2"
+CURRENT_VERSION = "1.3"
 
 def get_update_info():
     resp = requests.get(UPDATE_JSON_URL, timeout=5)

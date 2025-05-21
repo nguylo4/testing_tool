@@ -5,12 +5,12 @@
     "release_date": "2023-10-01",
     "changes": [
       {
-        "type": "feature",
-        "description": "Added new feature A"
+        "type": "Feature",
+        "description": "Update feature Update"
       },
       {
         "type": "bugfix",
-        "description": "Fixed bug in feature C"
+        "description": "Fix bug typo in comare, refer value into template.can, change method download script!"
       }
     ]
   },
