@@ -9,7 +9,7 @@ import threading
 import subprocess
 
 UPDATE_JSON_URL = "https://raw.githubusercontent.com/nguylo4/testing_tool/refs/heads/main/0.WorkingSupport_Gen5/Daily_work/Release_update/update_version.json"
-CURRENT_VERSION = "1.2"
+CURRENT_VERSION = "1.3"
 
 def get_update_info():
     resp = requests.get(UPDATE_JSON_URL, timeout=5)
@@ -80,7 +80,7 @@ def update_software_gui(root):
                     subprocess.Popen([sys.executable, updater_path, main_exe, filename, os.getcwd()])
                     progress_win.destroy()
                     messagebox.showinfo("Update", "Đang cập nhật... Ứng dụng sẽ tự động khởi động lại sau khi cập nhật xong.")
-                    os._exit(0)  # Thoát toàn bộ process
+                    root.destroy()  # hoặc sys.exit(0) nếu bạn muốn thoát app, KHÔNG dùng os._exit(0)
                 except Exception as e:
                     progress_win.destroy()
                     messagebox.showerror("Update Error", str(e))
