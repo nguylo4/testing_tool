@@ -6,7 +6,7 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=[
-        ('App.ico', '.'),
+        ('icon\\App.ico', 'icon'),
         ('template\\template.can', 'template'),
         ('updater\\updater.py', 'updater')
     ],
@@ -37,7 +37,7 @@ main_exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['App.ico'],
+    icon=['icon\\App.ico'],
 )
 
 coll = COLLECT(

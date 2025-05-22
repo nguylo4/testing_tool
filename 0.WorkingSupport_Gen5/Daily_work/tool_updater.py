@@ -75,7 +75,8 @@ def update_software_gui(root):
                     tk.Label(progress_win, text="Đang chuẩn bị cập nhật...").pack()
 
                     # Gọi updater.py để giải nén và ghi đè
-                    updater_path = os.path.join(os.path.dirname(__file__), "updater/updater.py")
+                    updater_path = os.path.join(os.path.dirname(__file__), r"updater\updater.py")
+                    print(updater_path)
                     main_exe = os.path.basename(sys.argv[0])  # tên file exe chính
                     subprocess.Popen([sys.executable, updater_path, main_exe, filename, os.getcwd()])
                     progress_win.destroy()

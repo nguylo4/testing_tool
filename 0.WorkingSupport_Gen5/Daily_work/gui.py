@@ -73,10 +73,10 @@ class CustomApp(Window):
         
         if getattr(sys, 'frozen', False):
             # Đang chạy trong exe
-            ico_path = os.path.join(sys._MEIPASS, 'App.ico')
+            ico_path = os.path.join(sys._MEIPASS, 'icon/App.ico')
         else:
             # Đang chạy file .py
-            ico_path = os.path.join(os.path.dirname(__file__), "App.ico")
+            ico_path = os.path.join(os.path.dirname(__file__), "icon/App.ico")
 
         self.iconbitmap(ico_path)
         

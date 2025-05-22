@@ -58,6 +58,7 @@ if __name__ == "__main__":
             exe_path = os.path.join(extract_to, main_exe)
             if os.path.exists(exe_path):
                 subprocess.Popen([exe_path])
+                print(f"Restarting {exe_path}...")
             else:
                 messagebox.showerror("Error", f"Cannot find {exe_path} to restart!")
             root.after(1500, root.destroy)
