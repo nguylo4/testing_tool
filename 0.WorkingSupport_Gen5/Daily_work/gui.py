@@ -13,6 +13,7 @@ import ttkbootstrap as ttk
 from edit_report import *
 from ttkbootstrap.window import Window
 from tool_updater import *
+from tool_updater import CURRENT_VERSION
 
 
 # KANBAN_STATES = [
@@ -85,6 +86,7 @@ class CustomApp(Window):
 
         # Startup popup
         self.withdraw()
+        SWVersion = str(CURRENT_VERSION)
 
         def on_load_workspace():
             file_path = filedialog.askopenfilename(title="Open workspace", filetypes=[("JSON files", "*.json")])
@@ -192,7 +194,7 @@ class CustomApp(Window):
             popup.geometry("300x270")
             popup.iconbitmap(ico_path)
             popup.resizable(False, False)
-            ttk.Label(popup, text="Release Working Tool\nVersion 1.3\nDeveloped by NguyenLoc", font=("Segoe UI", 13, "bold")).pack(pady=20)
+            ttk.Label(popup, text=f"Release Working Tool\nVersion {SWVersion}\nDeveloped by NguyenLoc", font=("Segoe UI", 13, "bold")).pack(pady=20)
             ttk.Label(popup, text="Contact: loc.nguyen@forvia.com", font=("Segoe UI", 10)).pack(pady=5)
             
             def on_check_update():

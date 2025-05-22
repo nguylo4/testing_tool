@@ -1,5 +1,7 @@
 @echo off
 REM Build exe từ spec
+rmdir /s /q build
+rmdir /s /q dist
 python -m PyInstaller Testing_tool.spec
 
 REM Nén folder dist\Testing_tool thành file .7z (yêu cầu đã cài 7-Zip và thêm vào PATH)

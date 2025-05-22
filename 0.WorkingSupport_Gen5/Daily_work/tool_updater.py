@@ -6,9 +6,10 @@ import shutil
 import tkinter as tk
 from tkinter import ttk, messagebox
 import threading
+import subprocess
 
 UPDATE_JSON_URL = "https://raw.githubusercontent.com/nguylo4/testing_tool/refs/heads/main/0.WorkingSupport_Gen5/Daily_work/Release_update/update_version.json"
-CURRENT_VERSION = "1.3"
+CURRENT_VERSION = "1.2"
 
 def get_update_info():
     resp = requests.get(UPDATE_JSON_URL, timeout=5)
@@ -71,12 +72,15 @@ def update_software_gui(root):
                     download_with_progress(download_url, filename, set_progress)
                     pb["value"] = 100
                     progress_win.update_idletasks()
-                    tk.Label(progress_win, text="Extracting...").pack()
-                    extract_7z_and_overwrite(filename, os.getcwd())
-                    os.remove(filename)
+                    tk.Label(progress_win, text="Đang chuẩn bị cập nhật...").pack()
+
+                    # Gọi updater.py để giải nén và ghi đè
+                    updater_path = os.path.join(os.path.dirname(__file__), "updater.exe")
+                    main_exe = os.path.basename(sys.argv[0])  # tên file exe chính
+                    subprocess.Popen([sys.executable, updater_path, main_exe, filename, os.getcwd()])
                     progress_win.destroy()
-                    messagebox.showinfo("Update", "Update successful! The application will restart.")
-                    restart_app()
+                    messagebox.showinfo("Update", "Đang cập nhật... Ứng dụng sẽ tự động khởi động lại sau khi cập nhật xong.")
+                    sys.exit(0)  # Thoát chương trình chính để updater có thể ghi đè
                 except Exception as e:
                     progress_win.destroy()
                     messagebox.showerror("Update Error", str(e))
