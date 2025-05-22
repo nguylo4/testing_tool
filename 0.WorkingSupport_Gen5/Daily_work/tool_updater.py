@@ -79,8 +79,7 @@ def update_software_gui(root):
                     main_exe = os.path.basename(sys.argv[0])  # tên file exe chính
                     subprocess.Popen([sys.executable, updater_path, main_exe, filename, os.getcwd()])
                     progress_win.destroy()
-                    messagebox.showinfo("Update", "Đang cập nhật... Ứng dụng sẽ tự động khởi động lại sau khi cập nhật xong.")
-                    root.destroy()  # hoặc sys.exit(0) nếu bạn muốn thoát app, KHÔNG dùng os._exit(0)
+                    os._exit(0)  # Thoát toàn bộ process ngay lập tức
                 except Exception as e:
                     progress_win.destroy()
                     messagebox.showerror("Update Error", str(e))
