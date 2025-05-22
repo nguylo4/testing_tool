@@ -5,8 +5,9 @@ import subprocess
 import tkinter as tk
 from tkinter import ttk, messagebox
 import requests
-import py7zr
 import zipfile
+import shutil
+import glob
 
 def download_with_progress(url, dest, progress_callback):
     with requests.get(url, stream=True) as r:
@@ -24,23 +25,21 @@ def download_with_progress(url, dest, progress_callback):
     if os.path.getsize(dest) < 1000:
         raise Exception("Downloaded file is too small, possibly not a valid archive.")
 
-def extract_7z_and_overwrite(archive_path, extract_to, set_progress=None):
-    with py7zr.SevenZipFile(archive_path, mode='r') as z:
-        all_files = z.getnames()
-        total = len(all_files)
-        for idx, name in enumerate(all_files, 1):
-            z.extract(targets=[name], path=extract_to)
-            if set_progress:
-                percent = int(idx * 100 / total)
-                set_progress(percent)
-    os.remove(archive_path)
-
 def extract_zip_and_overwrite(archive_path, extract_to, set_progress=None):
+    import tempfile
     with zipfile.ZipFile(archive_path, 'r') as z:
         all_files = z.namelist()
         total = len(all_files)
         for idx, name in enumerate(all_files, 1):
-            z.extract(name, path=extract_to)
+            # Giải nén ra thư mục tạm trước
+            with tempfile.TemporaryDirectory() as tmpdir:
+                z.extract(name, path=tmpdir)
+                src_file = os.path.join(tmpdir, name)
+                dest_file = os.path.join(extract_to, name)
+                dest_dir = os.path.dirname(dest_file)
+                if not os.path.exists(dest_dir):
+                    os.makedirs(dest_dir, exist_ok=True)
+                safe_replace(src_file, dest_file)
             if set_progress:
                 percent = int(idx * 100 / total)
                 set_progress(percent)
@@ -53,6 +52,34 @@ def wait_for_process_exit(process_name, timeout=30):
             return True
         time.sleep(1)
     return False
+
+def safe_replace(src_file, dest_file):
+    try:
+        if os.path.exists(dest_file):
+            try:
+                # Đổi tên file cũ nếu đang bị khóa
+                old_file = dest_file + ".old"
+                os.rename(dest_file, old_file)
+                print(f"Renamed locked file: {dest_file} → {old_file}")
+            except PermissionError:
+                print(f"File is in use and cannot be renamed: {dest_file}")
+                return False
+
+        shutil.copy2(src_file, dest_file)
+        print(f"Updated: {dest_file}")
+        return True
+    except Exception as e:
+        print(f"Failed to update {dest_file}: {e}")
+        return False
+
+def remove_old_files(folder):
+    for root_dir, dirs, files in os.walk(folder):
+        for file in files:
+            if file.endswith('.old'):
+                try:
+                    os.remove(os.path.join(root_dir, file))
+                except Exception as e:
+                    print(f"Could not remove {file}: {e}")
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:
@@ -85,6 +112,10 @@ if __name__ == "__main__":
             pb["value"] = 100
             root.update_idletasks()
             label.config(text="Update completed! Restarting...")
+
+            # Xóa file .old
+            remove_old_files(extract_to)
+
             exe_path = os.path.join(extract_to, main_exe)
             if os.path.exists(exe_path):
                 subprocess.Popen([exe_path])

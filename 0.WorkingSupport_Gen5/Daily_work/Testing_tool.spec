@@ -8,7 +8,6 @@ a = Analysis(
     datas=[
         ('icon\\App.ico', 'icon'),
         ('template\\template.can', 'template'),
-        ('updater\\updater.py', 'updater')
     ],
     hiddenimports=[],
     hookspath=[],
@@ -40,10 +39,47 @@ main_exe = EXE(
     icon=['icon\\App.ico'],
 )
 
+# Phân tích updater script riêng
+a2 = Analysis(
+    ['updater\\updater.py'],
+    pathex=[],
+    binaries=[],
+    datas=[],
+    hiddenimports=[],
+    hookspath=[],
+    hooksconfig={},
+    runtime_hooks=[],
+    excludes=[],
+    noarchive=False,
+    optimize=0,
+)
+
+pyz2 = PYZ(a2.pure)
+
+updater_exe = EXE(
+    pyz2,
+    a2.scripts,
+    [],
+    exclude_binaries=True,
+    name='updater',
+    debug=False,
+    bootloader_ignore_signals=False,
+    strip=False,
+    upx=True,
+    console=False,
+    disable_windowed_traceback=False,
+    argv_emulation=False,
+    target_arch=None,
+    codesign_identity=None,
+    entitlements_file=None,
+    icon=[],
+)
+
 coll = COLLECT(
     main_exe,
-    a.binaries,
-    a.datas,
+    updater_exe,
+    a.binaries + a2.binaries,
+    a.datas + a2.datas,
     strip=False,
     upx=True,
     upx_exclude=[],

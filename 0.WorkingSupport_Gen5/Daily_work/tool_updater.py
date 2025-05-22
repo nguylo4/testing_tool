@@ -1,15 +1,12 @@
 import requests
-import py7zr
 import os
 import sys
-import shutil
 import tkinter as tk
 from tkinter import ttk, messagebox
-import threading
 import subprocess
 
 UPDATE_JSON_URL = "https://raw.githubusercontent.com/nguylo4/testing_tool/refs/heads/main/0.WorkingSupport_Gen5/Daily_work/Release_update/update_version.json"
-CURRENT_VERSION = "1.3"
+CURRENT_VERSION = "1.0"
 
 def get_update_info():
     resp = requests.get(UPDATE_JSON_URL, timeout=5)
@@ -34,9 +31,9 @@ def update_software_gui(root):
                 return
 
             # Gọi updater.py, truyền main_exe, download_url, extract_to
-            updater_path = os.path.join(os.path.dirname(__file__), r"updater\updater.py")
+            updater_path = os.path.join(os.path.dirname(sys.argv[0]), "updater.exe")
             main_exe = os.path.basename(sys.argv[0])
-            subprocess.Popen([sys.executable, updater_path, main_exe, download_url, os.getcwd()])
+            subprocess.Popen([updater_path, main_exe, download_url, os.getcwd()])
             root.destroy()  # hoặc os._exit(0)
         else:
             messagebox.showinfo("Information", "You are using the latest version.")
@@ -48,6 +45,6 @@ def update_software_gui(root):
 if __name__ == "__main__":
     root = tk.Tk()
     root.title("Demo Update")
-    btn = tk.Button(root, text="Kiểm tra cập nhật", command=lambda: update_software_gui(root))
+    btn = tk.Button(root, text="Check for update", command=lambda: update_software_gui(root))
     btn.pack(padx=20, pady=20)
     root.mainloop()
