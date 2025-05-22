@@ -231,39 +231,19 @@ def ask_consistency_status(app):
     win.wait_window(win)
     return result["value"]
 
-# def compare_feature_columns(app):
-#     if not hasattr(app, "sheet") or app.sheet is None:
-#         messagebox.showwarning("No table", "No table loaded!")
-#         return
-#     try:
-#         h_feature_idx = app.headers.index("H_Feature")
-#         spec_feature_idx = app.headers.index("Feature_in_Spec")
-#     except ValueError:
-#         messagebox.showerror("Error", "Không tìm thấy cột 'H_Feature' hoặc 'Feature_in_Spec'!")
-#         return
-
-#     for row_idx, row in enumerate(app.data):
-#         h_val = str(row[h_feature_idx]).strip() if row[h_feature_idx] is not None else ""
-#         spec_val = str(row[spec_feature_idx]).strip() if row[spec_feature_idx] is not None else ""
-#         # Nếu một trong hai ô không có dữ liệu
-#         if not h_val and not spec_val:
-#             continue  # Bỏ qua nếu cả hai đều rỗng
-#         if not h_val:
-#             app.sheet.highlight_cells(row=row_idx, column=h_feature_idx, bg="#ffb3b3")
-#         if not spec_val:
-#             app.sheet.highlight_cells(row=row_idx, column=spec_feature_idx, bg="#ffb3b3")
-#         # Nếu cả hai đều có dữ liệu nhưng khác nhau
-#         if h_val and spec_val and h_val != spec_val:
-#             app.sheet.highlight_cells(row=row_idx, column=h_feature_idx, bg="#ffb3b3")
-#             app.sheet.highlight_cells(row=row_idx, column=spec_feature_idx, bg="#ffb3b3")
 
 def compare_attribute(app):
-    # Tạo cột "compare attribute" nếu chưa có
-    if "compare attribute" not in app.headers:
-        app.headers.append("compare attribute")
+    # Tạo 2 cột nếu chưa có
+    if "Spec_attribute_OK" not in app.headers:
+        app.headers.append("Spec_attribute_OK")
         for row in app.data:
             row.append("")
-    compare_idx = app.headers.index("compare attribute")
+    if "Spec_attribute_NOK" not in app.headers:
+        app.headers.append("Spec_attribute_NOK")
+        for row in app.data:
+            row.append("")
+    ok_idx = app.headers.index("Spec_attribute_OK")
+    nok_idx = app.headers.index("Spec_attribute_NOK")
 
     # Lấy index các cột cần thiết
     def idx(col): 
@@ -285,35 +265,53 @@ def compare_attribute(app):
         "TS_SW_TestEnvironment": idx("TS_SW_TestEnvironment"),
         "Requirement Status": idx("Requirement Status"),
         "TS_ObjectStatus": idx("TS_ObjectStatus"),
+        "TS_Precondition": idx("TS_Precondition"),
+        "TS_Postcondition": idx("TS_Postcondition"),
+        "TS_SafetyObjectStatus": idx("TS_SafetyObjectStatus"),
+        "TS_TestFunctionalSafety": idx("TS_TestFunctionalSafety"),
+
     }
 
     for row_idx, row in enumerate(app.data):
-        results = []
+        ok_list = []
+        nok_list = []
 
-        # 1. Compare Feature
+        # 1. Feature
         h_feat = str(row[idxs["H_Feature"]]).strip() if idxs["H_Feature"] is not None else ""
         spec_feat = str(row[idxs["Feature_in_Spec"]]).strip() if idxs["Feature_in_Spec"] is not None else ""
         if h_feat and spec_feat:
-            results.append(f"Feature: {'ok\n' if h_feat == spec_feat else 'not ok\n'}")
-        elif not h_feat or not spec_feat:
-            results.append("Feature: not ok\n")
+            if h_feat == spec_feat:
+                ok_list.append("H_Feature\n")
+            else:
+                nok_list.append("H_Feature\n")
+        else:
+            nok_list.append("H_Feature\n")
 
-        # 2. CR ID in TS_RefToRequirement
+        # 2. TS_RefToRequirement
         crid = str(row[idxs["CR ID"]]).strip() if idxs["CR ID"] is not None else ""
         ref_req = str(row[idxs["TS_RefToRequirement"]]).strip() if idxs["TS_RefToRequirement"] is not None else ""
         if crid and ref_req:
-            results.append(f"TS_RefToRequirement: {'ok\n' if crid in ref_req else 'not ok\n'}")
+            if crid in ref_req:
+                ok_list.append("TS_RefToRequirement\n")
+            else:
+                nok_list.append("TS_RefToRequirement\n")
         else:
-            results.append("TS_RefToRequirement: not ok\n")
+            nok_list.append("TS_RefToRequirement\n")
 
-        # 3. SafetyClassification & Priority
+        # 3. Priority
         safety = str(row[idxs["H_SafetyClassification"]]).strip() if idxs["H_SafetyClassification"] is not None else ""
         priority = str(row[idxs["TS_TestPriority"]]).strip().lower() if idxs["TS_TestPriority"] is not None else ""
         fail_cons = str(row[idxs["H_FailureConsequense"]]).strip().lower() if idxs["H_FailureConsequense"] is not None else ""
         if "asil" in safety.lower():
-            results.append(f"Priority: {'ok\n' if priority == 'high' else 'not ok\n'}")
+            if priority == "high":
+                ok_list.append("TS_Priority\n")
+            else:
+                nok_list.append("TS_Priority\n")
         else:
-            results.append(f"Priority: {'ok\n' if priority == fail_cons else 'not ok\n'}")
+            if priority == fail_cons:
+                ok_list.append("TS_Priority\n")
+            else:
+                nok_list.append("TS_Priority\n")
 
         # 4. TS_RefToAutomation path check
         ref_auto = str(row[idxs["TS_RefToAutomation"]]).strip() if idxs["TS_RefToAutomation"] is not None else ""
@@ -321,54 +319,92 @@ def compare_attribute(app):
         feat = app.feature_map.get(feat, feat)
         tcid = str(row[idxs["Test cases ID"]]).strip() if idxs["Test cases ID"] is not None else ""
         expected_path = f"e:/Projects/DAS_RADAR/30_PRJ/10_CUST/10_VAG/{app.project}/60_ST/{app.Test_level}/20_SWT_CC/10_Debugger_Test/20_Scripts/Test_Cases/{feat}/{tcid}.can"
-        
         def normalize_path(s):
             return s.replace("\\", "/").strip().lower()
-    
         if ref_auto:
             if normalize_path(ref_auto) == normalize_path(expected_path):
-                results.append("TS_RefToAutomation: ok\n")
+                ok_list.append("TS_RefToAutomation\n")
             else:
-                results.append("TS_RefToAutomation: not ok\n")
+                nok_list.append("TS_RefToAutomation\n")
         else:
-            results.append("TS_RefToAutomation: not ok\n") 
+            nok_list.append("TS_RefToAutomation\n")
 
         # 5. TS_StateOfAutomation must have "Implemented"
         state_auto = str(row[idxs["TS_StateOfAutomation"]]).strip().lower() if idxs["TS_StateOfAutomation"] is not None else ""
         if state_auto:
-            results.append(f"TS_StateOfAutomation: {'ok\n' if 'implemented' in state_auto else 'not ok\n'}")
+            if "implemented" in state_auto:
+                ok_list.append("TS_StateOfAutomation\n")
+            else:
+                nok_list.append("TS_StateOfAutomation\n")
+        else:
+            nok_list.append("TS_StateOfAutomation\n")
 
         # 6. TS_TestSet must have Extended test or Basic test
         testset = str(row[idxs["TS_TestSet"]]).strip().lower() if idxs["TS_TestSet"] is not None else ""
         if testset:
-            results.append(f"TS_TestSet: {'ok\n' if ('extended test' in testset or 'basic test' in testset) else 'not ok\n'}")
+            if ("extended test" in testset or "basic test" in testset):
+                ok_list.append("TS_TestSet\n")
+            else:
+                nok_list.append("TS_TestSet\n")
         else:
-            results.append("TS_TestSet: not ok\n")
+            nok_list.append("TS_TestSet\n")
 
         # 7. TS_SW_TestEnvironment must have Debugger Test
         env = str(row[idxs["TS_SW_TestEnvironment"]]).strip().lower() if idxs["TS_SW_TestEnvironment"] is not None else ""
         if env:
-            results.append(f"TS_SW_TestEnvironment: {'ok\n' if 'debugger test' in env else 'not ok\n'}")
+            if "debugger test" in env:
+                ok_list.append("TS_SW_TestEnvironment\n")
+            else:
+                nok_list.append("TS_SW_TestEnvironment\n")
         else:
-            results.append("TS_SW_TestEnvironment: not ok\n")
+            nok_list.append("TS_SW_TestEnvironment\n")
 
         # 8. Requirement Status & TS_ObjectStatus
         req_status = str(row[idxs["Requirement Status"]]).strip().lower() if idxs["Requirement Status"] is not None else ""
         obj_status = str(row[idxs["TS_ObjectStatus"]]).strip().lower() if idxs["TS_ObjectStatus"] is not None else ""
-        if any(x in req_status for x in ["discarded", "false, Discarded", "False"]):
-            results.append(f"TS_ObjectStatus: {'ok\n' if obj_status == 'Discarded by project' else 'need check\n'}")
-
-
-        # Ghi kết quả vào cột "compare attribute" cho từng dòng
-        row[compare_idx] = "; ".join(results)
-
-    # Refresh bảng trước khi highlight
-    refresh_table(app)
-
-    # Highlight sau khi bảng đã được tạo lại
-    for row_idx, row in enumerate(app.data):
-        cell_value = row[compare_idx].lower()
-        if "not ok" in cell_value or "check" in cell_value:
-            app.sheet.highlight_cells(row=row_idx, column=compare_idx, bg="#fff7b2")  # vàng nhạt
+        if any(x in req_status for x in ["discarded", "false, discarded", "false"]):
+            if obj_status == "discarded by project":
+                ok_list.append("TS_ObjectStatus\n")
+            else:
+                nok_list.append("TS_ObjectStatus\n")
+        
+        #9. TS_TestPrecondition & PostCondition
+        pre_cond = str(row[idxs["TS_Precondition"]]).strip().lower() if idxs["TS_Precondition"] is not None else ""
+        post_cond = str(row[idxs["TS_Postcondition"]]).strip().lower() if idxs["TS_Postcondition"] is not None else ""
+        if pre_cond:
+            ok_list.append("TS_Precondition\n")
         else:
-            app.sheet.highlight_cells(row=row_idx, column=compare_idx, bg="#b6fcb6")  # xanh nhạt
+            nok_list.append("TS_Precondition\n")
+        # print("debug: post_cond", post_cond)
+        if post_cond:
+            ok_list.append("TS_PostCondition\n")
+        else:
+            nok_list.append("TS_PostCondition\n")
+        
+        #10. TS_SafetyObject and TS_TestFunctionSafety
+        safety_obj = str(row[idxs["TS_SafetyObjectStatus"]]).strip().lower() if idxs["TS_SafetyObjectStatus"] is not None else ""
+        test_func = str(row[idxs["TS_TestFunctionalSafety"]]).strip().lower() if idxs["TS_TestFunctionalSafety"] is not None else ""
+        if "asil" in safety.lower():
+            if safety_obj == "accepted by project":
+                ok_list.append("TS_SafetyObjectStatus\n")
+            else:
+                nok_list.append("TS_SafetyObjectStatus\n")
+            if test_func == "yes":
+                ok_list.append("TS_TestFunctionalSafety\n")
+            else:
+                nok_list.append("TS_TestFunctionalSafety\n")
+        else:
+            if safety_obj != "accepted by project" and safety_obj != "ready for review":
+                ok_list.append("TS_SafetyObjectStatus\n")
+            else:
+                nok_list.append("TS_SafetyObjectStatus\n")
+            if test_func == "":
+                ok_list.append("TS_TestFunctionalSafety\n")
+            else:
+                nok_list.append("TS_TestFunctionalSafety\n")
+
+        # Ghi kết quả vào 2 cột
+        row[ok_idx] = "; ".join(ok_list)
+        row[nok_idx] = "; ".join(nok_list)
+
+    refresh_table(app)

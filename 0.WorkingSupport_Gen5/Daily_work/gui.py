@@ -14,6 +14,7 @@ from edit_report import *
 from ttkbootstrap.window import Window
 from tool_updater import *
 from tool_updater import CURRENT_VERSION
+from report_handle import *
 
 
 # KANBAN_STATES = [
@@ -172,6 +173,8 @@ class CustomApp(Window):
         consistency_frame.pack(side="left", padx=4, pady=4, anchor="w")
         script_frame = CollapsibleFrame(working_sidebar, text="📜 Scripting", width=110)
         script_frame.pack(side="left", padx=4, pady=4, anchor="w")
+        report_frame = CollapsibleFrame(working_sidebar, text="📜 Reporting", width=110)
+        report_frame.pack(side="left", padx=4, pady=4, anchor="w")
         
 
         # Các nút trong group cũng xếp ngang
@@ -183,6 +186,9 @@ class CustomApp(Window):
         ttk.Button(script_frame.sub_frame, text="🛠️ Create", bootstyle="info", width=21, command=lambda: create_new_script(self)).pack(side="left", padx=2, pady=1)
         ttk.Button(script_frame.sub_frame, text="⬇️ Download", bootstyle="secondary", width=21, command=lambda: download_script(self)).pack(side="left", padx=2, pady=1)
         
+        # ttk.Button(report_frame.sub_frame, text="📂 Open", bootstyle="outline", width=21, command=lambda: open_script(self)).pack(side="left", padx=2, pady=1)
+        # ttk.Button(report_frame.sub_frame, text="🛠️ Create", bootstyle="info", width=21, command=lambda: create_new_script(self)).pack(side="left", padx=2, pady=1)
+        ttk.Button(report_frame.sub_frame, text="⬇️ Download", bootstyle="secondary", width=21, command=lambda: on_download_report(self)).pack(side="left", padx=2, pady=1)
         
         # --- Tab About ---
         about_tab = ttk.Frame(self.notebook)

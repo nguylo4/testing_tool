@@ -22,6 +22,7 @@ def init_app_state(app):
     app.project = "DAS_VW_02"
     app.working_dir = None
     app.Test_level = "30_SW_Test"
+    app.Functionality = "20_SWT_CC"
     app.workspace_path = None
     app.feature_map = {
             "Cust": "Customization", "cust": "Customization", "Customization": "Customization",
@@ -141,8 +142,8 @@ def on_double_click(app, event):
     # refresh_table(app)
 def sanitize_filename(name):
     # Loại bỏ ký tự không hợp lệ cho tên file/thư mục trên Windows
-    name = re.sub(r'[<>:"/\\|?*\n\r\t]', '_', name)
-    return name.strip()
+    name = re.sub(r'[<>:"/\\|?*\n\r\t] ', '_', name)
+    return name.strip().replace(" ", "_")
 
 
 def highlight_verdict_cells(app):
