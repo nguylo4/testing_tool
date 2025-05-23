@@ -188,8 +188,9 @@ class CustomApp(Window):
         
         # ttk.Button(report_frame.sub_frame, text="📂 Open", bootstyle="outline", width=21, command=lambda: open_script(self)).pack(side="left", padx=2, pady=1)
         # ttk.Button(report_frame.sub_frame, text="🛠️ Create", bootstyle="info", width=21, command=lambda: create_new_script(self)).pack(side="left", padx=2, pady=1)
+        ttk.Button(report_frame.sub_frame, text="🧮 Analysis", bootstyle="warning", width=21, command=lambda: check_report_log(self)).pack(side="left", padx=2, pady=1)
         ttk.Button(report_frame.sub_frame, text="⬇️ Download", bootstyle="secondary", width=21, command=lambda: on_download_report(self)).pack(side="left", padx=2, pady=1)
-        
+
         # --- Tab About ---
         about_tab = ttk.Frame(self.notebook)
         self.notebook.add(about_tab, text="About")
@@ -243,9 +244,29 @@ class CustomApp(Window):
             width=27,
             command=lambda: refresh_all(self)
         )
-        self.save_button.pack(side="left", padx=200, pady=8)
-        # self.save_button = ttk.Label(self.footer, text="", style="TLabel", foreground="green", anchor="e", font=("Segoe UI", 10, "bold"))
-        self.status_label.place(relx=0.0, rely=1.0, anchor="sw", x=100, y=-10)
+        self.save_button.pack(side="left", padx=200, pady=8)  # Giảm khoảng cách sang trái
+
+        def open_working_folder():
+            if getattr(self, "working_dir", None):
+                os.startfile(self.working_dir)
+            else:
+                folder = filedialog.askdirectory(title="Chọn working folder")
+                if folder:
+                    self.working_dir = folder
+                    os.startfile(self.working_dir)
+                else:
+                    messagebox.showinfo("Info", "Chưa chọn working folder!")
+
+        self.open_working_button = ttk.Button(
+            self.footer,
+            text="📂 Open working folder",
+            bootstyle="outline",
+            width=27,
+            command=open_working_folder
+        )
+        self.open_working_button.pack(side="left", padx=0, pady=8)  # Gần hơn với nút Save & Refresh All
+
+        self.status_label.place(relx=-1.0, rely=1.0, anchor="sw", x=20, y=-10)
 
         self.tree = None
 
