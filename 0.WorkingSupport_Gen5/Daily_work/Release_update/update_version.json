@@ -1,16 +1,16 @@
 {
-  "version": "1.0",
+  "version": "1.1",
  
   "change_log" : {
-    "release_date": "2025-05-21",
+    "release_date": "2025-05-26",
     "changes": [
       {
-        "type": "Feature",
-        "description": "Update feature Update"
+        "type": "Download report and script",
+        "description": "Change new method download script and report, onclick -> all script and report are downloaded!"
       },
       {
         "type": "bugfix",
-        "description": "Fix bug typo in comare, refer value into template.can, change method download script!"
+        "description": "Fix bug: when 1 Testcase link to many requirement that lead to wrong path to sync script and report!"
       }
     ]
   },

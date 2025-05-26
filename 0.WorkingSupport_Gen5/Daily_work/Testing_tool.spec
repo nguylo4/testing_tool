@@ -2,7 +2,7 @@
 
 # Phân tích main script
 a = Analysis(
-    ['Release_working.py'],
+    ['Main.py'],
     pathex=[],
     binaries=[],
     datas=[

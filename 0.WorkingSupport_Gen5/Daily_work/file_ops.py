@@ -12,6 +12,7 @@ import tksheet
 import threading
 import time
 import re
+import math
 
 def init_app_state(app):
     app.checklist_count = 0
@@ -29,7 +30,13 @@ def init_app_state(app):
             "Norm": "Normalization", "norm": "Normalization", "Normalization": "Normalization",
             "Diag": "UDSDiagnostics", "diag": "UDSDiagnostics", "UDSDiagnostics": "UDSDiagnostics",
             "DTC": "DTCandErrorHandling", "dtc": "DTCandErrorHandling",
-            "ProgramSequenceMonitoring": "ProgramSequenceMonitoring", "PSM": "ProgramSequenceMonitoring"
+            "ProgramSequenceMonitoring": "ProgramSequenceMonitoring", "PSM": "ProgramSequenceMonitoring",
+            "SystemStateMachine": "SystemStateMachine", "stm":"SystemStateMachine" , "STM":"SystemStateMachine", "Sysstm":"SystemStateMachine", "Systemstatemachine":"SystemStateMachine", "Stm":"SystemStateMachine",
+            "Sensor_Ident":"SensorIdentification", "Ident":"SensorIdentification", "Sensor_Id":"SensorIdentification", "Sensor_ID":"SensorIdentification",
+            "MCUTC3x":"MCUTC3x", "MCUTC3X":"MCUTC3x", "MCUTC3x_": "MCUTC3x", "MCUTC3X_":"MCUTC3x",
+            "VEI":"VEI", "AAC":"AAC", "PS":"PowerSupply",
+            "VCAN":"VCAN", "Vcan":"VCAN", "Vcan_":"VCAN", "V_CAN":"VCAN", "V_CAN_":"VCAN",
+            "PrivateCommunication" : "PrivateCommunication", "Private_Communication": "PrivateCommunication", "PrivateCommunication_": "PrivateCommunication",
         }
 
 
@@ -181,10 +188,15 @@ def refresh_table(app):
     app.headers = valid_headers
     filtered_data = []
     for row in app.data:
-        filtered_row = [
-            str(row[idx] if idx < len(row) and row[idx] is not None else "").replace("_x000D_", "")
-            for idx in valid_indices
-        ]
+        filtered_row = []
+        for idx in valid_indices:
+            val = row[idx] if idx < len(row) and row[idx] is not None else ""
+            # Chuyển nan (chuỗi hoặc float) thành khoảng trắng
+            if isinstance(val, float) and math.isnan(val):
+                val = ""
+            elif str(val).strip().lower() == "nan":
+                val = ""
+            filtered_row.append(str(val).replace("_x000D_", ""))
         filtered_data.append(filtered_row)
     app.data = filtered_data
 

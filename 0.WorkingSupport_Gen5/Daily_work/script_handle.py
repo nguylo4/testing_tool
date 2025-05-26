@@ -7,14 +7,22 @@ from tkinter import ttk
 import datetime
 import re
 import shutil
+import subprocess
 
+def first_line(val):
+    if val is None:
+        return ""
+    lines = str(val).splitlines()
+    if not lines:
+        return ""
+    return lines[0].strip()
 def get_script_info(app, values):
     """Trả về dict gồm các trường cần thiết để thao tác với script file."""
     crid_idx = app.headers.index("CR ID")
     feature_idx = app.headers.index("H_Feature")
     id_idx = app.headers.index("Test cases ID")
     crid_val = str(values[crid_idx]).strip()
-    feature_val_raw = str(values[feature_idx]).strip()
+    feature_val_raw = first_line(str(values[feature_idx]).strip())
     id_val = str(values[id_idx]).strip()
     # feature_map = {
     #     "Cust": "Customization", "cust": "Customization", "Customization": "Customization",
@@ -125,84 +133,84 @@ def open_script(app):
         messagebox.showerror("Error", f"Can not open {save_path}: {e}")
         return
 
-def download_script(app):
-    import time
-    import webbrowser
-    if not app.working_dir:
-        app.working_dir = filedialog.askdirectory(title="Choose working directory")
-        if not app.working_dir:
-            messagebox.showwarning("Cannot save", "Please choose working directory!")
-            return
-    if not hasattr(app, "sheet") or app.sheet is None:
-        messagebox.showwarning("No table", "No table loaded!")
-        return
+# def download_script(app):
+#     import time
+#     import webbrowser
+#     if not app.working_dir:
+#         app.working_dir = filedialog.askdirectory(title="Choose working directory")
+#         if not app.working_dir:
+#             messagebox.showwarning("Cannot save", "Please choose working directory!")
+#             return
+#     if not hasattr(app, "sheet") or app.sheet is None:
+#         messagebox.showwarning("No table", "No table loaded!")
+#         return
     
-    selected_cells = app.sheet.get_selected_cells()
-    if not selected_cells:
-        messagebox.showwarning("Select cell", "Select a cell in the table!")
-        return
-    row, _ = list(selected_cells)[0]
-    values = app.sheet.get_row_data(row)
-    info = get_script_info(app, values)
-    feature_val = info["feature_val"]
-    id_val = info["id_val"]
-    save_path = info["save_path"]
+#     selected_cells = app.sheet.get_selected_cells()
+#     if not selected_cells:
+#         messagebox.showwarning("Select cell", "Select a cell in the table!")
+#         return
+#     row, _ = list(selected_cells)[0]
+#     values = app.sheet.get_row_data(row)
+#     info = get_script_info(app, values)
+#     feature_val = info["feature_val"]
+#     id_val = info["id_val"]
+#     save_path = info["save_path"]
 
-    # Nếu file đã tồn tại, hỏi người dùng có muốn ghi đè không
-    if os.path.exists(save_path):
-        res = messagebox.askyesno("Script existed", "Script already exists. Do you want to download and overwrite?")
-        if not res:
-            set_status(app, "Canceled download script.", success=False)
-            return
+#     # Nếu file đã tồn tại, hỏi người dùng có muốn ghi đè không
+#     if os.path.exists(save_path):
+#         res = messagebox.askyesno("Script existed", "Script already exists. Do you want to download and overwrite?")
+#         if not res:
+#             set_status(app, "Canceled download script.", success=False)
+#             return
 
-    # Tạo URL download
-    url = (
-        f"http://mks1.dc.hella.com:7001/si/viewrevision?"
-        f"projectName=e:/Projects/DAS_RADAR/30_PRJ/10_CUST/10_VAG/{app.project}/60_ST/{app.Test_level}/20_SWT_CC/10_Debugger_Test/20_Scripts/Test_Cases/"
-        f"{feature_val}/project.pj&selection={id_val}.can&revision=:member"
-    )
-    webbrowser.open(url)
-    set_status(app, "Downloading, Please wait a file is arrived in Download...", success=True)
-    download_dir = os.path.join(os.path.expanduser("~"), "Downloads")
-    src_file = os.path.join(download_dir, id_val + ".can")
+#     # Tạo URL download
+#     url = (
+#         f"http://mks1.dc.hella.com:7001/si/viewrevision?"
+#         f"projectName=e:/Projects/DAS_RADAR/30_PRJ/10_CUST/10_VAG/{app.project}/60_ST/{app.Test_level}/20_SWT_CC/10_Debugger_Test/20_Scripts/Test_Cases/"
+#         f"{feature_val}/project.pj&selection={id_val}.can&revision=:member"
+#     )
+#     webbrowser.open(url)
+#     set_status(app, "Downloading, Please wait a file is arrived in Download...", success=True)
+#     download_dir = os.path.join(os.path.expanduser("~"), "Downloads")
+#     src_file = os.path.join(download_dir, id_val + ".can")
 
-    # --- Hiện progress bar ở footer ---
-    app.progress_var.set(0)
-    app.progress_bar.lift()
-    app.progress_bar.update()
-    app.progress_bar.place(relx=0.5, rely=1.0, anchor="s", y=-5)
-    app.progress_bar["maximum"] = 20
+#     # --- Hiện progress bar ở footer ---
+#     app.progress_var.set(0)
+#     app.progress_bar.lift()
+#     app.progress_bar.update()
+#     app.progress_bar.place(relx=0.5, rely=1.0, anchor="s", y=-5)
+#     app.progress_bar["maximum"] = 20
 
-    found = False
-    for i in range(20):
-        app.progress_var.set(i + 1)
-        app.progress_bar.update()
-        app.update()
-        time.sleep(1)
-        if os.path.exists(src_file):
-            found = True
-            break
+#     found = False
+#     for i in range(20):
+#         app.progress_var.set(i + 1)
+#         app.progress_bar.update()
+#         app.update()
+#         time.sleep(1)
+#         if os.path.exists(src_file):
+#             found = True
+#             break
 
-    app.progress_bar.lower()  # Ẩn progress bar sau khi xong
+#     app.progress_bar.lower()  # Ẩn progress bar sau khi xong
 
-    if not found:
-        messagebox.showerror(
-            "Lỗi",
-            f"Can not found file {id_val}.can in Download folder after 20s. Please check Feature, Project name, Test level, ID of test case or proxy!, You can see URL in web to know issue here"
-        )
-        return False
+#     if not found:
+#         messagebox.showerror(
+#             "Lỗi",
+#             f"Can not found file {id_val}.can in Download folder after 20s. Please check Feature, Project name, Test level, ID of test case or proxy!, You can see URL in web to know issue here"
+#         )
+#         return False
 
-    try:
-        # Nếu hf có hàm move_file_by_name thì dùng:
-        hf.move_file_by_name(app, download_dir, os.path.dirname(save_path), id_val + ".can")
-        # Nếu không có thì dùng shutil.move:
-        # shutil.move(src_file, os.path.dirname(save_path),id_val + ".can")
-        set_status(app, f"Moved file into working folder successful: {save_path}", success=True)
+#     try:
+#         # Nếu hf có hàm move_file_by_name thì dùng:
+#         hf.move_file_by_name(app, download_dir, os.path.dirname(save_path), id_val + ".can")
+#         # Nếu không có thì dùng shutil.move:
+#         # shutil.move(src_file, os.path.dirname(save_path),id_val + ".can")
+#         set_status(app, f"Moved file into working folder successful: {save_path}", success=True)
 
-        return True
-    except Exception as e:
-        messagebox.showerror("Error", f"Can not move/open file: {e}")
-        return False
+#         return True
+#     except Exception as e:
+#         messagebox.showerror("Error", f"Can not move/open file: {e}")
+#         return False
 
 def clean_multiline_text(text):
     """Giữ lại tối đa 1 dòng trống liên tiếp, loại bỏ các dòng trống dư thừa."""
@@ -298,3 +306,118 @@ def create_new_script(app):
         return None
 
     return save_path
+
+def download_script(app, info, progress_var=None, file_var=None, progress_win=None, return_log=False):
+    import subprocess
+    import time
+    import os
+
+    feature_val = info["feature_val"]
+    id_val = info["id_val"]
+    save_path = info["save_path"]
+    feature_folder = info["feature_folder"]
+
+    pj_path = (
+        f"e:/Projects/DAS_RADAR/30_PRJ/10_CUST/10_VAG/{app.project}/60_ST/{app.Test_level}/20_SWT_CC/10_Debugger_Test/20_Scripts/Test_Cases/"
+        f"{feature_val}/project.pj"
+    )
+
+    os.makedirs(feature_folder, exist_ok=True)
+
+    # Nếu file đã tồn tại, hỏi người dùng có muốn ghi đè không
+    if os.path.exists(save_path):
+        res = messagebox.askyesno("Script existed", "Script already exists. Do you want to download and overwrite?")
+        if not res:
+            set_status(app, "Canceled download script.", success=False)
+            return False
+
+    # Tải file bằng si viewrevision
+    cmd_download = (
+        f'si viewrevision --project="{pj_path}" --revision=:member "{id_val}.can" > "{save_path}"'
+    )
+    try:
+        result = subprocess.run(cmd_download, shell=True, capture_output=True, text=True)
+        if result.returncode == 0:
+            set_status(app, f"Downloaded script: {save_path}", success=True)
+            if return_log:
+                return [save_path], []
+            return True
+        else:
+            messagebox.showerror("Error", f"Cannot download script:\n{result.stderr}")
+            if return_log:
+                return [], [save_path]
+            return False
+    except Exception as e:
+        messagebox.showerror("Error", f"Cannot download script: {e}")
+        if return_log:
+            return [], [f"{save_path} ({e})"]
+        return False
+
+def on_download_script(app):
+    from tkinter import Toplevel, ttk, StringVar, filedialog, messagebox, scrolledtext
+    # Hỏi người dùng đã connect PTC chưa
+    if not messagebox.askyesno("Check connect to PTC", "Has you connect into PTC Windchill yet?\n\nChoose Yes to continue, No to open CMD for connnection."):
+        subprocess.Popen("start cmd", shell=True)
+        messagebox.showinfo("Hint", "Use command 'si connect' ... in CMD to connect to PTC.")
+        return
+    if not getattr(app, "working_dir", None):
+        app.working_dir = filedialog.askdirectory(title="Choose working directory")
+        if not app.working_dir:
+            messagebox.showwarning("Cannot save", "Please choose working directory!")
+            return
+
+    # Lấy index các trường cần thiết
+    try:
+        crid_idx = app.headers.index("CR ID")
+        id_idx = app.headers.index("Test cases ID")
+    except Exception as e:
+        messagebox.showerror("Error", f"Missing column: {e}")
+        return
+
+    total_cr = len(app.data)
+    progress_win = Toplevel(app)
+    progress_win.title("Downloading Scripts")
+    progress_win.geometry("600x400")
+    progress_var = tk.DoubleVar()
+    file_var = StringVar()
+    ttk.Label(progress_win, text="Downloading script:").pack(pady=5)
+    file_label = ttk.Label(progress_win, textvariable=file_var, font=("Segoe UI", 10, "bold"))
+    file_label.pack(pady=2)
+    progress_bar = ttk.Progressbar(progress_win, variable=progress_var, maximum=100, length=550)
+    progress_bar.pack(pady=10)
+    log_text = scrolledtext.ScrolledText(progress_win, width=80, height=15, font=("Consolas", 10))
+    log_text.pack(pady=5)
+    log_text.insert("end", "Start download scripts...\n")
+    progress_win.update()
+
+    for idx, values in enumerate(app.data, 1):
+        info = get_script_info(app, values)
+        crid = values[crid_idx]
+        script_id = values[id_idx]
+        file_var.set(f"CR: {crid} - Script: {script_id}")
+        progress_var.set(idx * 100 / total_cr)
+        progress_win.update()
+
+        try:
+            downloaded_files, failed_files = download_script(
+                app, info, progress_var=None, file_var=None, progress_win=None, return_log=True
+            )
+            if downloaded_files:
+                log_text.insert("end", f"[OK] CR {crid}: Downloaded script(s):\n")
+                for f in downloaded_files:
+                    log_text.insert("end", f"    {f}\n")
+            if failed_files:
+                log_text.insert("end", f"[FAILED] CR {crid}: Cannot download script(s):\n")
+                for f in failed_files:
+                    log_text.insert("end", f"    {f}\n")
+            if not downloaded_files and not failed_files:
+                log_text.insert("end", f"[FAILED] CR {crid}: Cannot find script or cannot access project.pj\n")
+        except Exception as e:
+            log_text.insert("end", f"[ERROR] CR {crid}: {e}\n")
+        log_text.see("end")
+        progress_win.update()
+
+    log_text.insert("end", "\nCompleted download scripts!\n")
+    ttk.Button(progress_win, text="OK", command=progress_win.destroy, bootstyle="success").pack(pady=8)
+    progress_win.grab_set()
+    progress_win.wait_window()

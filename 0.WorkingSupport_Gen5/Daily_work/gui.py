@@ -184,7 +184,7 @@ class CustomApp(Window):
 
         ttk.Button(script_frame.sub_frame, text="📂 Open", bootstyle="outline", width=21, command=lambda: open_script(self)).pack(side="left", padx=2, pady=1)
         ttk.Button(script_frame.sub_frame, text="🛠️ Create", bootstyle="info", width=21, command=lambda: create_new_script(self)).pack(side="left", padx=2, pady=1)
-        ttk.Button(script_frame.sub_frame, text="⬇️ Download", bootstyle="secondary", width=21, command=lambda: download_script(self)).pack(side="left", padx=2, pady=1)
+        ttk.Button(script_frame.sub_frame, text="⬇️ Download", bootstyle="secondary", width=21, command=lambda: on_download_script(self)).pack(side="left", padx=2, pady=1)
         
         # ttk.Button(report_frame.sub_frame, text="📂 Open", bootstyle="outline", width=21, command=lambda: open_script(self)).pack(side="left", padx=2, pady=1)
         # ttk.Button(report_frame.sub_frame, text="🛠️ Create", bootstyle="info", width=21, command=lambda: create_new_script(self)).pack(side="left", padx=2, pady=1)
