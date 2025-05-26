@@ -30,6 +30,7 @@ def get_script_info(app, values):
     #     "Diag": "UDSDiagnostics", "diag": "UDSDiagnostics", "UDSDiagnostics": "UDSDiagnostics",
     #     "DTC": "DTCandErrorHandling", "dtc": "DTCandErrorHandling",
     #     "ProgramSequenceMonitoring": "ProgramSequenceMonitoring", "PSM": "ProgramSequenceMonitoring"
+
     # }
     feature_val = app.feature_map.get(feature_val_raw, feature_val_raw)
     crid_folder = os.path.join(app.working_dir, sanitize_filename(crid_val))
@@ -133,84 +134,6 @@ def open_script(app):
         messagebox.showerror("Error", f"Can not open {save_path}: {e}")
         return
 
-# def download_script(app):
-#     import time
-#     import webbrowser
-#     if not app.working_dir:
-#         app.working_dir = filedialog.askdirectory(title="Choose working directory")
-#         if not app.working_dir:
-#             messagebox.showwarning("Cannot save", "Please choose working directory!")
-#             return
-#     if not hasattr(app, "sheet") or app.sheet is None:
-#         messagebox.showwarning("No table", "No table loaded!")
-#         return
-    
-#     selected_cells = app.sheet.get_selected_cells()
-#     if not selected_cells:
-#         messagebox.showwarning("Select cell", "Select a cell in the table!")
-#         return
-#     row, _ = list(selected_cells)[0]
-#     values = app.sheet.get_row_data(row)
-#     info = get_script_info(app, values)
-#     feature_val = info["feature_val"]
-#     id_val = info["id_val"]
-#     save_path = info["save_path"]
-
-#     # Nếu file đã tồn tại, hỏi người dùng có muốn ghi đè không
-#     if os.path.exists(save_path):
-#         res = messagebox.askyesno("Script existed", "Script already exists. Do you want to download and overwrite?")
-#         if not res:
-#             set_status(app, "Canceled download script.", success=False)
-#             return
-
-#     # Tạo URL download
-#     url = (
-#         f"http://mks1.dc.hella.com:7001/si/viewrevision?"
-#         f"projectName=e:/Projects/DAS_RADAR/30_PRJ/10_CUST/10_VAG/{app.project}/60_ST/{app.Test_level}/20_SWT_CC/10_Debugger_Test/20_Scripts/Test_Cases/"
-#         f"{feature_val}/project.pj&selection={id_val}.can&revision=:member"
-#     )
-#     webbrowser.open(url)
-#     set_status(app, "Downloading, Please wait a file is arrived in Download...", success=True)
-#     download_dir = os.path.join(os.path.expanduser("~"), "Downloads")
-#     src_file = os.path.join(download_dir, id_val + ".can")
-
-#     # --- Hiện progress bar ở footer ---
-#     app.progress_var.set(0)
-#     app.progress_bar.lift()
-#     app.progress_bar.update()
-#     app.progress_bar.place(relx=0.5, rely=1.0, anchor="s", y=-5)
-#     app.progress_bar["maximum"] = 20
-
-#     found = False
-#     for i in range(20):
-#         app.progress_var.set(i + 1)
-#         app.progress_bar.update()
-#         app.update()
-#         time.sleep(1)
-#         if os.path.exists(src_file):
-#             found = True
-#             break
-
-#     app.progress_bar.lower()  # Ẩn progress bar sau khi xong
-
-#     if not found:
-#         messagebox.showerror(
-#             "Lỗi",
-#             f"Can not found file {id_val}.can in Download folder after 20s. Please check Feature, Project name, Test level, ID of test case or proxy!, You can see URL in web to know issue here"
-#         )
-#         return False
-
-#     try:
-#         # Nếu hf có hàm move_file_by_name thì dùng:
-#         hf.move_file_by_name(app, download_dir, os.path.dirname(save_path), id_val + ".can")
-#         # Nếu không có thì dùng shutil.move:
-#         # shutil.move(src_file, os.path.dirname(save_path),id_val + ".can")
-#         set_status(app, f"Moved file into working folder successful: {save_path}", success=True)
-
-#         return True
-#     except Exception as e:
-#         messagebox.showerror("Error", f"Can not move/open file: {e}")
-#         return False
 
 def clean_multiline_text(text):
     """Giữ lại tối đa 1 dòng trống liên tiếp, loại bỏ các dòng trống dư thừa."""
@@ -318,7 +241,7 @@ def download_script(app, info, progress_var=None, file_var=None, progress_win=No
     feature_folder = info["feature_folder"]
 
     pj_path = (
-        f"e:/Projects/DAS_RADAR/30_PRJ/10_CUST/10_VAG/{app.project}/60_ST/{app.Test_level}/20_SWT_CC/10_Debugger_Test/20_Scripts/Test_Cases/"
+        f"e:/Projects/DAS_RADAR/30_PRJ/10_CUST/{app.project}/60_ST/{app.Test_level}/10_Debugger_Test/20_Scripts/Test_Cases/"
         f"{feature_val}/project.pj"
     )
 

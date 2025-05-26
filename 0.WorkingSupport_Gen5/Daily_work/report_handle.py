@@ -57,12 +57,16 @@ def get_report_info(app, values):
         "test_scope_val": sanitize_filename(values[test_scope_idx]),
         "id_val": sanitize_filename(values[id_idx]),
     }
-
-def collect_all_html_files(project_val, test_level_val, functionality_val, ts_env_val, release_val, crid_val, base_subfolder, dest_dir):
+def get_project_name(project_val):
+    # Lấy phần sau dấu /, nếu không có thì lấy toàn bộ
+    if "/" in project_val:
+        return project_val.split("/")[-1]
+    return project_val
+def collect_all_html_files(project_val, test_level_val, ts_env_val, release_val, crid_val, base_subfolder, dest_dir):
     if base_subfolder:
-        pj_path = f"e:/Projects/DAS_RADAR/30_PRJ/10_CUST/10_VAG/{project_val}/60_ST/{test_level_val}/{functionality_val}/10_{ts_env_val}/30_Reports/RC_CUST_{project_val}_SW_{release_val}.01.01/{crid_val}/{base_subfolder}/project.pj"
+        pj_path = f"e:/Projects/DAS_RADAR/30_PRJ/10_CUST/{project_val}/60_ST/{test_level_val}/10_{ts_env_val}/30_Reports/RC_CUST_{get_project_name(project_val)}_SW_{release_val}.01.01/{crid_val}/{base_subfolder}/project.pj"
     else:
-        pj_path = f"e:/Projects/DAS_RADAR/30_PRJ/10_CUST/10_VAG/{project_val}/60_ST/{test_level_val}/{functionality_val}/10_{ts_env_val}/30_Reports/RC_CUST_{project_val}_SW_{release_val}.01.01/{crid_val}/project.pj"
+        pj_path = f"e:/Projects/DAS_RADAR/30_PRJ/10_CUST/{project_val}/60_ST/{test_level_val}/10_{ts_env_val}/30_Reports/RC_CUST_{get_project_name(project_val)}_SW_{release_val}.01.01/{crid_val}/project.pj"
     cmd = f'si viewproject --project="{pj_path}" --no"'
     try:
         output = run_si_command(cmd, cwd=dest_dir)
@@ -87,7 +91,7 @@ def collect_all_html_files(project_val, test_level_val, functionality_val, ts_en
         # next_base là đường dẫn tương đối từ gốc crid_val
         next_base = os.path.join(base_subfolder, sub_name) if base_subfolder else sub_name
         html_list.extend(collect_all_html_files(
-            project_val, test_level_val, functionality_val, ts_env_val, release_val, crid_val, next_base, dest_dir
+            project_val, test_level_val, ts_env_val, release_val, crid_val, next_base, dest_dir
         ))
         print(f"Đang duyệt subfolder: {sub_name}")
     print(html_list)
@@ -104,14 +108,14 @@ def download_report_with_si(app, info, progress_var=None, file_var=None, progres
 
     dest_dir = os.path.join(
         app.working_dir,
-        f"RC_CUST_{project_val}_SW_{release_val}.01.01",
+        f"RC_CUST_{get_project_name(project_val)}_SW_{release_val}.01.01",
         crid_val
     )
     os.makedirs(dest_dir, exist_ok=True)
 
     # Đệ quy lấy tất cả file html và pj_path chứa nó
     all_html_files = collect_all_html_files(
-        project_val, test_level_val, functionality_val, ts_env_val, release_val, crid_val, base_subfolder="", dest_dir=dest_dir
+        project_val, test_level_val, ts_env_val, release_val, crid_val, base_subfolder="", dest_dir=dest_dir
     )
 
     downloaded_files = []

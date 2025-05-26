@@ -20,9 +20,9 @@ def init_app_state(app):
     app.excel_path = None
     app.headers = []
     app.data = []
-    app.project = "DAS_VW_02"
+    app.project = f"10_VAG/DAS_VW_02"
     app.working_dir = None
-    app.Test_level = "30_SW_Test"
+    app.Test_level = f"30_SW_Test/20_SWT_CC"
     app.Functionality = "20_SWT_CC"
     app.workspace_path = None
     app.feature_map = {

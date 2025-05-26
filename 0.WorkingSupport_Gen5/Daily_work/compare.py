@@ -318,7 +318,7 @@ def compare_attribute(app):
         feat = h_feat
         feat = app.feature_map.get(feat, feat)
         tcid = str(row[idxs["Test cases ID"]]).strip() if idxs["Test cases ID"] is not None else ""
-        expected_path = f"e:/Projects/DAS_RADAR/30_PRJ/10_CUST/10_VAG/{app.project}/60_ST/{app.Test_level}/20_SWT_CC/10_Debugger_Test/20_Scripts/Test_Cases/{feat}/{tcid}.can"
+        expected_path = f"e:/Projects/DAS_RADAR/30_PRJ/10_CUST/{app.project}/60_ST/{app.Test_level}/20_SWT_CC/10_Debugger_Test/20_Scripts/Test_Cases/{feat}/{tcid}.can"
         def normalize_path(s):
             return s.replace("\\", "/").strip().lower()
         if ref_auto:
@@ -408,3 +408,4 @@ def compare_attribute(app):
         row[nok_idx] = "; ".join(nok_list)
 
     refresh_table(app)
+
