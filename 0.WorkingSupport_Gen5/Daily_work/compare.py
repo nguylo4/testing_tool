@@ -85,7 +85,7 @@ def compare_content_requirement(app):
     testcase_marker = "*/"
     # Tìm vị trí bắt đầu của phần test design với nhiều biến thể
     design_markers = [
-        "@Test", "@test", "@design", "@Design"
+        "@Test", "@test", "@design", "@Design", "@DESIGN", "@TEST"
     ]
     design_start = -1
     file_design_content = ""
@@ -318,7 +318,8 @@ def compare_attribute(app):
         feat = h_feat
         feat = app.feature_map.get(feat, feat)
         tcid = str(row[idxs["Test cases ID"]]).strip() if idxs["Test cases ID"] is not None else ""
-        expected_path = f"e:/Projects/DAS_RADAR/30_PRJ/10_CUST/{app.project}/60_ST/{app.Test_level}/20_SWT_CC/10_Debugger_Test/20_Scripts/Test_Cases/{feat}/{tcid}.can"
+        expected_path = f"e:/Projects/DAS_RADAR/30_PRJ/10_CUST/{app.project}/60_ST/{app.Test_level}/10_Debugger_Test/20_Scripts/Test_Cases/{feat}/{tcid}.can"
+        print (expected_path)
         def normalize_path(s):
             return s.replace("\\", "/").strip().lower()
         if ref_auto:
