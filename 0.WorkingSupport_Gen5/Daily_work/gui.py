@@ -15,6 +15,7 @@ from ttkbootstrap.window import Window
 from tool_updater import *
 from tool_updater import CURRENT_VERSION
 from report_handle import *
+from DXL_gen import *
 
 
 # KANBAN_STATES = [
@@ -175,6 +176,8 @@ class CustomApp(Window):
         script_frame.pack(side="left", padx=4, pady=4, anchor="w")
         report_frame = CollapsibleFrame(working_sidebar, text="📜 Reporting", width=110)
         report_frame.pack(side="left", padx=4, pady=4, anchor="w")
+        testrun_frame = CollapsibleFrame(working_sidebar, text="📜 Test Run", width=110)
+        testrun_frame.pack(side="left", padx=4, pady=4, anchor="w")
         
 
         # Các nút trong group cũng xếp ngang
@@ -190,6 +193,8 @@ class CustomApp(Window):
         # ttk.Button(report_frame.sub_frame, text="🛠️ Create", bootstyle="info", width=21, command=lambda: create_new_script(self)).pack(side="left", padx=2, pady=1)
         ttk.Button(report_frame.sub_frame, text="🧮 Analysis", bootstyle="warning", width=21, command=lambda: check_report_log(self)).pack(side="left", padx=2, pady=1)
         ttk.Button(report_frame.sub_frame, text="⬇️ Download", bootstyle="secondary", width=21, command=lambda: on_download_report(self)).pack(side="left", padx=2, pady=1)
+
+        ttk.Button(testrun_frame.sub_frame, text="🛠️ Create DXL", bootstyle="outline", width=21, command=lambda: generate_dxl_testrun(self)).pack(side="left", padx=2, pady=1)
 
         # --- Tab About ---
         about_tab = ttk.Frame(self.notebook)

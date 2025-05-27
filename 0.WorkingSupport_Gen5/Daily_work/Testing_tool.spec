@@ -8,6 +8,7 @@ a = Analysis(
     datas=[
         ('icon\\App.ico', 'icon'),
         ('template\\template.can', 'template'),
+        ('template\\DXL_template_testrun_gen.can', 'template')
     ],
     hiddenimports=[],
     hookspath=[],

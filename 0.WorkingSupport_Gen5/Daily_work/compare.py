@@ -5,7 +5,6 @@ import tkinter as tk
 import os
 from file_ops import set_status, refresh_table
 from script_handle import ensure_script_file
-import tksheet
 
 def compare_content_requirement(app):
     if not hasattr(app, "sheet") or app.sheet is None:

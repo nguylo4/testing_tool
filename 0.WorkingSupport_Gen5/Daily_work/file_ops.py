@@ -1,16 +1,12 @@
-import openpyxl
 import os
 import datetime
 import json
-import webbrowser
 from tkinter import filedialog, messagebox, simpledialog
 import Handle_file as hf
 from tkinter import ttk
 import tkinter as tk
 from Handle_file import save_excel_table
 import tksheet
-import threading
-import time
 import re
 import math
 

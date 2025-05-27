@@ -2,7 +2,7 @@
 REM Build exe từ spec
 rmdir /s /q build
 rmdir /s /q dist
-python -m PyInstaller Testing_tool.spec
+C:/Users/nguylo4/AppData/Local/Programs/Python/Python312/python.exe -m PyInstaller Testing_tool.spec
 
 REM Nén folder dist\Testing_tool thành file .zip (yêu cầu đã cài 7-Zip và thêm vào PATH)
 if exist dist\Testing_tool (

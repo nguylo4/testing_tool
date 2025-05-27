@@ -6,7 +6,6 @@ import tkinter as tk
 from tkinter import ttk
 import datetime
 import re
-import shutil
 import subprocess
 
 def first_line(val):

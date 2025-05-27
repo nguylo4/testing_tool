@@ -1,0 +1,34 @@
+	pragma runLim,0
+	Module m = current
+	Object o = null
+	int number_testcase
+	string number_list[] = {<Test cases ID>}
+	number_testcase =  sizeof(number_list)
+	string ID0 = ""
+	int i = 0
+	string obj = ""
+	print("Start\r\n")
+	int count = 0
+	for o in m do{
+		obj = identifier(o)
+		for (i=0; i<number_testcase; i++){
+			if number_list[i] == obj then {
+				count = count +1
+				print(obj)
+				print("\r\n")
+				o."TP_ActualResult_Rel_ <TestRun_Number>" = "See test report"
+				o."TP_RespTester_Rel_ <TestRun_Number>" = "<Owner>"
+				o."TP_TestDate_Rel_ <TestRun_Number>" = "<Date_Test>"
+				o."TP_TestMajorRelease_Rel_ <TestRun_Number>" = "<Release>"
+				o."TP_TestObject_Rel_ <TestRun_Number>" = "RC_CUST_DAS_VW_02_SW_<Release>.01.01 <HWsample> C0 sample"
+				o."TP_TestPlanned_Rel_ <TestRun_Number>" = "<test_planned>"
+				o."TP_TestVerdict_Rel_ <TestRun_Number>" = "<Test Verdict>"
+				o."TP_PTC_Ref_Rel_ <TestRun_Number>" = "<Error Report>"
+                o."TP_VerdictComment_Rel_ <TestRun_Number>" = "<Comment>"
+			}
+		}
+	}
+	print("Complete")
+	if count ==0 then{
+		print("\r\n")
+		print("No test case was found. Please turn off the filter mode.")
