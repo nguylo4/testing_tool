@@ -1,12 +1,12 @@
 {
-  "version": "1.2",
+  "version": "1.3",
  
   "change_log" : {
     "release_date": "2025-06-02",
     "changes": [
       {
         "type": "Download report and script",
-        "description": "Change new method download script and report, onclick -> all script and report are downloaded!\nAdd feature DXL- generate"
+        "description": "Change new method download script and report, onclick -> all script and report are downloaded!\nAdd feature DXL- generate\nAdd feature check total cases are executed in log"
       },
       {
         "type": "bugfix",

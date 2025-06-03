@@ -1,0 +1,1507 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>SWT_CC</title>
+    <style type="text/css">
+      
+       
+      
+      @media screen
+      {
+        body
+        {
+          background-color: rgb(255, 255, 255);
+          font-family:      arial, verdana, trebuchet, officina, sans-serif;
+        }
+      }
+  
+      
+      @media print
+      {
+        
+        body
+        {
+          background-color: rgb(255, 255, 255);
+          font-family:      arial, verdana, trebuchet, officina, sans-serif;
+        }
+        
+        
+        a
+        {
+          text-decoration: none;
+        }
+        
+        
+        .HeadingTable, .SubHeadingTable, .GroupHeadingTable , .GroupEndTable
+        {
+          border-width: 2px;
+          border-style: solid;
+          border-color: rgb(150,150,150);
+        }
+        
+        .ResultBlockHeading
+        {
+          border-width: 1px;
+          border-style: solid;
+          border-color: rgb(150,150,150);
+        }
+        
+        table.ResultTable, table.OverviewTable, table.CheckStatisticsTable
+        {
+          border-collapse: collapse;
+        }
+        
+        td.DefaultCell, td.DefineCell, td.NumberCell, td.NumberCellPositiveResult, td.NumberCellNegativeResult, 
+        td.NumberCellErrorResult, td.NumberCellInconclusiveResult, td.NumberCellNoneResult, td.NumberCellNoColor,
+        td.PositiveResultCell, td.NegativeResultCell, td.WarningCell, td.NoneResultCell, td.InconclusiveResultCell,
+        td.ErrorResultCell, th.TableHeadingCell
+        {
+          border-width: 1px;
+          border-style: solid;
+          border-color: rgb(150,150,150);
+        }
+        
+        .PatternSeparator
+        {
+          
+          border-style: none;
+        }
+        
+        .PositiveResult
+        {
+          
+          border-bottom: 2px solid;
+        }
+        
+        .NegativeResult
+        {
+          
+          border-bottom: 2px solid;
+        }
+        
+        .NoneResult
+        {
+          
+          border-bottom: 2px solid;
+        }
+        
+        .InconclusiveResult
+        {
+          
+          border-bottom: 2px solid;
+        }
+        
+        .ErrorResult
+        {
+          
+          border-bottom: 2px solid;
+        }
+
+        
+        .TestcaseHeadingDefaultResult
+        {
+          
+          border-bottom: 2px solid;
+        }
+        
+        .TestcaseHeadingPositiveResult
+        {
+          
+          border-bottom: 2px solid;
+        }
+        
+        .TestcaseHeadingNegativeResult
+        {
+          
+          border-bottom: 2px solid;
+        }
+        
+        table.ScreenOnly, a.Undecorated, .LinkCell
+        {
+          display: none;
+        }
+      }
+      
+      a.Undecorated:hover 
+      {
+        color:red;
+      }
+      a.Undecorated
+      { 
+        text-decoration: none; 
+      }
+      
+      .NavStyle
+      {
+        background-color: rgb(220, 221, 222);
+      }
+      
+      td.LinkCell, td.UpCell
+      {
+        
+        width:              1px;
+        white-space:        nowrap;
+      }
+
+      
+      table
+      {
+        margin-bottom:    10px;
+        vertical-align:   top; 
+        border:           0;
+        border-spacing:   1px;
+        padding:          2px;
+      }
+      table.ScreenOnly
+      {
+        vertical-align: top; 
+        margin-bottom:  10px;
+      }
+      .NoMarginBottom
+      {
+        margin-bottom:    0px;
+      }
+      .HeadingTable
+      {
+        width:            100%;
+        text-align:       center;
+        margin-top:       15px;
+        margin-bottom:    30px;
+        margin-left:      auto;
+        margin-right:     auto;
+        background-color: rgb(220, 221, 222);
+      }
+      
+      .SubHeadingTable
+      {
+        width:            100%;
+        text-align:       center;
+        margin-top:       15px;
+        margin-bottom:    25px;
+        background-color: rgb(220, 221, 222);
+      }
+      
+      .GroupHeadingTable, .GroupEndTable
+      {
+        width:            100%;
+        text-align:       center;
+        margin-top:       15px;
+        padding-right:    20px;
+        background-color: rgb(220, 221, 222);
+      }
+      
+      .DefaultTable
+      {
+        padding:        0px;
+        border-spacing: 0px;
+      }
+      
+      .CheckStatisticsTable
+      {
+        margin-bottom: 8px;
+        padding-right:  20px;
+      }
+  
+      .OverviewTable
+      {
+        text-align:     left;
+      }
+      
+      .OverviewResultTable
+      {
+        width:          100%;
+        margin-bottom:  0px;
+        border-spacing: 0px;
+        padding:        0px;
+        text-align:     center;
+      }
+      
+      .ResultTable
+      {
+        width:          100%;
+        text-align:     left;
+        padding-right:  20px;
+      }
+      
+      .ResultTableInner
+      {
+        width:          100%;
+        text-align:     left;
+        padding-right:  0px;
+      }
+  
+      table.ResultTable td, table.ChildLinkTable td
+      {
+        vertical-align: top;
+      }
+      .ChildLinkTable
+      {
+        width:          1px;
+        text-align:     left;
+      }
+      .InfoTable
+      {
+        text-align:     left;
+        padding-right:  0px;
+        margin-bottom:  0px;
+        border-spacing: 0px;
+      }
+      .InfoTableExpand
+      {
+        width:          100%;
+        text-align:     left;
+        padding-right:  0px;
+        margin-bottom:  0px;
+        border-spacing: 0px;
+      }
+      .OverallResultTable
+      {
+        width:         50%;
+        text-align:    center;
+        margin-bottom: 20px;
+        margin-left:   auto;
+        margin-right:  auto;
+        font-weight:   bold;
+      }
+      
+      .TableHeadingCell
+      {
+        background-color: rgb(179, 179, 179);
+        font-family:      arial, verdana, trebuchet, officina, sans-serif;
+        font-weight:      bold;
+        text-align:       center;
+      }
+  
+      .CellNoColor
+      {
+        text-align:     left;
+        vertical-align: top;
+      }   
+      
+      .DefineCell
+      {
+        background-color: rgb(179, 179, 179);
+        text-align:       left;
+      }
+      
+      .DefaultCell, .DefaultCellBold
+      {
+        background-color: rgb(229, 229, 229);
+        text-align:       left;
+      }
+      
+      .DefaultCellBold
+      {
+        font-weight:      bold;
+      }
+        
+      .NumberCell
+      {
+        background-color: rgb(229, 229, 229);
+        text-align:       center;
+        min-width:        50px;
+      }
+      
+      .NumberCellNegativeResult
+      {
+        background-color: rgb(240, 0, 0);
+        text-align:       center;
+        min-width:        50px;
+      }
+      
+      .NumberCellPositiveResult
+      {
+        background-color: rgb(25, 165, 88);
+        text-align:       center;
+        min-width:        50px;
+      }
+      
+      .NumberCellNoneResult
+      {
+        background-color: rgb(105, 105, 105);
+        text-align:       center;
+        min-width:        50px;
+      }
+      
+      .NumberCellInconclusiveResult
+      {
+        background-color: rgb(255, 165, 0);
+        text-align:       center;
+        min-width:        50px;
+      }
+      
+      .NumberCellErrorResult
+      {
+        background-color: rgb(205, 0, 0);
+        text-align:       center;
+        min-width:        50px;
+      }
+      
+      .NumberCellNoColor
+      {        
+        text-align: center;
+      }
+      
+      .PositiveResultCell
+      {
+        background-color: rgb(25, 165, 88);
+      }
+    
+      .NegativeResultCell
+      {
+        background-color: rgb(240, 0, 0);
+      }
+      
+      .NoneResultCell
+      {
+        background-color: rgb(105, 105, 105);
+      }
+      
+      .InconclusiveResultCell
+      {
+        background-color: rgb(255, 165, 0);
+      }
+      
+      .ErrorResultCell
+      {
+        background-color: rgb(205, 0, 0);
+        white-space:        nowrap;
+      }
+
+      .WarningCell
+      {
+        background-color: rgb(255, 255, 0);
+      }
+
+      .TestcaseHeadingDefaultResult
+      {
+        background-color: rgb(179, 179, 179);
+      }
+      .TestcaseHeadingPositiveResult
+      {
+        background-color: rgb(25, 165, 88);
+      }      
+      .TestcaseHeadingNegativeResult
+      {
+        background-color: rgb(240, 0, 0);
+      }      
+      .TestcaseHeadingNoneResult
+      {
+        background-color: rgb(105, 105, 105);
+      }
+      .TestcaseHeadingInconclusiveResult
+      {
+        background-color: rgb(255, 165, 0);
+      }
+      .TestcaseHeadingErrorResult
+      {
+        background-color: rgb(205, 0, 0);
+      }
+      
+      .PatternSeparator
+      {
+        height: 0.2em;
+      }
+      
+      .NegativeResult
+      {
+        background-color: rgb(240, 0, 0);
+        text-align:       center;
+        font-weight:      bold;
+      }
+      .PositiveResult
+      {
+        background-color: rgb(25, 165, 88);
+        text-align:       center;
+        font-weight:      bold;
+      }
+      .NoneResult
+      {
+        background-color: rgb(105, 105, 105);
+        text-align:       center;
+        font-weight:      bold;
+      }
+      .InconclusiveResult
+      {
+        background-color: rgb(255, 165, 0);
+        text-align:       center;
+        font-weight:      bold;
+      }
+      .ErrorResult
+      {
+        background-color: rgb(205, 0, 0);
+        text-align:       center;
+        font-weight:      bold;
+      }
+      
+      
+      
+      .Heading1
+      {
+        font-family: arial, sans-serif;
+        font-weight: bold;
+        font-size:   26px;
+      }
+      
+      .Heading2
+      {
+        font-family: arial, sans-serif;
+        font-weight: bold;
+        font-size:   20px;
+      }
+      
+      .Heading3
+      {
+        font-family:   arial, sans-serif;
+        font-weight:   bold;
+        font-size:     18px;
+        margin-bottom: 20px;
+        margin-top:    20px;
+      }
+      
+      .Heading4
+      {
+        font-family:   arial, sans-serif;
+        font-weight:   bold;
+        font-size:     16px;
+        margin-top:    10px;
+        margin-bottom: 10px;
+      }
+      
+      
+      img
+      {
+        Margin-bottom: 10px;
+        Margin-right:  10px;
+      }
+      
+      
+      p
+      {
+        Margin-bottom: 20px;
+      }
+      
+      
+      .DefaultTableBackground
+      {
+        background-color: rgb(229, 229, 229);
+        border-spacing:   0px;
+        padding:          0px;
+      }
+      
+      .NegativeResultBackground
+      {
+        background-color: rgb(240, 0, 0);
+        border-spacing:   0px;
+        padding:          0px;
+      }
+      
+      .PositiveResultBackground
+      {
+        background-color: rgb(25, 165, 88);
+        border-spacing:   0px;
+        padding:          0px;
+      }
+      
+      .WarningResultBackground
+      {
+        background-color: rgb(255, 255, 0);
+        border-spacing:   0px;
+        padding:          0px;
+      }
+      
+      .NoneResultBackground
+      {
+        background-color: rgb(105, 105, 105);
+        border-spacing:   0px;
+        padding:          0px;
+      }
+      
+      .InconclusiveResultBackground
+      {
+        background-color: rgb(255, 165, 0);
+        border-spacing:   0px;
+        padding:          0px;
+      }
+      
+      .ErrorResultBackground
+      {
+        background-color: rgb(205, 0, 0);
+        border-spacing:   0px;
+        padding:          0px;
+      }
+      
+      .TestGroupHeadingBackground
+      {
+        background-color: rgb(179, 179, 179);
+      }
+    
+      
+      .Indentation
+      {
+        margin-left:  20px;
+      }
+    </style>
+    <script type="text/javascript">
+      var EXPANDED = '[−]';
+      var COLLAPSED = '[+]';
+      var VISIBLE = 'Visible';
+      var HIDDEN = 'Hidden';
+      var NONE = 'none';
+      var BLOCK = '';
+      function getDivId(id) { return 'div_' + id; }
+      function getLinkId(id) { return 'lnk_' + id; }
+      function getTableId(id) { return 'tbl_' + id; }
+      function getTbl2Id(id) { return 'tbl_t' + id; }
+      
+      
+      function switchText(oldText) { return oldText == COLLAPSED ? EXPANDED : COLLAPSED ; }
+      function getStyleFromText(linkText) { return linkText == COLLAPSED ? HIDDEN : VISIBLE; }
+      
+      function getElements(tagName, elementId)
+      {
+        this.elements = [];
+        var index = 0;
+        var elm = document.getElementsByTagName(tagName);
+        var len = elm.length;
+        for (var i = 0; i < len; i++) 
+        {
+          var id = elm[i].id;
+          if (id && id.indexOf(elementId) == 0)
+          {
+            this.elements[index] = elm[i];
+            index++;
+          }
+        }
+        return this.elements;
+      }
+      function matchElements(tagName, matchId)
+      {
+        this.elements = [];
+        var index = 0;
+        var elm = document.getElementsByTagName(tagName);
+        for (var i = 0; i < elm.length; i++) 
+        {
+          var id = elm[i].id;
+          var tc = id.replace(/s[0-9]+\./, "");
+          if (tc && tc == matchId)
+          {
+            this.elements[index] = elm[i];
+            index++;
+          }
+        }
+        return this.elements;  
+      }
+      function onoff(elm, style)
+      {
+        if(elm.style.display == NONE)
+        {
+          if(style == null || style == VISIBLE)
+            elm.style.display = BLOCK;
+        }
+        else
+        {
+          if(style == null || style == HIDDEN)
+            elm.style.display = NONE;
+        }
+      }
+      function switchTagStyle(tag, id, style)
+      {
+        var divs = getElements(tag, id);
+        for(var i = 0; i < divs.length; i++)
+          onoff(divs[i], style);
+      }
+      function switchRowStyle(tbl, style)
+      {
+        var rows = tbl.rows.length;
+        for(var rowIndex=0; rowIndex < rows; rowIndex++)
+        {
+          var row = tbl.rows[rowIndex];
+          if (row.id != "on")
+            onoff(row, style);
+        }
+      }
+      function switchTableRowStyle(tableId, style)
+      {
+        var tables = getElements('table', tableId);
+        for(var i = 0; i < tables.length; i++)
+          switchRowStyle(tables[i], style);
+      }
+      function switchLinkText(linkId, newText)
+      {
+        var link = getElements('a', linkId);
+        var len = link.length;
+        for(var i = 0; i < len; i++)
+        {
+          var lnk = link[i];
+          if(newText == null)
+          {
+            var oldText = lnk.text;
+            newText = switchText(oldText)
+          }
+          lnk.text = newText;
+        }
+      }
+      function switchTag(tag, id, text)
+      {
+        var style = getStyleFromText(text);
+        switchTagStyle(tag, id, style);
+      }
+      function switchTable(id)
+      {
+        switchLinkText(getTableId(id));
+        switchTableRowStyle(getTableId(id));
+      }
+      function switchDiv(id, linkText)
+      {
+        var text = switchText(linkText);
+        switchLinkText(getLinkId(id), text);
+        switchTag('div', getDivId(id), text);
+      }      
+      function switchAll(id, linkText)
+      {
+        var text = switchText(linkText);
+        switchLinkText(getLinkId(id), text);
+        switchTag('div', getDivId(id), text);
+        var style = getStyleFromText(text);
+        switchTableRowStyle(getTbl2Id(id), style);
+      }
+      function showTable(id)
+      {
+        var tableId = getTableId(id);
+        switchLinkText(tableId, EXPANDED);
+        switchTableRowStyle(tableId, VISIBLE);
+      }
+      function hideTable(id)
+      {
+        var tableId = getTableId(id);
+        switchTableRowStyle(tableId, HIDDEN);
+        switchLinkText(tableId, COLLAPSED);
+      }
+      function showDiv(id)
+      {
+        switchLinkText(getLinkId(id), EXPANDED);
+        switchTag('div', getDivId(id), EXPANDED);
+      }
+      function showTC(id)
+      {
+        var divId = getDivId(id);
+        var elms = matchElements('div', divId); 
+        if(elms != null && elms.length > 0)
+        {
+          id = elms[0].id.replace(getDivId(''), '');
+          showDiv(id);
+        }
+      }
+      
+    </script>
+  </head>
+  <body>
+    <a name="TOP"></a>
+    <table class="HeadingTable">
+      <tr>
+        <td>
+          <big class="Heading1">Report: SWT_CC</big>
+        </td>
+      </tr>
+    </table>
+    <center>
+      <table class="OverallResultTable">
+        <tr>
+          <td class="PositiveResult">Test passed</td>
+        </tr>
+      </table>
+    </center>
+    <a name="GeneralTestInfo"></a>
+    <table class="SubHeadingTable">
+      <tr>
+        <td>
+          <div class="Heading2">General Test Information</div>
+        </td>
+      </tr>
+    </table>
+    <div class="Indentation">
+      <div class="Heading4">System Under Test</div>
+      <div class="Indentation">
+        <table>
+          <tr>
+            <td class="CellNoColor">Dataset: </td>
+            <td class="CellNoColor">DAS_VW_02_VW483_Arteon_2_2ECU_J0</td>
+          </tr>
+          <tr>
+            <td class="CellNoColor">SW Release: </td>
+            <td class="CellNoColor">RC_CUST_DAS_VW_02_SW_  U 190.01.01</td>
+          </tr>
+          <tr>
+            <td class="CellNoColor">Target HW Version: </td>
+            <td class="CellNoColor">5G3 C0 sample: ECU0</td>
+          </tr>
+        </table>
+      </div>
+      <div class="Heading4">Test Engineer</div>
+      <div class="Indentation">
+        <table>
+          <tr>
+            <td class="CellNoColor">Windows Login Name: </td>
+            <td class="CellNoColor">hvnrsw1</td>
+          </tr>
+          <tr>
+            <td class="CellNoColor">SW Tester: </td>
+            <td class="CellNoColor">Nguyen Loc</td>
+          </tr>
+        </table>
+      </div>
+      <div class="Heading4">Test Setup</div>
+      <div class="Indentation">
+        <table>
+          <tr>
+            <td class="CellNoColor">Version: </td>
+            <td class="CellNoColor">CANoe.CAN.Ethernet /pro 15.1.1 (SP1)</td>
+          </tr>
+          <tr>
+            <td class="CellNoColor">Configuration: </td>
+            <td class="CellNoColor">C:\Data\Project\DAS_VW_04\0.RBS_Flashing\RBS_U151\RBS_Rear\RBS_Rear_VW_02_2DUTs _backup.cfg</td>
+          </tr>
+          <tr>
+            <td class="CellNoColor">Database Ethernet: </td>
+            <td class="CellNoColor">C:\Data\Project\DAS_VW_04\0.RBS_Flashing\RBS_U151\RBS_Rear\Databases\DAS_PO_01_HellaDebugData_Decoding.arxml (2022-05-18 14:40:47)</td>
+          </tr>
+          <tr>
+            <td class="CellNoColor">Database FASCANFD2 on FASCANFD2: </td>
+            <td class="CellNoColor">C:\Data\Project\DAS_VW_04\0.RBS_Flashing\RBS_U151\RBS_Rear\Databases\P01_MQBw_Baseline_V14.10F_AR430_20240503_ASIL_Merged.arxml (2024-06-03 19:33:37)</td>
+          </tr>
+          <tr>
+            <td class="CellNoColor">Diagnostic Description of ID0_Func2: </td>
+            <td class="CellNoColor">BV_CloseRangeRadar3UDS, ODX:BV_CloseRangeRadar3UDS*C:\Data\Project\DAS_VW_04\0.RBS_Flashing\RBS_U151\RBS_Rear\Diagnostics\ECUS_NanoRadarHellaVW38X_001112_CanFD_d.pdx</td>
+          </tr>
+          <tr>
+            <td class="CellNoColor">Diagnostic Description of ID0_Phys2: </td>
+            <td class="CellNoColor">EV_NR3HELLAVW38X_001, ODX:BV_CloseRangeRadar3UDS*C:\Data\Project\DAS_VW_04\0.RBS_Flashing\RBS_U151\RBS_Rear\Diagnostics\ECUS_NanoRadarHellaVW38X_001112_CanFD_d.pdx</td>
+          </tr>
+          <tr>
+            <td class="CellNoColor">Diagnostic Description of ID1_Func2: </td>
+            <td class="CellNoColor">BV_CloseRangeRadar4UDS, ODX:BV_CloseRangeRadar4UDS*C:\Data\Project\DAS_VW_04\0.RBS_Flashing\RBS_U151\RBS_Rear\Diagnostics\ECUS_NanoRadarHellaVW38X_001112_CanFD_d.pdx</td>
+          </tr>
+          <tr>
+            <td class="CellNoColor">Diagnostic Description of ID1_Phys2: </td>
+            <td class="CellNoColor">EV_NR4HELLAVW38X_001, ODX:BV_CloseRangeRadar4UDS*C:\Data\Project\DAS_VW_04\0.RBS_Flashing\RBS_U151\RBS_Rear\Diagnostics\ECUS_NanoRadarHellaVW38X_001112_CanFD_d.pdx</td>
+          </tr>
+          <tr>
+            <td class="CellNoColor">Test Module Name: </td>
+            <td class="CellNoColor">SWT_CC</td>
+          </tr>
+          <tr>
+            <td class="CellNoColor">Test Module File: </td>
+            <td class="CellNoColor">X:\SWT_CC.can</td>
+          </tr>
+          <tr>
+            <td class="CellNoColor">Last modification of Test Module File: </td>
+            <td class="CellNoColor">2025-05-06, 16:44:02</td>
+          </tr>
+          <tr>
+            <td class="CellNoColor">Windows Computer Name: </td>
+            <td class="CellNoColor">VND000029</td>
+          </tr>
+          <tr>
+            <td class="CellNoColor">Nodelayer Module AsrPDUIL: </td>
+            <td class="CellNoColor">CANoe AutoSAR PDU Interaction Layer NL (General OEM) Version 1.85.46 (May 24 2020 16:04:18) , C:\Data\Project\DAS_VW_04\0.RBS_Flashing\RBS_U151\RBS_Rear\Exec32\AsrPDUIL.dll</td>
+          </tr>
+          <tr>
+            <td class="CellNoColor">Nodelayer Module NMHigh: </td>
+            <td class="CellNoColor">NM-High (Version 3.1.15), C:\Data\Project\DAS_VW_04\0.RBS_Flashing\RBS_U151\RBS_Rear\Exec32\NMHigh.dll</td>
+          </tr>
+          <tr>
+            <td class="CellNoColor">Nodelayer Module J1939TestServiceLibraryNL: </td>
+            <td class="CellNoColor">J1939 Test Service Library for CANoe, Version 15.1.1.0, C:\Program Files\Vector CANoe 15\Exec32\J1939TestServiceLibraryNL.dll</td>
+          </tr>
+        </table>
+      </div>
+      <div class="Heading4">Hardware</div>
+      <div class="Indentation">
+        <div class="Heading4">CAN Channel Interfaces</div>
+        <div class="Indentation">
+          <table>
+            <tr>
+              <th class="TableHeadingCell">Channel</th>
+              <th class="TableHeadingCell">Device</th>
+              <th class="TableHeadingCell">Serial number</th>
+              <th class="TableHeadingCell">Driver DLL version</th>
+              <th class="TableHeadingCell">Driver version</th>
+            </tr>
+            <tr>
+              <td class="NumberCell">1</td>
+              <td class="NumberCell">VN1630</td>
+              <td class="NumberCell">44571</td>
+              <td class="NumberCell">22.20.20</td>
+              <td class="NumberCell">22.14.12</td>
+            </tr>
+            <tr>
+              <td class="NumberCell">2</td>
+              <td class="NumberCell">VN1630</td>
+              <td class="NumberCell">44571</td>
+              <td class="NumberCell">22.20.20</td>
+              <td class="NumberCell">22.14.12</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <a name="TestOverview"></a>
+    <table class="SubHeadingTable">
+      <tr>
+        <td>
+          <div class="Heading2">Test Overview</div>
+        </td>
+      </tr>
+    </table>
+    <div class="Indentation">
+      <table class="DefaultTable">
+        <tr>
+          <td style="padding-right: 0.5em;" class="CellNoColor">Test begin: </td>
+          <td style="padding-right: 0.5em;" class="CellNoColor">2025-05-06 16:52:14</td>
+          <td class="CellNoColor">(logging timestamp   46.370646)</td>
+        </tr>
+        <tr>
+          <td style="padding-right: 0.5em;" class="CellNoColor">Test end: </td>
+          <td style="padding-right: 0.5em;" class="CellNoColor">2025-05-06 16:52:32</td>
+          <td class="CellNoColor" nowrap>(logging timestamp   64.539646)</td>
+        </tr>
+      </table>
+      <div class="Heading4">Statistics</div>
+      <div class="Indentation">
+        <table class="OverviewTable">
+          <tr>
+            <td class="DefineCell">Overall number of test cases </td>
+            <td class="NumberCell" width="60">1</td>
+            <td class="DefaultCell"></td>
+          </tr>
+          <tr>
+            <td class="DefineCell">Executed test cases </td>
+            <td class="NumberCell">1</td>
+            <td class="DefaultCell">100% of all test cases</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">Not executed test cases </td>
+            <td class="NumberCell">0</td>
+            <td class="DefaultCell">0% of all test cases</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">Test cases passed </td>
+            <td class="NumberCellPositiveResult">1</td>
+            <td class="NumberCellPositiveResult">100% of executed test cases</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">Test cases failed </td>
+            <td class="NumberCell">0</td>
+            <td class="NumberCell">0% of executed test cases</td>
+          </tr>
+        </table>
+      </div>
+      <div class="Heading4">Test Case Results</div>
+      <div class="Indentation">
+        <table class="OverviewTable">
+          <tr>
+            <td class="DefineCell">
+              <b>1</b>
+            </td>
+            <td class="DefineCell">
+              <b></b>
+            </td>
+            <td class="DefineCell" colspan="2">
+              <a href="#i__2068784224_9">
+                <b>***Customization***</b>
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <td class="DefineCell">1.1</td>
+            <td class="DefaultCell">SwT_VW_02_13755</td>
+            <td class="DefaultCell">
+              <a href="#i__2068784224_13">Check that function 'Diag UDS Processing' shall set ReadDataByIdentifierResponse[ASAMODX_Version] correctly - identification value 'ASAM ODX File Version' (DID 0xF1A2)</a>
+            </td>
+            <td class="PositiveResultCell">pass</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <a name="TestModuleInfo"></a>
+    <table class="SubHeadingTable">
+      <tr>
+        <td class="LinkCell">
+          <a class="Undecorated" id="lnk_" href="javascript:switchAll('',document.all['lnk_'].text)">[−]</a>
+        </td>
+        <td>
+          <div class="Heading2">Test Module Information</div>
+        </td>
+      </tr>
+    </table>
+    <table class="SubHeadingTable">
+      <tr>
+        <td>
+          <big class="Heading2">Test Case Details</big>
+        </td>
+      </tr>
+    </table>
+    <table class="GroupHeadingTable">
+      <tr>
+        <td class="LinkCell">
+          <a class="Undecorated" id="lnk_1" href="javascript:switchAll('1',document.all['lnk_1'].text)">[−]</a>
+        </td>
+        <td>
+          <big class="Heading3">
+            <a name="i__2068784224_9">1 Test Group: ***Customization***</a>
+          </big>
+        </td>
+      </tr>
+    </table>
+    <div id="div_1">
+      <p>Test cases concerning the .....</p>
+      <div class="Indentation"></div>
+    </div>
+    <table>
+      <tr>
+        <td class="LinkCell">
+          <a class="Undecorated" id="lnk_1.1" href="javascript:switchAll('1.1',document.all['lnk_1.1'].text)">[−]</a>
+        </td>
+        <td class="TestcaseHeadingPositiveResult">
+          <big class="Heading3">1.1 <a name="i__2068784224_13">Test Case SwT_VW_02_13755: Check that function 'Diag UDS Processing' shall set ReadDataByIdentifierResponse[ASAMODX_Version] correctly - identification value 'ASAM ODX File Version' (DID 0xF1A2)</a>: Passed</big>
+        </td>
+      </tr>
+    </table>
+    <div class="Indentation" id="div_1.1">
+      <div class="Indentation">
+        <table class="DefaultTable">
+          <tr>
+            <td style="padding-right: 0.5em;" class="CellNoColor">Test case begin: </td>
+            <td style="padding-right: 0.5em;" class="CellNoColor">2025-05-06 16:52:14</td>
+            <td class="CellNoColor">(logging timestamp   46.907646)</td>
+          </tr>
+          <tr>
+            <td style="padding-right: 0.5em;" class="CellNoColor">Test case end: </td>
+            <td style="padding-right: 0.5em;" class="CellNoColor">2025-05-06 16:52:31</td>
+            <td class="CellNoColor" nowrap>(logging timestamp   63.510646)</td>
+          </tr>
+        </table>
+      </div>
+      <div class="Indentation">
+        <table class="ScreenOnly">
+          <tbody>
+            <tr>
+              <td>
+                <a class="Undecorated" href="javascript:showTable('1.1_')">[expand test steps]</a>
+              </td>
+              <td width="2px"></td>
+              <td>
+                <a class="Undecorated" href="javascript:hideTable('1.1_')">[collapse test steps]</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <table class="TestGroupHeadingBackground">
+        <tr>
+          <td>
+            <big class="Heading3">Main Part of Test Case</big>
+          </td>
+        </tr>
+      </table>
+      <div class="Indentation">
+        <table class="ResultTable">
+          <tr>
+            <th class="TableHeadingCell" width="1px">Timestamp</th>
+            <th class="TableHeadingCell" width="1px">Test Step</th>
+            <th class="TableHeadingCell" width="auto">Description</th>
+            <th class="TableHeadingCell" width="1px">Result</th>
+          </tr>
+          <tr>
+            <td class="DefineCell">  46.926646</td>
+            <td class="NumberCell">Resume reason</td>
+            <td class="DefaultCell">Resumed on TextEvent 'Command executed' Elapsed time=19ms (max=120000ms)</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  46.926646</td>
+            <td class="NumberCell">26</td>
+            <td class="DefaultCell"> The value of the variable Rte_SensorId_SensorId_SensorId will be read out.</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  46.926646</td>
+            <td class="NumberCell">27</td>
+            <td class="DefaultCell">Description --- <br>
+              <br>Value 0 (0x0) was received</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  46.926646</td>
+            <td class="NumberCell">+++</td>
+            <td class="DefaultCell">+++ SECTION: Reset the environment +++</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  46.955646</td>
+            <td class="NumberCell">Resume reason</td>
+            <td class="DefaultCell">Resumed on TextEvent 'Command executed' Elapsed time=29ms (max=120000ms)</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  47.693646</td>
+            <td class="NumberCell">Resume reason</td>
+            <td class="DefaultCell">Resumed on TextEvent 'Command executed' Elapsed time=738ms (max=120000ms)</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  46.955646</td>
+            <td class="NumberCell">28</td>
+            <td class="DefaultCell"> Delete all breakpoints</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  47.778646</td>
+            <td class="NumberCell">Resume reason</td>
+            <td class="DefaultCell">Resumed on TextEvent 'Command executed' Elapsed time=85ms (max=120000ms)</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  47.693646</td>
+            <td class="NumberCell">29</td>
+            <td class="DefaultCell"> Reset the microcontroller</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  47.778646</td>
+            <td class="NumberCell">30</td>
+            <td class="DefaultCell"> Run the Target</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  47.778646</td>
+            <td class="NumberCell">31</td>
+            <td class="DefaultCell">Description --- <br>Wait for 3000 ms</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  50.778646</td>
+            <td class="NumberCell">Resume reason</td>
+            <td class="DefaultCell">Elapsed time=3000ms (max=3000ms)</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  50.787646</td>
+            <td class="NumberCell">Resume reason</td>
+            <td class="DefaultCell">Resumed on TextEvent 'Command executed' Elapsed time=9ms (max=120000ms)</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  50.787646</td>
+            <td class="NumberCell">32</td>
+            <td class="DefaultCell"> The value of the variable Rte_SensorId_SensorId_SensorId will be read out.</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  50.787646</td>
+            <td class="NumberCell">33</td>
+            <td class="DefaultCell">Description --- <br>
+              <br>Value 0 (0x0) was received</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  50.787646</td>
+            <td class="NumberCell">+++</td>
+            <td class="DefaultCell">+++ SECTION: ------------------------------------CASE 1------------------------------------</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  50.787646</td>
+            <td class="NumberCell"></td>
+            <td class="DefaultCell">
+              <table class="NoMarginBottom">
+                <tbody>
+                  <tr>
+                    <td>
+                      <a class="Undecorated" id="tbl_1.1_i__2068784224_187" href="javascript:switchTable('1.1_i__2068784224_187')">[−]</a>
+                    </td>
+                    <td>ID0_Phys2: //BV_CloseRangeRadar3UDS/EV_NR3HELLAVW38X_001/DiagnServi_ReadDataByIdentTheftProteData/Req_ReadDataByIdentTheftProteData</td>
+                  </tr>
+                </tbody>
+              </table>
+              <table class="InfoTable" id="tbl_1.1_i__2068784224_187">
+                <tr>
+                  <td class="DefineCell" style="text-indent: 0px;">Parameter</td>
+                  <td class="DefineCell">Value</td>
+                  <td class="DefineCell">Raw</td>
+                </tr>
+                <tr>
+                  <td class="DefaultCell" style="text-indent: 0px;">Request Service Id</td>
+                  <td class="DefaultCell">0x22</td>
+                  <td class="DefaultCell">22 </td>
+                </tr>
+                <tr>
+                  <td class="DefaultCell" style="text-indent: 0px;">Record Data Identifier</td>
+                  <td class="DefaultCell">Error: NotDefined (Scale-Constraint)</td>
+                  <td class="DefaultCell">f1 a2 </td>
+                </tr>
+              </table>
+            </td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  50.787646</td>
+            <td class="NumberCell">34</td>
+            <td class="DefaultCell">Description --- <br>Wait for 1000 ms</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  51.787646</td>
+            <td class="NumberCell">Resume reason</td>
+            <td class="DefaultCell">Elapsed time=1000ms (max=1000ms)</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  51.787646</td>
+            <td class="NumberCell">35</td>
+            <td class="DefaultCell">Description --- <br>Wait for 1000 ms</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  52.787646</td>
+            <td class="NumberCell">Resume reason</td>
+            <td class="DefaultCell">Elapsed time=1000ms (max=1000ms)</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  52.808646</td>
+            <td class="NumberCell">Resume reason</td>
+            <td class="DefaultCell">Resumed on TextEvent 'Command executed' Elapsed time=21ms (max=120000ms)</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  52.808646</td>
+            <td class="NumberCell">36</td>
+            <td class="DefaultCell"> The value of the variable DiagMdw_AsamOdxFileVersionS0_au8[0] will be read out.</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  52.808646</td>
+            <td class="NumberCell">37</td>
+            <td class="DefaultCell">Description --- <br>
+              <br>Value 48 (0x30) was received</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  52.808646</td>
+            <td class="NumberCell"></td>
+            <td class="DefaultCell">ReadDataByIdentifierResponse[ASAMODX_Version].byte3 = 48 is expected is 48  corretly</td>
+            <td class="PositiveResultCell">pass</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  52.837646</td>
+            <td class="NumberCell">Resume reason</td>
+            <td class="DefaultCell">Resumed on TextEvent 'Command executed' Elapsed time=29ms (max=120000ms)</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  52.837646</td>
+            <td class="NumberCell">38</td>
+            <td class="DefaultCell"> The value of the variable DiagMdw_AsamOdxFileVersionS0_au8[1] will be read out.</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  52.837646</td>
+            <td class="NumberCell">39</td>
+            <td class="DefaultCell">Description --- <br>
+              <br>Value 48 (0x30) was received</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  52.837646</td>
+            <td class="NumberCell"></td>
+            <td class="DefaultCell">ReadDataByIdentifierResponse[ASAMODX_Version].byte4 = 48 is expected is 48  corretly</td>
+            <td class="PositiveResultCell">pass</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  52.860646</td>
+            <td class="NumberCell">Resume reason</td>
+            <td class="DefaultCell">Resumed on TextEvent 'Command executed' Elapsed time=23ms (max=120000ms)</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  52.860646</td>
+            <td class="NumberCell">40</td>
+            <td class="DefaultCell"> The value of the variable DiagMdw_AsamOdxFileVersionS0_au8[2] will be read out.</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  52.860646</td>
+            <td class="NumberCell">41</td>
+            <td class="DefaultCell">Description --- <br>
+              <br>Value 51 (0x33) was received</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  52.860646</td>
+            <td class="NumberCell"></td>
+            <td class="DefaultCell">ReadDataByIdentifierResponse[ASAMODX_Version].byte5 = 51 is expected is 51  corretly</td>
+            <td class="PositiveResultCell">pass</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  52.884646</td>
+            <td class="NumberCell">Resume reason</td>
+            <td class="DefaultCell">Resumed on TextEvent 'Command executed' Elapsed time=24ms (max=120000ms)</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  52.884646</td>
+            <td class="NumberCell">42</td>
+            <td class="DefaultCell"> The value of the variable DiagMdw_AsamOdxFileVersionS0_au8[3] will be read out.</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  52.884646</td>
+            <td class="NumberCell">43</td>
+            <td class="DefaultCell">Description --- <br>
+              <br>Value 49 (0x31) was received</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  52.884646</td>
+            <td class="NumberCell"></td>
+            <td class="DefaultCell">ReadDataByIdentifierResponse[ASAMODX_Version].byte6 = 49 is expected is 49  corretly</td>
+            <td class="PositiveResultCell">pass</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  52.904646</td>
+            <td class="NumberCell">Resume reason</td>
+            <td class="DefaultCell">Resumed on TextEvent 'Command executed' Elapsed time=20ms (max=120000ms)</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  52.904646</td>
+            <td class="NumberCell">44</td>
+            <td class="DefaultCell"> The value of the variable DiagMdw_AsamOdxFileVersionS0_au8[4] will be read out.</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  52.904646</td>
+            <td class="NumberCell">45</td>
+            <td class="DefaultCell">Description --- <br>
+              <br>Value 49 (0x31) was received</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  52.904646</td>
+            <td class="NumberCell"></td>
+            <td class="DefaultCell">ReadDataByIdentifierResponse[ASAMODX_Version].byte7 = 49 is expected is 49  corretly</td>
+            <td class="PositiveResultCell">pass</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  52.930646</td>
+            <td class="NumberCell">Resume reason</td>
+            <td class="DefaultCell">Resumed on TextEvent 'Command executed' Elapsed time=26ms (max=120000ms)</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  52.930646</td>
+            <td class="NumberCell">46</td>
+            <td class="DefaultCell"> The value of the variable DiagMdw_AsamOdxFileVersionS0_au8[5] will be read out.</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  52.930646</td>
+            <td class="NumberCell">47</td>
+            <td class="DefaultCell">Description --- <br>
+              <br>Value 56 (0x38) was received</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  52.930646</td>
+            <td class="NumberCell"></td>
+            <td class="DefaultCell">ReadDataByIdentifierResponse[ASAMODX_Version].byte8 = 56 is expected is 56  corretly</td>
+            <td class="PositiveResultCell">pass</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  52.930646</td>
+            <td class="NumberCell"></td>
+            <td class="DefaultCell">ReadDataByIdentifierResponse[ASAMODX_Version] is correctly received with</td>
+            <td class="PositiveResultCell">pass</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  52.951646</td>
+            <td class="NumberCell">Resume reason</td>
+            <td class="DefaultCell">Resumed on TextEvent 'Command executed' Elapsed time=21ms (max=120000ms)</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  53.717646</td>
+            <td class="NumberCell">Resume reason</td>
+            <td class="DefaultCell">Resumed on TextEvent 'Command executed' Elapsed time=766ms (max=120000ms)</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  52.951646</td>
+            <td class="NumberCell">48</td>
+            <td class="DefaultCell"> Delete all breakpoints</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  53.790646</td>
+            <td class="NumberCell">Resume reason</td>
+            <td class="DefaultCell">Resumed on TextEvent 'Command executed' Elapsed time=73ms (max=120000ms)</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  53.717646</td>
+            <td class="NumberCell">49</td>
+            <td class="DefaultCell"> Reset the microcontroller</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  53.790646</td>
+            <td class="NumberCell">50</td>
+            <td class="DefaultCell"> Run the Target</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  53.790646</td>
+            <td class="NumberCell">51</td>
+            <td class="DefaultCell">Description --- <br>Wait for 3000 ms</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  56.790646</td>
+            <td class="NumberCell">Resume reason</td>
+            <td class="DefaultCell">Elapsed time=3000ms (max=3000ms)</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  56.790646</td>
+            <td class="NumberCell">+++</td>
+            <td class="DefaultCell">+++ SECTION: ------------------------------------CASE 7------------------------------------</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  56.790646</td>
+            <td class="NumberCell">+++</td>
+            <td class="DefaultCell">due to limitation of sample, cannot execute this case </td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  56.809646</td>
+            <td class="NumberCell">Resume reason</td>
+            <td class="DefaultCell">Resumed on TextEvent 'Command executed' Elapsed time=19ms (max=120000ms)</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  57.580646</td>
+            <td class="NumberCell">Resume reason</td>
+            <td class="DefaultCell">Resumed on TextEvent 'Command executed' Elapsed time=771ms (max=120000ms)</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  56.809646</td>
+            <td class="NumberCell">52</td>
+            <td class="DefaultCell"> Delete all breakpoints</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  57.663646</td>
+            <td class="NumberCell">Resume reason</td>
+            <td class="DefaultCell">Resumed on TextEvent 'Command executed' Elapsed time=83ms (max=120000ms)</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  57.580646</td>
+            <td class="NumberCell">53</td>
+            <td class="DefaultCell"> Reset the microcontroller</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  57.663646</td>
+            <td class="NumberCell">54</td>
+            <td class="DefaultCell"> Run the Target</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  57.663646</td>
+            <td class="NumberCell">55</td>
+            <td class="DefaultCell">Description --- <br>Wait for 3000 ms</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  60.663646</td>
+            <td class="NumberCell">Resume reason</td>
+            <td class="DefaultCell">Elapsed time=3000ms (max=3000ms)</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  60.663646</td>
+            <td class="NumberCell">+++</td>
+            <td class="DefaultCell">+++ SECTION: Clean Testcase +++</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  60.680646</td>
+            <td class="NumberCell">Resume reason</td>
+            <td class="DefaultCell">Resumed on TextEvent 'Command executed' Elapsed time=17ms (max=120000ms)</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  61.433646</td>
+            <td class="NumberCell">Resume reason</td>
+            <td class="DefaultCell">Resumed on TextEvent 'Command executed' Elapsed time=753ms (max=120000ms)</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  60.680646</td>
+            <td class="NumberCell">56</td>
+            <td class="DefaultCell"> Delete all breakpoints</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  61.510646</td>
+            <td class="NumberCell">Resume reason</td>
+            <td class="DefaultCell">Resumed on TextEvent 'Command executed' Elapsed time=77ms (max=120000ms)</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  61.433646</td>
+            <td class="NumberCell">57</td>
+            <td class="DefaultCell"> Reset the microcontroller</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  61.510646</td>
+            <td class="NumberCell">58</td>
+            <td class="DefaultCell"> Run the Target</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  61.510646</td>
+            <td class="NumberCell">59</td>
+            <td class="DefaultCell">Description --- <br>Wait for 2000 ms</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+          <tr>
+            <td class="DefineCell">  63.510646</td>
+            <td class="NumberCell">Resume reason</td>
+            <td class="DefaultCell">Elapsed time=2000ms (max=2000ms)</td>
+            <td class="DefaultCell">-</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <table class="GroupEndTable">
+      <tr>
+        <td>End of Test Group: ***Customization***</td>
+      </tr>
+    </table>
+    <table class="SubHeadingTable">
+      <tr>
+        <td>
+          <div class="Heading2">End of Report</div>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

@@ -229,6 +229,13 @@ def check_report_log(app):
         for row in app.data:
             row.append("")
 
+    # Kiểm tra và thêm cột check_numofcase_log nếu chưa có
+    if "check_numofcase_log" not in app.headers:
+        app.headers.append("check_numofcase_log")
+        for row in app.data:
+            row.append("")
+    check_num_idx = app.headers.index("check_numofcase_log")
+
     # Lấy các index cần thiết
     try:
         id_idx = app.headers.index("Test cases ID")
@@ -353,6 +360,32 @@ def check_report_log(app):
         # Ghi kết quả vào bảng
         app.data[row_idx][testlog_ok_idx] = "; ".join(sorted(set(ok_list)))
         app.data[row_idx][testlog_nok_idx] = "; ".join(nok_list)
+
+        # Kiểm tra số lượng case trong report
+        case_log_list = []
+        for html_file in html_files:
+            try:
+                with open(html_file, encoding="utf-8", errors="ignore") as f:
+                    content = f.read()
+                # Tìm vị trí bắt đầu <table class="ResultTable">
+                start_idx = content.lower().find('<table class="resulttable"')
+                if start_idx == -1:
+                    continue
+                table_content = content[start_idx:]  # Lấy từ <table class="ResultTable"> đến hết file
+                # Tìm tất cả <td class="DefaultCell">...</td>
+                case_numbers = []
+                for m in re.finditer(r'<td class="DefaultCell">\+(.*?)</td>', table_content, re.DOTALL | re.IGNORECASE):
+                    cell_text = m.group(1)
+                    cell_text_lower = cell_text.lower().replace(" ", "")
+                    case_match = re.search(r'case(\d+)', cell_text_lower)
+                    if case_match:
+                        case_numbers.append(case_match.group(1))
+                if case_numbers:
+                    case_log_list.append(f"{os.path.basename(html_file)}: {', '.join(case_numbers)}")
+            except Exception as e:
+                case_log_list.append(f"{os.path.basename(html_file)}: error")
+        # Ghi vào cột
+        app.data[row_idx][check_num_idx] = ";\n".join(case_log_list)
 
     progress_win.destroy()
     refresh_table(app)
