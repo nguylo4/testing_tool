@@ -267,16 +267,17 @@ def check_report_log(app):
         # Xác định đúng dest_dir cho từng CR
         dest_dir = os.path.join(
             app.working_dir,
-            f"RC_CUST_{project}_SW_{expected_release}.01.01",
+            f"RC_CUST_{get_project_name(project)}_SW_{expected_release}.01.01",
             crid_val
         )
-
+        dest_dir = os.path.normpath(dest_dir)
         file_var.set(f"{test_case_id} (CR: {crid_val})")
         progress_var.set((row_idx + 1) * 100 / total)
         progress_win.update()
 
         # Tìm tất cả file html trong dest_dir có chứa test_case_id trong tên
         html_files = []
+        print(f"Đang duyệt thư mục: {app.working_dir}, {dest_dir}")
         for root, dirs, files in os.walk(dest_dir):
             for f in files:
                 if f.endswith(".html") and test_case_id in f:

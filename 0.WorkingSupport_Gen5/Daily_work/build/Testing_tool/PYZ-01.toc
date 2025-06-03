@@ -1,4 +1,4 @@
-('C:\\Data\\nguylo4\\5.Investigate\\1.Learning_Languages\\testing_tool\\0.WorkingSupport_Gen5\\Daily_work\\build\\Testing_tool\\PYZ-01.pyz',
+('C:\\Data\\nguylo4\\5.Investigate\\Git\\Project\\testing_tool\\0.WorkingSupport_Gen5\\Daily_work\\build\\Testing_tool\\PYZ-01.pyz',
  [('__future__',
    'C:\\Users\\nguylo4\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\__future__.py',
    'PYMODULE'),

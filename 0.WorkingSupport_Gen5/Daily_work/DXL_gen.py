@@ -28,7 +28,7 @@ def generate_dxl_testrun(app):
             "Release": key[3],
             "HWsample": key[4],
             "test_planned": key[5],
-            "Test cases ID": '","'.join(str(i) for i in testcase_ids),
+            "Test cases ID": '"' + '","'.join(str(i) for i in testcase_ids) + '"',
             "Test Verdict": key[6],
             "Error Report": key[7],
             "Comment": key[8]
