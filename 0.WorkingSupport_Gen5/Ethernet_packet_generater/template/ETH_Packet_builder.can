@@ -1,0 +1,28 @@
+/*@!Encoding:1252*/
+includes{
+ 
+}
+variables {
+	 ethernetPacket pkt;
+	 msTimer packageTimer;
+	 char Array_<dbc_message>[<total_length>]={<IPv4_Payload>};                                                                   
+}
+
+on timer packageTimer {
+  
+	  pkt.SetData(0, Array_<dbc_message>, <total_length>); // consider number of array to adapt with type of ETHpacket
+	  pkt.source = EthGetMacAddressAsNumber( "<src_mac>" ); //MAC address can be found in function Bsc0_VariantQm_AssignMACAddress()
+	  pkt.destination = EthGetMacAddressAsNumber( "<dst_mac>" );
+	  pkt.type = <eth_type>;
+	  pkt.CompletePacket();
+	  pkt.msgChannel = %CHANNEL%; // auto select current channel
+	  output( pkt ); //send Ethernet packet
+	  settimer(packageTimer,100);
+  
+}
+on key 'a' 
+{
+	setTimer(packageTimer,100);
+	output( pkt ); 
+}
+
